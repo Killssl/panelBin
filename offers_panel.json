@@ -1,0 +1,2331 @@
+{
+  "rotations": [
+    {
+      "id": "c63313c2",
+      "name": "Betting Rotation",
+      "binom_rotation_id": "117",
+      "geos": [
+        {
+          "id": "1c6df5fb",
+          "name": "1win multigeo (Not CA, Not EU)",
+          "offers": [
+            {
+              "id": "734be8c3",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "4ceff215",
+          "name": "Canada",
+          "offers": [
+            {
+              "id": "d6a6b010",
+              "name": "1win reg form revshare CA",
+              "binom_offer_id": "1450",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T09:49:10.643561+03:00"
+            },
+            {
+              "id": "86c28807",
+              "name": "CAP20 Profitov -11499 Wonaco [CA] ASO Cross",
+              "binom_offer_id": "1507",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T09:49:11.537727+03:00"
+            },
+            {
+              "id": "a1184d88",
+              "name": "CAP20! TheLimitedClub -4921 Vegas Now [CA] ASO iOS",
+              "binom_offer_id": "1476",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T09:49:05.470356+03:00"
+            }
+          ]
+        },
+        {
+          "id": "ebde082f",
+          "name": "European Union",
+          "offers": [
+            {
+              "id": "971729c6",
+              "name": "1win reg form revshare EU crypto",
+              "binom_offer_id": "1458",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": null,
+              "dpu_note": "no_data",
+              "dpu_updated_at": "2026-03-03T09:49:08.947520+03:00"
+            }
+          ]
+        },
+        {
+          "id": "013e1063",
+          "name": "Russia",
+          "offers": [
+            {
+              "id": "b3e9c76d",
+              "name": "CAP100! Olymp Casino -RU - Godlike P REG",
+              "binom_offer_id": "882",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:51.346179+03:00"
+            },
+            {
+              "id": "c40f11cf",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:51.732343+03:00"
+            }
+          ]
+        },
+        {
+          "id": "db572aeb",
+          "name": "Ivory Coast",
+          "offers": [
+            {
+              "id": "a6560b1a",
+              "name": "CAP50-100! DB bet - CI, SN 6,5$",
+              "binom_offer_id": "1539",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.082517918305383,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:51.247236+03:00"
+            },
+            {
+              "id": "a95db780",
+              "name": "1win reg form revshare Africa 1x",
+              "binom_offer_id": "1498",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:53.652955+03:00"
+            },
+            {
+              "id": "2c77ec2d",
+              "name": "TopX RS- new CI REG",
+              "binom_offer_id": "1203",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "14d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:56.456601+03:00"
+            }
+          ]
+        },
+        {
+          "id": "8c6311b8",
+          "name": "Burkina Faso",
+          "offers": [
+            {
+              "id": "1bbd352f",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": -0.023759398496241,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:51.736364+03:00"
+            }
+          ]
+        },
+        {
+          "id": "78ff521a",
+          "name": "Senegal",
+          "offers": [
+            {
+              "id": "535d01f5",
+              "name": "1win reg form revshare Africa 1x",
+              "binom_offer_id": "1498",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:54.572024+03:00"
+            },
+            {
+              "id": "5658be15",
+              "name": "CAP50-100! DB bet - CI, SN 6,5$",
+              "binom_offer_id": "1539",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "e4a89c42",
+              "name": "CAP60!Q3 -2467 Melbet - [ASO]  [SN]",
+              "binom_offer_id": "1171",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.23868077600906,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:48:57.454673+03:00"
+            }
+          ]
+        },
+        {
+          "id": "f6cb4ccf",
+          "name": "Zambia",
+          "offers": [
+            {
+              "id": "484c37f6",
+              "name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "binom_offer_id": "1286",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "45d98149",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "3195cd56",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "725e8e31",
+          "name": "Egypt",
+          "offers": [
+            {
+              "id": "91d2d739",
+              "name": "1win reg form revshare Africa 1x",
+              "binom_offer_id": "1498",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "7d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T09:49:08.951585+03:00"
+            },
+            {
+              "id": "224a8833",
+              "name": "CAP20!- ClickLead -5433_Spinbetter_EG_ASO",
+              "binom_offer_id": "1389",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8759d73e",
+          "name": "Morocco",
+          "offers": [
+            {
+              "id": "52480b99",
+              "name": "CAP50!- ClickLead - 4323_Parimatch_MA_ASO_betting",
+              "binom_offer_id": "1549",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "a51e9e7c",
+              "name": "80ftd!Q3 -2605 Melbet - [MA] Betting",
+              "binom_offer_id": "1116",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "03d00397",
+              "name": "1win reg form revshare Africa 1x",
+              "binom_offer_id": "1498",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "fa79d3d3",
+          "name": "Sierra Leone",
+          "offers": [
+            {
+              "id": "dd336126",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "c06bc7f5",
+          "name": "Benin",
+          "offers": [
+            {
+              "id": "b82c99a2",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "d1b5fe24",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "e12f3718",
+          "name": "Nigeria",
+          "offers": [
+            {
+              "id": "3e171eae",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "7ff0490a",
+          "name": "Algeria",
+          "offers": [
+            {
+              "id": "7f70b085",
+              "name": "1win reg form revshare Africa 1x",
+              "binom_offer_id": "1498",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "189e251d",
+          "name": "Kenya",
+          "offers": [
+            {
+              "id": "56b932f0",
+              "name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "binom_offer_id": "1286",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "5610305f",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "a9554dc4",
+          "name": "DR Congo",
+          "offers": [
+            {
+              "id": "baeed085",
+              "name": "CAP100! Advertise -Mojabet - CD (ASO Chicken)",
+              "binom_offer_id": "894",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "e2f8e6ec",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "e6931a7c",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "7fa9504e",
+          "name": "Cameroon",
+          "offers": [
+            {
+              "id": "9bf5f6d9",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "d162d688",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "3c6d10a4",
+          "name": "Togo",
+          "offers": [
+            {
+              "id": "29fb8d8c",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "371ae9a6",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "83cbe71a",
+          "name": "Guinea",
+          "offers": [
+            {
+              "id": "761ff5fd",
+              "name": "uncap! Advertise -Lonaguibet - GN",
+              "binom_offer_id": "1078",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "e04a7c1d",
+              "name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "binom_offer_id": "1286",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "b05d6eda",
+          "name": "South Africa",
+          "offers": [
+            {
+              "id": "3e436920",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "1eb75d6d",
+              "name": "CAP30!Advertise -Easybet - ZA (ASO cross/slot)",
+              "binom_offer_id": "886",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "bc81d416",
+              "name": "CAP30! Advertise -Rollblock - ZA (ASO)",
+              "binom_offer_id": "1294",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "11f3c05f",
+          "name": "Mozambique",
+          "offers": [
+            {
+              "id": "255b81ee",
+              "name": "CAP500!!Profitov  54  10982 PrideBet [MZ] ASO IOS Crash",
+              "binom_offer_id": "1351",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "2c5b1b46",
+          "name": "Ghana",
+          "offers": [
+            {
+              "id": "1a4edb2a",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "42e728d9",
+              "name": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+              "binom_offer_id": "1497",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "e66a811b",
+              "name": "30ftd!Q3 -2467 Melbet - [ASO]  [GH]",
+              "binom_offer_id": "1170",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "c2764f1a",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8f079ade",
+          "name": "Tanzania",
+          "offers": [
+            {
+              "id": "b48c828e",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "8f481e09",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "53d21761",
+              "name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "binom_offer_id": "1286",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "005d42a0",
+          "name": "Gabon",
+          "offers": [
+            {
+              "id": "e5b5e084",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "afbed093",
+          "name": "Mali",
+          "offers": [
+            {
+              "id": "634a77c9",
+              "name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "binom_offer_id": "1286",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "43336ae2",
+              "name": "Sport main Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia (clone)",
+              "binom_offer_id": "1332",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "991d8d0e",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "6e369f53",
+          "name": "India",
+          "offers": [
+            {
+              "id": "764c2cc1",
+              "name": "30/day! Olymp Casino - IN - Godlike P",
+              "binom_offer_id": "1410",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "b388e815",
+              "name": "CAP50! Profitov -  11085 OLYMP [IN] ASO",
+              "binom_offer_id": "1331",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "1e4b707e",
+              "name": "TopX RS- IN Reg",
+              "binom_offer_id": "1411",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "93d6c8f7",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "9b25fc3e",
+          "name": "Uzbekistan",
+          "offers": [
+            {
+              "id": "3be9c13f",
+              "name": "CAP100! Olymp Casino -UZ reg - Godlike P",
+              "binom_offer_id": "1054",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "506a23b5",
+              "name": "1win reg form revshare UZ",
+              "binom_offer_id": "346",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "d44fbe32",
+          "name": "Nepal",
+          "offers": [
+            {
+              "id": "9c023716",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "e34b6eeb",
+          "name": "Philippines",
+          "offers": [
+            {
+              "id": "0e2791da",
+              "name": "CAP30!Advertise - Melbet -PH",
+              "binom_offer_id": "1091",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "c5ed7549",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "ead8f181",
+          "name": "Indonesia",
+          "offers": [
+            {
+              "id": "390b6c7d",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "451a1dcf",
+          "name": "Malaysia",
+          "offers": [
+            {
+              "id": "bd52acae",
+              "name": "CAP50!- ClickLead - 6064_DK88_MY_betting_50$",
+              "binom_offer_id": "1547",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "9a72e3d5",
+              "name": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+              "binom_offer_id": "1437",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "af52deed",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "fb6295b6",
+              "name": "CAP30 Profitov -11455 Longfu88 [MY] ASO Slots/Cross",
+              "binom_offer_id": "1502",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "bfdd2606",
+          "name": "Sri Lanka",
+          "offers": [
+            {
+              "id": "dd345764",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "619d69d4",
+          "name": "Bangladesh",
+          "offers": [
+            {
+              "id": "07706937",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "332432dd",
+              "name": "CAP50! Olymp Casino - BD reg - Godlike P",
+              "binom_offer_id": "1053",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "9ee7fc2e",
+              "name": "50ftd!- ClickLead -  6042_Kheli.bet_BD_ASO_sport",
+              "binom_offer_id": "1520",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "69ca6fe6",
+          "name": "Pakistan",
+          "offers": [
+            {
+              "id": "750a0092",
+              "name": "CAP20! 5660 Betzo PK 20USD",
+              "binom_offer_id": "1545",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "604af27c",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8314697a",
+          "name": "Kazakhstan",
+          "offers": [
+            {
+              "id": "36997d5d",
+              "name": "Betwinner Partners KZ - Sport main",
+              "binom_offer_id": "1333",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:24:10.754095+03:00"
+            }
+          ]
+        },
+        {
+          "id": "dfbd0f72",
+          "name": "Tajikistan",
+          "offers": [
+            {
+              "id": "fb20cfff",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "9709a1a3",
+          "name": "Kyrgyzstan",
+          "offers": [
+            {
+              "id": "43e036fd",
+              "name": "CAP70! Olymp Casino -KG - Godlike P",
+              "binom_offer_id": "674",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "ffba9590",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "eb09a4f0",
+          "name": "Armenia",
+          "offers": [
+            {
+              "id": "4cb2545f",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "ee584e29",
+              "name": "CAP20! 3SNET 2440 BetWinner AM",
+              "binom_offer_id": "1380",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "b0af5868",
+              "name": "CAP50ftd!  Profitov 11130 JugaBet [AR] ASO Cross",
+              "binom_offer_id": "1385",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "a640b52d",
+          "name": "Azerbaijan",
+          "offers": [
+            {
+              "id": "186ac193",
+              "name": "CAP20! Olymp Casino - AZ - Godlike P",
+              "binom_offer_id": "670",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "63f68449",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "ade81e10",
+          "name": "Moldova",
+          "offers": [
+            {
+              "id": "8d638b18",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "4db9d8bf",
+          "name": "Ukraine",
+          "offers": [
+            {
+              "id": "34619562",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "97f0574b",
+          "name": "Poland",
+          "offers": [
+            {
+              "id": "657b81e0",
+              "name": "Savaspin - PL - ToTheMoonAffs",
+              "binom_offer_id": "429",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "2661e373",
+              "name": "WinAirlines Reg Page SLOT AT BE CZ DE GR  HU IE IT PL SK SI ES CH",
+              "binom_offer_id": "1268",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "f77fe5c0",
+          "name": "Latvia",
+          "offers": [
+            {
+              "id": "64fa219d",
+              "name": "25ftdl! Profitov -10600 Pistolo [LV] ASO IOS Crash",
+              "binom_offer_id": "1165",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "9227d34d",
+          "name": "Lithuania",
+          "offers": [
+            {
+              "id": "e1ad4f14",
+              "name": "CAP30!Advertise - Vulkan Spiele - LT (ASO Chicken)",
+              "binom_offer_id": "586",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:24:24.451885+03:00"
+            }
+          ]
+        },
+        {
+          "id": "b21267fd",
+          "name": "United Kingdom UK",
+          "offers": [
+            {
+              "id": "75daff2f",
+              "name": "CAP15!Bass.win - UK  bet",
+              "binom_offer_id": "1470",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 5.5813953488372,
+              "dpu_period": "30d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T01:24:24.266222+03:00"
+            },
+            {
+              "id": "aceb9f18",
+              "name": "CAP20! TheLimitedClub - 4814 Beonbet [UK] ASO cross",
+              "binom_offer_id": "1471",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": 0.0,
+              "dpu_period": "30d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T01:24:24.269235+03:00"
+            }
+          ]
+        },
+        {
+          "id": "5bb2c2aa",
+          "name": "France",
+          "offers": [
+            {
+              "id": "7edb919c",
+              "name": "30ftd!11435 Amonbet [FR] ASO Android Cross-brand Sport",
+              "binom_offer_id": "1448",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "641e487d",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "734ffd17",
+          "name": "Germany",
+          "offers": [
+            {
+              "id": "14310539",
+              "name": "Piperspin Reg  -DE - ToTheMoonAffs",
+              "binom_offer_id": "1137",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "6db99745",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "7ef8d284",
+              "name": "CAP20!Q3 - 3671 Boomzino - [ASO]",
+              "binom_offer_id": "1491",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8989feee",
+          "name": "Italy",
+          "offers": [
+            {
+              "id": "f629f449",
+              "name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1266",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "5c90fe1d",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "b276c68e",
+              "name": "Piperspin Reg - IT - ToTheMoonAffs",
+              "binom_offer_id": "1141",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "3dbdf087",
+          "name": "Austria",
+          "offers": [
+            {
+              "id": "58254a41",
+              "name": "Savaspin - AT - ToTheMoonAffs",
+              "binom_offer_id": "423",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "7a2ba8f1",
+              "name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1266",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "fc6a589f",
+              "name": "WinAirlines Reg Page SLOT AT BE CZ DE GR  HU IE IT PL SK SI ES CH",
+              "binom_offer_id": "1268",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "ec877052",
+          "name": "Czechia",
+          "offers": [
+            {
+              "id": "4fb4cb2d",
+              "name": "CAP20! FCP - Morospin | CZ | 160 EUR | ASO | Betting",
+              "binom_offer_id": "1289",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "295aa8b1",
+          "name": "Australia",
+          "offers": [
+            {
+              "id": "cd432a13",
+              "name": "CAP20! TheLimitedClub -4920 Vegas Now [AU] ASO iOS",
+              "binom_offer_id": "1475",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "b04664e3",
+          "name": "United States",
+          "offers": [
+            {
+              "id": "784c469f",
+              "name": "+100! 9063 -  Profitov Bovada [US] ASO IOS Brand (clone)",
+              "binom_offer_id": "1136",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "70344893",
+              "name": "CAP50! Advertise  Bovada - US (ASO cross/slot)",
+              "binom_offer_id": "1436",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "7850acf5",
+              "name": "20ftd!Q3 - 3890 BetOnline [US] - [ASO]",
+              "binom_offer_id": "1488",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "ab203f08",
+          "name": "South Korea",
+          "offers": [
+            {
+              "id": "0bfdd3ea",
+              "name": "30!Advertise -Spinmama - KR",
+              "binom_offer_id": "1055",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "1b32caf1",
+              "name": "CAP30!Advertise - KoiFortune - KR (ASO cross/slot)",
+              "binom_offer_id": "1473",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "648ca709",
+          "name": "The Netherlands",
+          "offers": [
+            {
+              "id": "f09f7334",
+              "name": "XL.Partners - Winzoria NL Reg Page",
+              "binom_offer_id": "1166",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "4b2f9ffd",
+              "name": "CAP20!Advertise Carlospin - NL (ASO Betting)",
+              "binom_offer_id": "1449",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "4733edc7",
+              "name": "CAP20!9914 Poko.bet [NL] ASO Cross-brand",
+              "binom_offer_id": "902",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "66df5e09",
+              "name": "CAP30!11518 Amonbet [NL] ASO IOS Cross-brand Sport",
+              "binom_offer_id": "1462",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "a1dd2df8",
+          "name": "Spain",
+          "offers": [
+            {
+              "id": "c646568c",
+              "name": "CAP20 Profitov -11383 FatPirate [ES] ASO Cross/Slots",
+              "binom_offer_id": "1503",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "7105f5a8",
+          "name": "Türkiye",
+          "offers": [
+            {
+              "id": "5dca8466",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": -0.19076923076923,
+              "dpu_period": "30d",
+              "dpu_note": null,
+              "dpu_updated_at": "2026-03-03T01:23:49.647514+03:00"
+            },
+            {
+              "id": "edff3885",
+              "name": "25!!Profitov -10856 JoinBet [TR] ASO Cross",
+              "binom_offer_id": "1442",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:23:51.957347+03:00"
+            },
+            {
+              "id": "8884c7fe",
+              "name": "CAP50!Advertise -VegasSlot - TR (ASO cross/slot)",
+              "binom_offer_id": "1468",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:23:54.967190+03:00"
+            },
+            {
+              "id": "b9d19ddc",
+              "name": "CAP15!Q3 - 3986 [PRIVATE] Bahsegel - [ASO]",
+              "binom_offer_id": "1514",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:23:55.650736+03:00"
+            },
+            {
+              "id": "a5d769f9",
+              "name": "CAP15!Q3 - 3988 [PRIVATE] Rokubet - [ASO]",
+              "binom_offer_id": "1513",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active",
+              "dpu": null,
+              "dpu_period": "7d",
+              "dpu_note": "insufficient_data",
+              "dpu_updated_at": "2026-03-03T01:23:55.966314+03:00"
+            }
+          ]
+        },
+        {
+          "id": "9f20cdc2",
+          "name": "Japan",
+          "offers": [
+            {
+              "id": "99cffbdd",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "3019f2d4",
+          "name": "Sweden",
+          "offers": [
+            {
+              "id": "cc534976",
+              "name": "CAP50! Advertise -Glitchspin Casino - SE",
+              "binom_offer_id": "1099",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "6ea73a5a",
+              "name": "CAP20!Huffson - VERDE - SE 250 Slots",
+              "binom_offer_id": "1337",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "c439e2e0",
+          "name": "Belgium",
+          "offers": [
+            {
+              "id": "681b8656",
+              "name": "Piperspin Reg - BE - ToTheMoonAffs",
+              "binom_offer_id": "1139",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "41154b9d",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "bdf2b8e1",
+          "name": "Switzerland",
+          "offers": [
+            {
+              "id": "a0ad3331",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "c0624aa9",
+              "name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1266",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "b18244fc",
+          "name": "Romania",
+          "offers": [
+            {
+              "id": "876c4a96",
+              "name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "binom_offer_id": "1074",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "c97ed24b",
+          "name": "Brazil",
+          "offers": [
+            {
+              "id": "31eb7f96",
+              "name": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+              "binom_offer_id": "662",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 6,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "631af5b6",
+              "name": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+              "binom_offer_id": "1443",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "5ac04373",
+              "name": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+              "binom_offer_id": "1535",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 3,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "84d34a31",
+              "name": "CAP300! VidaVegas - BR (ASO)",
+              "binom_offer_id": "1469",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "ab3fd1d8",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "7f051264",
+          "name": "Argentina",
+          "offers": [
+            {
+              "id": "6c341047",
+              "name": "CAP20!- ClickLead -6031_Apuesta360_AR_ASO",
+              "binom_offer_id": "1372",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "06dd212c",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "95cabef2",
+              "name": "TopX RS- AR REG",
+              "binom_offer_id": "1363",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "94b0e75e",
+              "name": "30ftd!! Profitov -11063 FragaBet [AR] ASO IOS Cross-brand",
+              "binom_offer_id": "1303",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "f897d133",
+          "name": "Mexico",
+          "offers": [
+            {
+              "id": "8576c0cf",
+              "name": "CAP30!Advertise - Apuesta360 - MX  all flows",
+              "binom_offer_id": "916",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 1,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "847f1032",
+          "name": "Chile",
+          "offers": [
+            {
+              "id": "756ff973",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "9846cf23",
+              "name": "CAP200! Profitov -  8102 JugaBet [CL] ASO IOS Cross Sport",
+              "binom_offer_id": "1356",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "1b7ff5a3",
+          "name": "Colombia",
+          "offers": [
+            {
+              "id": "4ba34807",
+              "name": "CAP20!- ClickLead -6031_Apuesta360_CO_ASO",
+              "binom_offer_id": "1371",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "96c14164",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "1f4391c2",
+          "name": "Venezuela",
+          "offers": [
+            {
+              "id": "6d2052d3",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8c7b66b8",
+          "name": "Cambodia",
+          "offers": [
+            {
+              "id": "82aecd18",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "8146b307",
+          "name": "Saudi Arabia",
+          "offers": [
+            {
+              "id": "2898d6c4",
+              "name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "binom_offer_id": "1016",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "73001ecd",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "4eeb4897",
+          "name": "United Arab Emirates",
+          "offers": [
+            {
+              "id": "b43e9af8",
+              "name": "CAP20 Profitov -11622 CasinoLab [AE] ASO Slots",
+              "binom_offer_id": "1511",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "9de049a7",
+              "name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "binom_offer_id": "1016",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "bf4162b4",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "9770cdcd",
+          "name": "Qatar",
+          "offers": [
+            {
+              "id": "7a170d56",
+              "name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "binom_offer_id": "1016",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            },
+            {
+              "id": "f255ac9d",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        },
+        {
+          "id": "4f5f51b4",
+          "name": "Turkmenistan",
+          "offers": [
+            {
+              "id": "9c577fcb",
+              "name": "1win reg form revshare WW",
+              "binom_offer_id": "20",
+              "rotation_id": "117",
+              "cap": null,
+              "rate": null,
+              "currency": "USD",
+              "filled_cap": 0,
+              "filled_cap_manual": null,
+              "status": "active"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
