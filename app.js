@@ -123,7 +123,10 @@ async function fetchJsonSafe(url, opts = {}) {
     headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
     ...opts,
   };
-  const r = await fetch(url, options);
+  // Префикс берём из window.APP_PREFIX (инжектируется сервером из .env)
+  const prefix = (window.APP_PREFIX || "").replace(/\/$/, "");
+  const fullUrl = prefix + url;
+  const r = await fetch(fullUrl, options);
   const text = await r.text();
   if (text.trim().startsWith("<")) throw new Error(`Сервер вернул HTML вместо JSON: ${url}`);
   let json;
@@ -1250,9 +1253,9 @@ function initWeeklyUniques() {
 
 // Группы ротаций — загружаем из localStorage или дефолт
 const DEFAULT_MERGE_GROUPS = [
-  { label: "Casino / Fortune Tiger", rotations: ["casino", "fortune tiger"] },
+  { label: "Casino", rotations: ["casino", "fortune tiger"] },
   { label: "Betting",                rotations: ["betting", "betano"] },
-  { label: "Crash / Plinko",         rotations: ["crash", "plinko"] },
+  { label: "Crash",         rotations: ["crash", "plinko"] },
 ];
 
 function loadMergeGroups() {

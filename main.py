@@ -1,7 +1,7 @@
 from datetime import datetime
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, Response
 
-from config import PORT, LOCAL_TZ
+from config import PORT, LOCAL_TZ, APP_PREFIX
 from routes_rotations import bp as bp_rotations
 from routes_panel     import bp as bp_panel
 from routes_reports   import bp as bp_reports
@@ -24,7 +24,12 @@ def _after(resp):
 
 @app.get("/")
 def index():
-    return send_from_directory(".", "index.html")
+    with open("index.html", "r", encoding="utf-8") as f:
+        html = f.read()
+    # Инжектируем префикс чтобы JS знал под каким путём работает приложение
+    inject = f'<script>window.APP_PREFIX = "{APP_PREFIX}";</script>'
+    html = html.replace("</head>", inject + "\n</head>", 1)
+    return Response(html, mimetype="text/html")
 
 @app.get("/styles.css")
 def styles():
@@ -44,6 +49,7 @@ def ping():
         "ok": True,
         "server_time_local": datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S"),
         "binom_base": BINOM_BASE,
+        "app_prefix": APP_PREFIX,
     })
 
 
@@ -57,4 +63,17 @@ app.register_blueprint(bp_reports)
 # ---------- Run ----------
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    if APP_PREFIX:
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware
+        from werkzeug.serving import run_simple
+        from flask import Flask as _Flask, redirect
+        _root = _Flask("root")
+
+        @_root.route("/")
+        def _redirect_root():
+            return redirect(APP_PREFIX + "/")
+
+        wrapped = DispatcherMiddleware(_root, {APP_PREFIX: app})
+        run_simple("0.0.0.0", PORT, wrapped, use_reloader=False)
+    else:
+        app.run(host="0.0.0.0", port=PORT, debug=False)
