@@ -43,12 +43,8 @@ def extract_rows(raw: Any) -> List[Dict]:
 
 def extract_dpu_from_row(row: Dict[str, Any]) -> Tuple[float, int]:
     """Возвращает (dpu, unique_campaign_clicks) из строки Binom."""
-    uniq = 0
-    for fld in ("unique_campaign_clicks", "uniqueCampaignClicks",
-                "uniqueClicksCampaign", "unique_clicks_campaign"):
-        if fld in row:
-            uniq = _to_int(row[fld])
-            break
+    uniq = _to_int(row.get("unique_campaign_clicks") or 0)
+
 
     dpu = None
     for k, v in row.items():
@@ -154,18 +150,12 @@ def invalidate_offer_cache(offer_id: str, rotation_id: str = "") -> None:
 
 
 def _find_geo_row(pack: Dict, rotation_id: str, geo_name: str) -> Optional[Dict]:
-    """
-    Ищет строку страны в иерархии rotation(level=1) → geoCountry(level=2).
-    Если в ответе только одна ротация — не фильтруем по rotation_id.
-    """
     if not pack or not pack.get("_ok"):
         return None
     rows = extract_rows(pack.get("_data", {}))
 
-    # Резолвим geo_name в официальное название Binom ("Turkey" → "Türkiye")
     try:
         from geo_map import resolve_geo_name
-        from cache import get_country_map
         geo_name = resolve_geo_name(geo_name, get_country_map())
     except ImportError:
         pass
@@ -173,53 +163,12 @@ def _find_geo_row(pack: Dict, rotation_id: str, geo_name: str) -> Optional[Dict]
     geo_want = geo_name.strip().lower()
     rid_want = str(rotation_id).strip() if rotation_id else ""
 
-    def _extract_iso(s: str) -> set:
-        """Извлекает 2-буквенные ISO коды из строки."""
-        codes = set()
-        for part in s.replace("/", " ").split():
-            if len(part) == 2 and part.isalpha():
-                codes.add(part.lower())
-        return codes
-
-    geo_codes = _extract_iso(geo_want)
-
-    # Карта code→name для поиска официального имени из report row
-    cmap = get_country_map()  # "TR" → "Türkiye"
-    # Обратная карта: official_name.lower() → code
-    name_to_code = {v.lower(): k for k, v in cmap.items()}
-    # Код для нашего geo_want (панель хранит официальные имена после синхронизации)
-    geo_want_code = name_to_code.get(geo_want, "")
-
-    def _geo_match(name: str) -> bool:
-        n = name.strip().lower()
-        # Точное совпадение
-        if n == geo_want:
-            return True
-        # ISO код из названия в отчёте совпадает с кодом нашего GEO
-        if geo_want_code:
-            n_codes = _extract_iso(n)
-            if geo_want_code.lower() in n_codes:
-                return True
-        # ISO коды из обеих строк пересекаются
-        if geo_codes:
-            n_codes = _extract_iso(n)
-            if geo_codes & n_codes:
-                return True
-        # Официальное имя row совпадает с нашим geo_want
-        row_code = name_to_code.get(n, "")
-        if row_code and row_code.lower() in geo_codes:
-            return True
-        # Фоллбэк: вхождение
-        if geo_want and (n in geo_want or geo_want in n):
-            return True
-        return False
-
-    # Считаем сколько уникальных ротаций в ответе
+    # Считаем ротации в ответе
     rot_ids = set()
     for row in rows:
         if isinstance(row, dict) and str(row.get("level", "")).strip() == "1":
             rot_ids.add(str(row.get("entity_id") or "").strip())
-    single_rotation = len(rot_ids) <= 1  # если одна (или ноль) — фильтр не нужен
+    single_rotation = len(rot_ids) <= 1
 
     cur_rot_id = None
     for row in rows:
@@ -230,7 +179,7 @@ def _find_geo_row(pack: Dict, rotation_id: str, geo_name: str) -> Optional[Dict]
             cur_rot_id = str(row.get("entity_id") or "").strip()
         elif level == "2":
             name = str(row.get("name", "")).strip().lower()
-            if _geo_match(name):
+            if name == geo_want:
                 if not single_rotation and rid_want and cur_rot_id != rid_want:
                     print(f"[geo_row] SKIP geo={name} rot={cur_rot_id!r} want_rot={rid_want!r}", flush=True)
                     continue
@@ -242,20 +191,22 @@ def _find_geo_row(pack: Dict, rotation_id: str, geo_name: str) -> Optional[Dict]
 
 
 def _fetch_period_pack(offer_id: str, rotation_id: str, pname: str, preset: str) -> Tuple[str, Any]:
-    """Один запрос одного периода. report/offer + rotation+geoCountry. Кешируется."""
     cache_key = f"panel_dpu10:{offer_id}:{rotation_id}:{preset}"
     pack = cache_get(cache_key)
     if pack is None:
         pairs = [
-            ("datePreset",  preset),
-            ("timezone",    "Europe/Moscow"),
+            ("datePreset", preset),
+            ("timezone", "Europe/Moscow"),
             ("groupings[]", "rotation"),
             ("groupings[]", "geoCountry"),
-            ("sortColumn",  "clicks"),
-            ("sortType",    "desc"),
-            ("limit",       "5000"),
-            ("ids[]",       str(offer_id)),
+            ("sortColumn", "clicks"),
+            ("sortType", "desc"),
+            ("limit", "5000"),
+            ("ids[]", str(offer_id)),
         ]
+        # Фильтруем по ротации если знаем ID
+        if rotation_id:
+            pairs.append(("filters[rotation_id][]", str(rotation_id)))
         try:
             r    = binom_get_pairs("/public/api/v1/report/offer", pairs)
             pack = {"_ok": r.ok, "_data": _safe_json(r), "_rotation_id": int(rotation_id) if rotation_id else None}
@@ -266,10 +217,6 @@ def _fetch_period_pack(offer_id: str, rotation_id: str, pname: str, preset: str)
 
 
 def calc_dpu_for_panel_offer(offer_id: str, geo_name: str, rotation_id: str = "") -> Dict[str, Any]:
-    """
-    DPU для оффера панели — периоды последовательно 7d→14d→30d→this_year→all_time.
-    Останавливается на первом периоде с uniq >= MIN_UNIQ.
-    """
     best: Optional[Dict[str, Any]] = None
 
     for pname, preset in PERIODS:
@@ -278,13 +225,19 @@ def calc_dpu_for_panel_offer(offer_id: str, geo_name: str, rotation_id: str = ""
         if not row:
             print(f"[dpu] offer={offer_id} geo={geo_name} rid={rotation_id} period={pname} → no row", flush=True)
             continue
+
         dpu, uniq = extract_dpu_from_row(row)
         print(f"[dpu] offer={offer_id} geo={geo_name} rid={rotation_id} period={pname} → uniq={uniq} dpu={dpu:.4f}", flush=True)
-        if uniq >= MIN_UNIQ:
+
+        # Достаточно уников — берём этот период
+        if uniq >= MIN_UNIQ and dpu > 0:
             return {"dpu": dpu, "period": pname, "unique_clicks": uniq}
+
+        # Мало уников — запоминаем и идём дальше
         if uniq > 0 and best is None:
             best = {"dpu": None, "period": pname, "unique_clicks": uniq, "note": "insufficient_data"}
 
+    # Ни один период не набрал 80 уников
     if best:
         return best
     return {"dpu": None, "period": None, "unique_clicks": 0, "note": "no_data"}

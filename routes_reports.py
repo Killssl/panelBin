@@ -13,6 +13,14 @@ bp = Blueprint("reports", __name__)
 # GEO которые исключаем из Weekly Uniques
 EXCLUDED_GEOS = {"RU", "RUSSIA", "RUSSIA RU"}
 
+# Подстроки в названии кампании — исключаем при включённом фильтре
+EXCLUDED_CAMPAIGN_KEYWORDS = ("1xbet", "1x",)
+
+
+def _is_1x_campaign(name: str) -> bool:
+    n = name.lower()
+    return any(kw in n for kw in EXCLUDED_CAMPAIGN_KEYWORDS)
+
 
 def _now_local_str() -> str:
     return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S")
@@ -38,9 +46,23 @@ def api_weekly_uniques():
     if not date_from or not date_to:
         return make_response(jsonify({"ok": False, "error": "date_from and date_to required"}), 400)
 
-    campaign_ids = get_all_campaign_ids()
-    if not campaign_ids:
+    exclude_1x = request.args.get("exclude_1x", "false").strip().lower() == "true"
+
+    from cache import get_all_campaigns
+    all_campaigns = get_all_campaigns()
+    if not all_campaigns:
         return make_response(jsonify({"ok": False, "error": "Не удалось получить список кампаний"}), 500)
+
+    if exclude_1x:
+        filtered     = [c for c in all_campaigns if not _is_1x_campaign(c["name"])]
+        excluded_campaigns = [c["name"] for c in all_campaigns if _is_1x_campaign(c["name"])]
+    else:
+        filtered           = all_campaigns
+        excluded_campaigns = []
+
+    campaign_ids = [c["id"] for c in filtered]
+    if not campaign_ids:
+        return make_response(jsonify({"ok": False, "error": "Все кампании исключены фильтром"}), 400)
 
     pairs = [
         ("datePreset",  "custom_time"),
@@ -93,8 +115,14 @@ def api_weekly_uniques():
         rot["countries"].sort(key=lambda x: x["uniq"], reverse=True)
 
     return jsonify({
-        "ok": True, "date_from": date_from, "date_to": date_to,
-        "min_uniq": min_uniq, "rotations": rotations,
+        "ok":                True,
+        "date_from":         date_from,
+        "date_to":           date_to,
+        "min_uniq":          min_uniq,
+        "rotations":         rotations,
+        "exclude_1x":        exclude_1x,
+        "excluded_campaigns": excluded_campaigns,
+        "excluded_count":    len(excluded_campaigns),
         "server_time_local": _now_local_str(),
     })
 
@@ -109,9 +137,23 @@ def api_report_cap():
     if not date_from or not date_to:
         return make_response(jsonify({"ok": False, "error": "date_from and date_to required"}), 400)
 
-    campaign_ids = get_all_campaign_ids()
-    if not campaign_ids:
+    exclude_1x = request.args.get("exclude_1x", "false").strip().lower() == "true"
+
+    from cache import get_all_campaigns
+    all_campaigns = get_all_campaigns()
+    if not all_campaigns:
         return make_response(jsonify({"ok": False, "error": "Не удалось получить список кампаний"}), 500)
+
+    if exclude_1x:
+        filtered     = [c for c in all_campaigns if not _is_1x_campaign(c["name"])]
+        excluded_campaigns = [c["name"] for c in all_campaigns if _is_1x_campaign(c["name"])]
+    else:
+        filtered           = all_campaigns
+        excluded_campaigns = []
+
+    campaign_ids = [c["id"] for c in filtered]
+    if not campaign_ids:
+        return make_response(jsonify({"ok": False, "error": "Все кампании исключены фильтром"}), 400)
 
     pairs = [
         ("datePreset",  "custom_time"),
@@ -288,4 +330,148 @@ def api_debug_dpu_offer():
     return jsonify({
         "method1": {"ok": r1.ok, "total_rows": len(rows1), "target": target1, "first": rows1[0] if rows1 else None},
         "method2": {"ok": r2.ok, "total_rows": len(rows2), "target": target2},
+    })
+
+# ---------- No Perform Report ----------
+
+NO_PERFORM_MIN_UNIQ = 20
+
+NO_PERFORM_PERIODS = [
+    ("yesterday", "yesterday"),
+    ("3d",        "last_3_days"),
+    ("7d",        "last_7_days"),
+    ("14d",       "last_14_days"),
+    ("30d",       "last_30_days"),
+    ("this_year", "this_year"),
+]
+
+NO_PERFORM_EXCLUDE_KEYWORDS = (
+    "alfa", "vtb", "sber", "tinkoff", "rafinad", "mir ",
+    "tbank", "t-bank", "t bank",
+    "zaim", "kredit", "credit", "loan", "finance", "profit family",
+    "revshare", "rev share", "rev_share",
+    "multilink", "smartlink", "adultforce", "imonetize",
+)
+
+def _is_excluded_offer(name: str) -> bool:
+    return any(kw in name.lower() for kw in NO_PERFORM_EXCLUDE_KEYWORDS)
+
+
+@bp.get("/api/report/no_perform")
+def api_report_no_perform():
+    campaign_ids = get_all_campaign_ids()
+    if not campaign_ids:
+        return make_response(jsonify({"ok": False, "error": "Не удалось получить список кампаний"}), 500)
+
+    def _fetch_period(preset: str) -> List[Dict]:
+        pairs = [
+            ("datePreset",  preset),
+            ("timezone",    "Europe/Moscow"),
+            ("groupings[]", "offer"),
+            ("groupings[]", "geoCountry"),
+            ("sortColumn",  "unique_campaign_clicks"),
+            ("sortType",    "desc"),
+            ("limit",       "5000"),
+            ("offset",      "0"),
+        ] + [("ids[]", cid) for cid in campaign_ids]
+        try:
+            r   = binom_get_pairs("/public/api/v1/report/campaign", pairs)
+            raw = _safe_json(r)
+            return extract_rows(raw) if r.ok else []
+        except Exception:
+            return []
+
+    # Шаг 1: получаем список офферов с ≥ MIN_UNIQ за yesterday
+    yesterday_rows = _fetch_period("yesterday")
+    fd_key_y = next((_find_fd_key(r) for r in yesterday_rows if _find_fd_key(r)), None)
+
+    # offer_key (offer_id:geo) → базовая инфа
+    base_offers: Dict[str, Any] = {}
+    cur_offer_id = cur_offer_name = cur_network = None
+
+    for row in yesterday_rows:
+        if not isinstance(row, dict):
+            continue
+        level = str(row.get("level") or "").strip()
+        name  = str(row.get("name") or "").strip()
+        eid   = str(row.get("entity_id") or "")
+
+        if level == "1":
+            if _is_excluded_offer(name):
+                cur_offer_id = None
+                continue
+            cur_offer_id   = eid
+            cur_offer_name = name
+            cur_network    = str(row.get("affiliateNetworkName") or "")
+        elif level == "2" and cur_offer_id:
+            uniq = _to_int(row.get("unique_campaign_clicks") or 0)
+            if uniq < NO_PERFORM_MIN_UNIQ:
+                continue
+            reg  = _to_int(row.get("leads") or 0)
+            fd   = _to_int(row.get(fd_key_y) or 0) if fd_key_y else 0
+            rev  = float(str(row.get("revenue") or "0").replace(",", ".") or 0)
+            key  = f"{cur_offer_id}:{name}"
+            base_offers[key] = {
+                "offer_id":   cur_offer_id,
+                "offer_name": cur_offer_name,
+                "network":    cur_network,
+                "geo":        name,
+                "periods":    [{
+                    "period":  "yesterday",
+                    "uniq":    uniq,
+                    "reg":     reg,
+                    "fd":      fd,
+                    "reg_pct": round(reg / uniq * 100, 2) if uniq else 0,
+                    "dpu":     round(rev / uniq, 4) if uniq else 0,
+                    "epc":     round(rev / uniq, 4) if uniq else 0,
+                }],
+            }
+
+    if not base_offers:
+        return jsonify({"ok": True, "count": 0, "offers": [],
+                        "server_time_local": _now_local_str()})
+
+    # Шаг 2: догружаем остальные периоды только для найденных офферов
+    for pname, preset in NO_PERFORM_PERIODS[1:]:  # пропускаем yesterday
+        rows = _fetch_period(preset)
+        fd_key = next((_find_fd_key(r) for r in rows if _find_fd_key(r)), None)
+        cur_oid = cur_oname = cur_net = None
+
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            level = str(row.get("level") or "").strip()
+            name  = str(row.get("name") or "").strip()
+            eid   = str(row.get("entity_id") or "")
+
+            if level == "1":
+                cur_oid   = eid
+                cur_oname = name
+                cur_net   = str(row.get("affiliateNetworkName") or "")
+            elif level == "2" and cur_oid:
+                key = f"{cur_oid}:{name}"
+                if key not in base_offers:
+                    continue
+                uniq = _to_int(row.get("unique_campaign_clicks") or 0)
+                reg  = _to_int(row.get("leads") or 0)
+                fd   = _to_int(row.get(fd_key) or 0) if fd_key else 0
+                rev  = float(str(row.get("revenue") or "0").replace(",", ".") or 0)
+                base_offers[key]["periods"].append({
+                    "period":  pname,
+                    "uniq":    uniq,
+                    "reg":     reg,
+                    "fd":      fd,
+                    "reg_pct": round(reg / uniq * 100, 2) if uniq else 0,
+                    "dpu":     round(rev / uniq, 4) if uniq else 0,
+                    "epc":     round(rev / uniq, 4) if uniq else 0,
+                })
+
+    offers = sorted(base_offers.values(), key=lambda x: -x["periods"][0]["uniq"])
+
+    return jsonify({
+        "ok":          True,
+        "count":       len(offers),
+        "min_uniq":    NO_PERFORM_MIN_UNIQ,
+        "offers":      offers,
+        "server_time_local": _now_local_str(),
     })

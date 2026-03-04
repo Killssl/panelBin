@@ -140,3 +140,43 @@ def get_country_map() -> dict:
             pass
 
     return _COUNTRY_MAP_CACHE
+
+
+_CAMPAIGNS_CACHE: Optional[List[Dict]] = None
+_CAMPAIGNS_CACHE_TS: float = 0
+
+
+def get_all_campaigns() -> List[Dict]:
+    """Получаем все кампании с id и name. Кешируется на 5 минут."""
+    global _CAMPAIGNS_CACHE, _CAMPAIGNS_CACHE_TS
+    if _CAMPAIGNS_CACHE is not None and (time.time() - _CAMPAIGNS_CACHE_TS) < _CAMPAIGN_IDS_TTL:
+        return _CAMPAIGNS_CACHE
+
+    result: List[Dict] = []
+    offset = 0
+    limit  = 500
+    while True:
+        r = binom_get("/public/api/v1/campaign/list/filtered",
+                      params={"limit": limit, "offset": offset})
+        if not r.ok:
+            break
+        data = _safe_json(r)
+        if isinstance(data, list):
+            items = data
+        elif isinstance(data, dict):
+            items = data.get("data") or data.get("items") or data.get("result") or []
+        else:
+            break
+        if not isinstance(items, list) or not items:
+            break
+        for item in items:
+            if isinstance(item, dict) and item.get("id") is not None:
+                result.append({"id": str(item["id"]), "name": str(item.get("name") or "")})
+        if len(items) < limit:
+            break
+        offset += limit
+
+    if result:
+        _CAMPAIGNS_CACHE    = result
+        _CAMPAIGNS_CACHE_TS = time.time()
+    return result

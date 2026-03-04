@@ -1822,3 +1822,22 @@ body {
 .sync-rot-id   { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); }
 .sync-loading  { color: var(--muted); padding: 20px; text-align: center; }
 .sync-error    { color: var(--red); padding: 20px; text-align: center; }
+.wmeta-excluded { color: #f87171; font-size: .85em; }
+.weekly-toggle { display:flex; align-items:center; gap:5px; font-size:.9em; cursor:pointer; color:#94a3b8; }
+.weekly-toggle input { cursor:pointer; }
+.np-row-expandable { cursor: pointer; }
+.np-row-expandable:hover { background: #1e293b; }
+.np-row-open .np-chevron { color: #6da0ff; }
+.np-chevron { color: #94a3b8; font-size: .7em; }
+.np-detail-cell { padding: 0 !important; background: #0f172a; }
+.np-periods-table { width: 100%; border-collapse: collapse; }
+.np-period-row td { padding: 4px 8px; font-size: .85em; border-bottom: 1px solid #1e293b; }
+.np-period-best { background: #1e293b; color: #e2e8f0; }
+.np-period-label { color: #94a3b8; padding-left: 32px !important; }
+.np-zero { color: #f87171; font-weight: 700; }
+.np-bad  { color: #fb923c; font-weight: 600; }
+.np-warn { color: #fbbf24; }
+.np-low-data { color: #94a3b8; font-size: .8em; margin-left: 3px; }
+.np-offer { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-period-tag { color: #64748b; font-size: .8em; }
+.np-table-wrap { overflow-x: auto; }

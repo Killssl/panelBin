@@ -1231,6 +1231,9 @@ function initWeeklyUniques() {
         <label>С <input type="date" id="wDateFrom" class="date-inp"></label>
         <label>По <input type="date" id="wDateTo" class="date-inp"></label>
         <label>Мин. уников <input type="number" id="wMinUniq" value="100" min="1" class="num-inp"></label>
+        <label class="weekly-toggle" title="Исключить кампании 1xBet / 1x">
+          <input type="checkbox" id="wExclude1x"> Без 1x
+        </label>
         <button class="btn primary" id="wRunBtn">Запустить</button>
         <button class="btn" id="wCloseBtn">✕</button>
       </div>
@@ -1330,7 +1333,8 @@ async function runWeeklyReport() {
 
   try {
     // Запрашиваем с min_uniq=1 — фильтрацию делаем сами после слияния
-    const url = `/api/report/weekly_uniques?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}&min_uniq=1`;
+    const exclude1x = document.getElementById("wExclude1x")?.checked ? "true" : "false";
+    const url = `/api/report/weekly_uniques?date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}&min_uniq=1&exclude_1x=${exclude1x}`;
     const { r, json } = await fetchJsonSafe(url);
     if (!r.ok || !json.ok) throw new Error(json?.error || "failed");
 
@@ -1356,6 +1360,9 @@ async function runWeeklyReport() {
         <span>Ротаций: <b>${rotations.length}</b></span>
         <span class="wmeta-sep">|</span>
         <span>GEO: <b>${totalCountries}</b></span>
+        ${json.excluded_count > 0
+          ? `<span class="wmeta-sep">|</span><span class="wmeta-excluded">🚫 1x: <b>${json.excluded_count}</b> кампаний исключено</span>`
+          : ""}
       </div>
       <div class="weekly-cards">
         ${rotations.map(rot => {
@@ -2456,6 +2463,236 @@ function initFdHistory() {
   document.getElementById("fdHistSearch").addEventListener("input", () => loadFdHistory());
   loadFdHistory();
 }
+
+
+// ─── No Perform Report ───────────────────────────────────────────────────────
+
+function initNoPerformPanel() {
+  if (document.getElementById("noPerformPanel")) {
+    document.getElementById("noPerformPanel").style.display = "flex";
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.id = "noPerformPanel";
+  panel.className = "weekly-panel";
+  panel.innerHTML = `
+    <div class="weekly-header">
+      <span class="weekly-title">🚫 No Perform</span>
+      <div class="weekly-controls">
+        <span class="np-hint">Офферы с рег% &lt; 5% (от 20 уников, до 100+ уников)</span>
+        <button class="btn primary" id="npRunBtn">Запустить</button>
+        <button class="btn" id="npCloseBtn">✕</button>
+      </div>
+    </div>
+    <div id="npResult" class="weekly-result"></div>
+  `;
+  document.body.appendChild(panel);
+
+  document.getElementById("npRunBtn").addEventListener("click", runNoPerformReport);
+  document.getElementById("npCloseBtn").addEventListener("click", () => {
+    panel.style.display = "none";
+  });
+}
+
+// ─── No Perform Report ───────────────────────────────────────────────────────
+
+function initNoPerformPanel() {
+  if (document.getElementById("noPerformPanel")) {
+    document.getElementById("noPerformPanel").style.display = "flex";
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.id = "noPerformPanel";
+  panel.className = "weekly-panel";
+  panel.innerHTML = `
+    <div class="weekly-header">
+      <span class="weekly-title">🚫 No Perform</span>
+      <div class="weekly-controls">
+        <span class="np-hint">рег% &lt; 5% · от 20 уников · исключены банки/revshare</span>
+        <button class="btn primary" id="npRunBtn">Запустить</button>
+        <button class="btn" id="npCloseBtn">✕</button>
+      </div>
+    </div>
+    <div id="npResult" class="weekly-result"></div>
+  `;
+  document.body.appendChild(panel);
+
+  document.getElementById("npRunBtn").addEventListener("click", runNoPerformReport);
+  document.getElementById("npCloseBtn").addEventListener("click", () => {
+    panel.style.display = "none";
+  });
+
+  document.getElementById("npResult").addEventListener("click", (e) => {
+    const row = e.target.closest(".np-row-expandable");
+    if (!row) return;
+    const key    = row.dataset.expandable;
+    const detail = document.querySelector(`.np-detail-row[data-for="${key}"]`);
+    if (!detail) return;
+    const isOpen = detail.style.display !== "none";
+    detail.style.display = isOpen ? "none" : "table-row";
+    const chevron = row.querySelector(".np-chevron");
+    if (chevron) chevron.textContent = isOpen ? "▶" : "▼";
+  });
+}
+
+// ─── No Perform Report ───────────────────────────────────────────────────────
+
+function initNoPerformPanel() {
+  if (document.getElementById("noPerformPanel")) {
+    document.getElementById("noPerformPanel").style.display = "flex";
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.id = "noPerformPanel";
+  panel.className = "weekly-panel";
+  panel.innerHTML = `
+    <div class="weekly-header">
+      <span class="weekly-title">🚫 No Perform</span>
+      <div class="weekly-controls">
+        <span class="np-hint">Офферы с ≥20 уников за вчера</span>
+        <button class="btn primary" id="npRunBtn">Запустить</button>
+        <button class="btn" id="npCloseBtn">✕</button>
+      </div>
+    </div>
+    <div id="npResult" class="weekly-result"></div>
+  `;
+  document.body.appendChild(panel);
+
+  document.getElementById("npRunBtn").addEventListener("click", runNoPerformReport);
+  document.getElementById("npCloseBtn").addEventListener("click", () => {
+    panel.style.display = "none";
+  });
+
+  // Делегирование — раскрытие строк
+  document.getElementById("npResult").addEventListener("click", (e) => {
+    const row = e.target.closest(".np-row-expandable");
+    if (!row) return;
+    const key    = row.dataset.key;
+    const detail = document.querySelector(`.np-detail-row[data-for="${key}"]`);
+    if (!detail) return;
+    const isOpen = detail.style.display !== "none";
+    detail.style.display = isOpen ? "none" : "table-row";
+    const chevron = row.querySelector(".np-chevron");
+    if (chevron) chevron.textContent = isOpen ? "▶" : "▼";
+  });
+}
+
+async function runNoPerformReport() {
+  const result = document.getElementById("npResult");
+  const btn    = document.getElementById("npRunBtn");
+
+  btn.disabled    = true;
+  btn.textContent = "...";
+  result.innerHTML = `<div class="muted">Загружаем данные Binom… (10–30 сек)</div>`;
+
+  try {
+    const { r, json } = await fetchJsonSafe("/api/report/no_perform");
+    if (!r.ok || !json.ok) throw new Error(json?.error || "failed");
+
+    if (!json.offers.length) {
+      result.innerHTML = `<div class="muted">Нет офферов с ≥${json.min_uniq} уников за вчера</div>`;
+      return;
+    }
+
+    const tbody = json.offers.map((o, idx) => {
+      const key  = `np_${idx}`;
+      const yest = o.periods[0]; // всегда yesterday
+
+      const regCls = (p) => p.reg_pct === 0 ? "np-zero" : p.reg_pct < 2 ? "np-bad" : p.reg_pct < 5 ? "np-warn" : "";
+
+      // Строки периодов в раскрытом блоке
+      const periodRows = o.periods.map(p => `
+        <tr class="np-period-row">
+          <td class="np-period-label">${escapeHtml(p.period)}</td>
+          <td class="num">${p.uniq.toLocaleString()}</td>
+          <td class="num">${p.reg}</td>
+          <td class="num ${regCls(p)}">${p.reg_pct}%</td>
+          <td class="num">${p.fd}</td>
+          <td class="num">$${p.dpu.toFixed(3)}</td>
+          <td class="num">$${p.epc.toFixed(3)}</td>
+        </tr>`).join("");
+
+      return `
+        <tr class="np-row np-row-expandable" data-key="${key}">
+          <td class="np-chevron">▶</td>
+          <td class="np-offer" title="${escapeHtml(o.offer_name)}">${escapeHtml(o.offer_name)}</td>
+          <td class="np-geo">${escapeHtml(o.geo)}</td>
+          <td class="np-net">${escapeHtml(o.network || "—")}</td>
+          <td class="num"><b>${yest.uniq.toLocaleString()}</b></td>
+          <td class="num">${yest.reg}</td>
+          <td class="num ${regCls(yest)}">${yest.reg_pct}%</td>
+          <td class="num">${yest.fd}</td>
+          <td class="num">$${yest.dpu.toFixed(3)}</td>
+        </tr>
+        <tr class="np-detail-row" data-for="${key}" style="display:none">
+          <td colspan="9" class="np-detail-cell">
+            <table class="np-periods-table">
+              <thead>
+                <tr>
+                  <th>Период</th>
+                  <th class="num">Uniq</th>
+                  <th class="num">Reg</th>
+                  <th class="num">Рег%</th>
+                  <th class="num">FD</th>
+                  <th class="num">DPU</th>
+                  <th class="num">EPC</th>
+                </tr>
+              </thead>
+              <tbody>${periodRows}</tbody>
+            </table>
+          </td>
+        </tr>`;
+    }).join("");
+
+    result.innerHTML = `
+      <div class="weekly-meta">
+        <span>Офферов: <b>${json.count}</b></span>
+        <span class="wmeta-sep">|</span>
+        <span>Мин. уников (yesterday): <b>${json.min_uniq}</b></span>
+        <span class="wmeta-sep">|</span>
+        <span class="np-time">${escapeHtml(json.server_time_local)}</span>
+      </div>
+      <div class="np-table-wrap">
+        <table class="an-table np-table">
+          <thead>
+            <tr>
+              <th style="width:20px"></th>
+              <th>Оффер</th>
+              <th>GEO</th>
+              <th>Сеть</th>
+              <th class="num">Uniq</th>
+              <th class="num">Reg</th>
+              <th class="num">Рег%</th>
+              <th class="num">FD</th>
+              <th class="num">DPU</th>
+            </tr>
+          </thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    result.innerHTML = `<div class="muted">Ошибка: ${escapeHtml(e.message)}</div>`;
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = "Запустить";
+  }
+}
+
+(function injectNoPerformBtn() {
+  const btn = document.createElement("button");
+  btn.className = "btn np-open-btn";
+  btn.textContent = "🚫 No Perform";
+  btn.addEventListener("click", () => {
+    initNoPerformPanel();
+    document.getElementById("noPerformPanel").style.display = "flex";
+  });
+  const filterRow = document.querySelector(".filter-row") || document.querySelector(".controls");
+  if (filterRow) filterRow.appendChild(btn);
+  else document.body.insertBefore(btn, document.body.firstChild);
+})();
 
 async function loadFdHistory() {
   const body = document.getElementById("fdHistBody");

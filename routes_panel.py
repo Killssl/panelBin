@@ -188,7 +188,7 @@ def api_panel_offer_recalc_dpu(oid: str):
                 if not bid:
                     return jsonify({"ok": False, "error": "no binom_offer_id"})
                 try:
-                    rid = rot.get("binom_rotation_id", "")
+                    rid = off.get("rotation_id", "") or rot.get("binom_rotation_id", "")
                     invalidate_offer_cache(bid, rid)
                     res = calc_dpu_for_panel_offer(bid, geo["name"], rotation_id=rid)
                     print(f"[recalc] offer={bid} geo={geo['name']} rid={rid!r} → dpu={res.get('dpu')} period={res.get('period')} uniq={res.get('unique_clicks')} note={res.get('note')}", flush=True)
@@ -200,7 +200,6 @@ def api_panel_offer_recalc_dpu(oid: str):
                 except Exception as e:
                     return jsonify({"ok": False, "error": str(e)})
     return jsonify({"ok": False, "error": "offer not found"})
-
 
 # ---------- REFRESH ----------
 
@@ -474,14 +473,11 @@ def api_panel_sync_from_binom():
             rule_title = str(rule.get("name") or "ALL").strip()
             # Извлекаем ISO код из названия rule: "Turkey TR" → "TR"
             # Ищем 2-буквенный код в конце или через /
-            geo_name = rule_title
-            parts = rule_title.replace("/", " ").split()
-            for part in reversed(parts):
-                if len(part) == 2 and part.isalpha():
-                    official = country_map.get(part.upper())
-                    if official:
-                        geo_name = official  # "Türkiye", "Philippines" etc.
-                    break
+            from geo_map import is_multigeo_rule, resolve_geo_name
+            if is_multigeo_rule(rule_title):
+                continue
+
+            geo_name = resolve_geo_name(rule_title, country_map)
             _process_paths(rule.get("paths") or [], geo_name)
 
         # Убираем пустые GEO
