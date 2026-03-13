@@ -232,7 +232,7 @@
     "max_cap": 20
   },
   "CAP100! Advertise -Mojabet - CD (ASO Chicken)": {
-    "in_threshold": true,
+    "in_threshold": false,
     "max_cap": 100
   },
   "CAP50! 5455 MOJABET CD -Democratic Republic of Congo": {
@@ -900,7 +900,7 @@
     "max_cap": 20
   },
   "300ftd!Profitov - 10652 SlotLair [FR] ASO IOS Cross-brand Slots": {
-    "in_threshold": true,
+    "in_threshold": false,
     "max_cap": 30
   },
   "CAP20! Profitov -  11154 Slotmonkey [FR] ASO IOS Slots": {

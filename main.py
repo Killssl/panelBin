@@ -39,11 +39,11 @@ def login_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not session.get("logged_in"):
-            return redirect("/login")
+            return redirect(APP_PREFIX + "/login")
         # Если сессия из прошлого месяца — сбрасываем
         if session.get("month") != datetime.now().strftime("%Y-%m"):
             session.clear()
-            return redirect("/login")
+            return redirect(APP_PREFIX + "/login")
         return fn(*args, **kwargs)
     return wrapper
 
@@ -53,8 +53,8 @@ def login_required(fn):
 @app.get("/login")
 def login_page():
     if session.get("logged_in"):
-        return redirect("/")
-    return render_template("login.html")
+        return redirect(APP_PREFIX + "/")
+    return render_template("login.html", app_prefix=APP_PREFIX)
 
 
 @app.post("/login")
@@ -76,7 +76,7 @@ def login_post():
 @app.get("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect(APP_PREFIX + "/login")
 
 
 # ---------- Pages ----------

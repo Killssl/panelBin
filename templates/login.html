@@ -102,6 +102,7 @@
 
     .error.show { display: block; }
   </style>
+  <script>window.APP_PREFIX = "{{ app_prefix }}";</script>
 </head>
 <body>
   <div class="login-box">
@@ -132,7 +133,8 @@
       btn.disabled = true;
 
       try {
-        const r = await fetch('/login', {
+        const prefix = (window.APP_PREFIX || '').replace(/\/$/, '');
+        const r = await fetch(prefix + '/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -142,7 +144,7 @@
         });
         const j = await r.json();
         if (j.ok) {
-          window.location.href = '/';
+          window.location.href = prefix + '/';
         } else {
           err.textContent = j.error || 'Неверный логин или пароль';
           err.classList.add('show');

@@ -13,8 +13,8 @@ log = logging.getLogger("tg_alerts")
 BOT_TOKEN  = os.getenv("BOT_TOKEN", "")
 TG_CHAT_ID = os.getenv("TG_CHAT_ID", "")
 
-# Порог — слать когда осталось <= 20% от капы
-ALERT_THRESHOLD_PCT = 0.20
+# Порог — слать когда осталось <= 10% от капы
+ALERT_THRESHOLD_PCT = 0.10
 
 # Файл с состоянием предыдущего синка
 _STATE_FILE = os.path.join(os.path.dirname(__file__), "../../data/tg_alerts_state.json")
@@ -54,7 +54,7 @@ def check_cap_alerts(updated: list):
     """
     updated — список dict из sync_from_cap_report.
     Шлёт алерт когда:
-    1. Оффер впервые входит в зону порога (remain <= 20%)
+    1. Оффер впервые входит в зону порога (remain <= 10%)
     2. Кап изменился и оффер снова в зоне порога
     """
     if not updated:

@@ -17,6 +17,8 @@ const ADM = {
 
 const h = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const _PREFIX = (window.APP_PREFIX || '').replace(/\/$/, '');
+
 async function admApi(method, path, body) {
   const opts = {
     method,
@@ -27,7 +29,7 @@ async function admApi(method, path, body) {
   };
   if (body !== undefined) opts.body = JSON.stringify(body);
   try {
-    const r = await fetch(path, opts);
+    const r = await fetch(_PREFIX + path, opts);
     return r.json();
   } catch (e) {
     return { ok: false, error: String(e) };
@@ -62,7 +64,7 @@ document.addEventListener('keydown', e => {
 (async function autoFetchSessionToken() {
   if (ADM.token) return; // уже есть
   try {
-    const r = await fetch('/api/auth/session_token');
+    const r = await fetch(_PREFIX + '/api/auth/session_token');
     if (r.ok) {
       const j = await r.json();
       if (j.ok && j.token) {
@@ -991,7 +993,7 @@ function openSheetsSyncPanel() {
 async function ssEnsureToken() {
   if (ADM.token) return true;
   try {
-    const r = await fetch('/api/auth/session_token');
+    const r = await fetch(_PREFIX + '/api/auth/session_token');
     if (r.ok) {
       const j = await r.json();
       if (j.ok && j.token) {
