@@ -1,0 +1,1362 @@
+[
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP70!Advertise Harry Casino - UK (ASO slot / cross)",
+    "offer_id": "1183",
+    "rotation": "Casino  rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 20,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "50ftd!Q3 -3204 LuckyWave crash - [ASO] [UK]",
+    "offer_id": "1173",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 29,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "15/day! Profitov -9256 SlotLair [UK] ASO IOS Crash",
+    "offer_id": "1256",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 1,
+    "cap": 15
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "Uncap! Chicken 2005524  FR - ASO - Dragonia - 160 REG - 247Partners",
+    "offer_id": "1344",
+    "rotation": "Crash Rotation",
+    "geo": "France",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "France",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Canada",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "Piperspin Chicken  -DE - ToTheMoonAffs",
+    "offer_id": "1138",
+    "rotation": "Crash Rotation",
+    "geo": "Germany",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Germany",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Austria",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Switzerland",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Belgium",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Denmark",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "Piperspin-Chicken IT - ToTheMoonAffs",
+    "offer_id": "1142",
+    "rotation": "Crash Rotation",
+    "geo": "Italy",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Italy",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "Piperspin -Chicken ES - ToTheMoonAffs",
+    "offer_id": "1143",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 2,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "WinAirlines Reg Page ES CHICKEN 160eur",
+    "offer_id": "800",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Norway",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Finland",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Luxembourg",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Liechtenstein",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Poland",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Czechia",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Romania",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Hungary",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Slovenia",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Portugal",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Croatia",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Slovakia",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+    "offer_id": "1497",
+    "rotation": "Crash Rotation",
+    "geo": "Ghana",
+    "delta": 6,
+    "total": 6,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+    "offer_id": "662",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 2,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "offer_id": "1535",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+    "offer_id": "1443",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP50!1xbet- IN 40usd",
+    "offer_id": "937",
+    "rotation": "Crash Rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP100!1xbet- MY 55usd",
+    "offer_id": "939",
+    "rotation": "Crash Rotation",
+    "geo": "Malaysia",
+    "delta": 2,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+    "offer_id": "1437",
+    "rotation": "Crash Rotation",
+    "geo": "Malaysia",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP50!- ClickLead - 6042 Kheli.bet ASO iOS CHICKEN Reg Form BD",
+    "offer_id": "1278",
+    "rotation": "Crash Rotation",
+    "geo": "Bangladesh",
+    "delta": 1,
+    "total": 5,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "CAP100! Olymp Casino -UZ - Godlike P",
+    "offer_id": "673",
+    "rotation": "Crash Rotation",
+    "geo": "Uzbekistan",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 00:32",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Greece",
+    "delta": 5,
+    "total": 5,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+    "offer_id": "1497",
+    "rotation": "Betting Rotation",
+    "geo": "Ghana",
+    "delta": 4,
+    "total": 18,
+    "cap": 70
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50! Profitov -  11085 OLYMP [IN] ASO",
+    "offer_id": "1331",
+    "rotation": "Betting Rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 3,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! VidaVegas - BR (ASO)",
+    "offer_id": "1469",
+    "rotation": "Betting Rotation",
+    "geo": "Brazil",
+    "delta": 2,
+    "total": 256,
+    "cap": 300
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+    "offer_id": "662",
+    "rotation": "Betting Rotation",
+    "geo": "Brazil",
+    "delta": 7,
+    "total": 32,
+    "cap": 400
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "offer_id": "1535",
+    "rotation": "Betting Rotation",
+    "geo": "Brazil",
+    "delta": 1,
+    "total": 40,
+    "cap": 100
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+    "offer_id": "1443",
+    "rotation": "Betting Rotation",
+    "geo": "Brazil",
+    "delta": 6,
+    "total": 63,
+    "cap": 300
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP70!Advertise Harry Casino - UK (ASO slot / cross)",
+    "offer_id": "1183",
+    "rotation": "Casino  rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 21,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP30!Advertise Casinova - FI (ASO slot)",
+    "offer_id": "1274",
+    "rotation": "Casino  rotation",
+    "geo": "Finland",
+    "delta": 1,
+    "total": 4,
+    "cap": 30
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50! Profitov -  11085 OLYMP [IN] ASO",
+    "offer_id": "1331",
+    "rotation": "Casino  rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+    "offer_id": "1443",
+    "rotation": "Casino  rotation",
+    "geo": "Brazil",
+    "delta": 6,
+    "total": 6,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+    "offer_id": "662",
+    "rotation": "Casino  rotation",
+    "geo": "Brazil",
+    "delta": 7,
+    "total": 7,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg Slot",
+    "offer_id": "1499",
+    "rotation": "Casino  rotation",
+    "geo": "Brazil",
+    "delta": 1,
+    "total": 6,
+    "cap": 200
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "offer_id": "1535",
+    "rotation": "Casino  rotation",
+    "geo": "Brazil",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! VidaVegas - BR (ASO)",
+    "offer_id": "1469",
+    "rotation": "Casino  rotation",
+    "geo": "Brazil",
+    "delta": 2,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Casino  rotation",
+    "geo": "Argentina",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "DEFAULT",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "50ftd!Q3 -3204 LuckyWave crash - [ASO] [UK]",
+    "offer_id": "1173",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 2,
+    "total": 31,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "15/day! Profitov -9256 SlotLair [UK] ASO IOS Crash",
+    "offer_id": "1256",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 2,
+    "total": 3,
+    "cap": 15
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "Uncap! Chicken 2005524  FR - ASO - Dragonia - 160 REG - 247Partners",
+    "offer_id": "1344",
+    "rotation": "Crash Rotation",
+    "geo": "France",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "France",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP20! Westar CA  145 USD",
+    "offer_id": "1616",
+    "rotation": "Crash Rotation",
+    "geo": "Canada",
+    "delta": 1,
+    "total": 1,
+    "cap": 20
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Canada",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "Piperspin Chicken  -DE - ToTheMoonAffs",
+    "offer_id": "1138",
+    "rotation": "Crash Rotation",
+    "geo": "Germany",
+    "delta": 4,
+    "total": 7,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Germany",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Austria",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Switzerland",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Belgium",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Denmark",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "Piperspin-Chicken IT - ToTheMoonAffs",
+    "offer_id": "1142",
+    "rotation": "Crash Rotation",
+    "geo": "Italy",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Italy",
+    "delta": 6,
+    "total": 11,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "Piperspin -Chicken ES - ToTheMoonAffs",
+    "offer_id": "1143",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 2,
+    "total": 4,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "WinAirlines Reg Page ES CHICKEN 160eur",
+    "offer_id": "800",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Spain",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "Piperspin Crash  - NO- ToTheMoonAffs 180Euro",
+    "offer_id": "1624",
+    "rotation": "Crash Rotation",
+    "geo": "Norway",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Norway",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP30!Advertise Casinova - FI (ASO slot)",
+    "offer_id": "1274",
+    "rotation": "Crash Rotation",
+    "geo": "Finland",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Finland",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Luxembourg",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Liechtenstein",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Poland",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Czechia",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Romania",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+    "offer_id": "1269",
+    "rotation": "Crash Rotation",
+    "geo": "Hungary",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Hungary",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Slovenia",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+    "offer_id": "1269",
+    "rotation": "Crash Rotation",
+    "geo": "Portugal",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Portugal",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Türkiye",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Croatia",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Slovakia",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Egypt",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50-70!Advertise -Mojabet - CD (ASO chicken)",
+    "offer_id": "1161",
+    "rotation": "Crash Rotation",
+    "geo": "DR Congo",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "South Africa",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Nigeria",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+    "offer_id": "1497",
+    "rotation": "Crash Rotation",
+    "geo": "Ghana",
+    "delta": 10,
+    "total": 16,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Ivory Coast",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Senegal",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "United Arab Emirates",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Saudi Arabia",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Kuwait",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Bahrain",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+    "offer_id": "662",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 9,
+    "total": 11,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "offer_id": "1535",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 4,
+    "total": 7,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+    "offer_id": "1443",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 7,
+    "total": 8,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP300! VidaVegas - BR (ASO)",
+    "offer_id": "1469",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 2,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Brazil",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Mexico",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50!1xbet- IN 40usd",
+    "offer_id": "937",
+    "rotation": "Crash Rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50! Profitov -  11085 OLYMP [IN] ASO",
+    "offer_id": "1331",
+    "rotation": "Crash Rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 1,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "India",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP100!1xbet- MY 55usd",
+    "offer_id": "939",
+    "rotation": "Crash Rotation",
+    "geo": "Malaysia",
+    "delta": 2,
+    "total": 4,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+    "offer_id": "1437",
+    "rotation": "Crash Rotation",
+    "geo": "Malaysia",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Malaysia",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP50!- ClickLead - 6042 Kheli.bet ASO iOS CHICKEN Reg Form BD",
+    "offer_id": "1278",
+    "rotation": "Crash Rotation",
+    "geo": "Bangladesh",
+    "delta": 1,
+    "total": 6,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Bangladesh",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Pakistan",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Nepal",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Philippines",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Sri Lanka",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Russia",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Armenia",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Georgia",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "CAP100! Olymp Casino -UZ - Godlike P",
+    "offer_id": "673",
+    "rotation": "Crash Rotation",
+    "geo": "Uzbekistan",
+    "delta": 1,
+    "total": 2,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Uzbekistan",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "1win reg form revshare WW",
+    "offer_id": "20",
+    "rotation": "Crash Rotation",
+    "geo": "Kazakhstan",
+    "delta": 3,
+    "total": 3,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:36",
+    "offer": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+    "offer_id": "1075",
+    "rotation": "Crash Rotation",
+    "geo": "Greece",
+    "delta": 5,
+    "total": 10,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:40",
+    "offer": "CAP100! Olymp Casino -UZ - Godlike P",
+    "offer_id": "673",
+    "rotation": "Crash Rotation",
+    "geo": "Uzbekistan",
+    "delta": 116,
+    "total": 118,
+    "cap": null
+  },
+  {
+    "ts": "2026-03-08 19:46",
+    "offer": "15/day! Profitov -9256 SlotLair [UK] ASO IOS Crash",
+    "offer_id": "1256",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 4,
+    "cap": 15
+  },
+  {
+    "ts": "2026-03-08 20:06",
+    "offer": "CAP100! Olymp Casino -UZ reg - Godlike P",
+    "offer_id": "1054",
+    "rotation": "Betting Rotation",
+    "geo": "Uzbekistan",
+    "delta": 8,
+    "total": 118,
+    "cap": 150
+  },
+  {
+    "ts": "2026-03-08 20:06",
+    "offer": "CAP30!Advertise - Apuesta360 - MX  all flows",
+    "offer_id": "916",
+    "rotation": "Betting Rotation",
+    "geo": "Mexico",
+    "delta": 9,
+    "total": 21,
+    "cap": 30
+  },
+  {
+    "ts": "2026-03-08 20:06",
+    "offer": "CAP50!1xbet- TR 65usd",
+    "offer_id": "941",
+    "rotation": "Casino  rotation",
+    "geo": "Türkiye",
+    "delta": 1,
+    "total": 10,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 20:06",
+    "offer": "CAP50!1xbet- IN 40usd",
+    "offer_id": "937",
+    "rotation": "Casino  rotation",
+    "geo": "India",
+    "delta": 1,
+    "total": 4,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 20:07",
+    "offer": "CAP100! Olymp Casino -UZ reg - Godlike P",
+    "offer_id": "1054",
+    "rotation": "Betting Rotation",
+    "geo": "Uzbekistan",
+    "delta": 2,
+    "total": 110,
+    "cap": 150
+  },
+  {
+    "ts": "2026-03-08 20:07",
+    "offer": "CAP50!Advertise -VegasSlot - TR (ASO cross/slot)",
+    "offer_id": "1468",
+    "rotation": "Betting Rotation",
+    "geo": "Türkiye",
+    "delta": 2,
+    "total": 16,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 20:07",
+    "offer": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+    "offer_id": "1016",
+    "rotation": "Betting Rotation",
+    "geo": "United Arab Emirates",
+    "delta": 9,
+    "total": 10,
+    "cap": 50
+  },
+  {
+    "ts": "2026-03-08 20:07",
+    "offer": "CAP100!1xbet- UZ 15usd",
+    "offer_id": "943",
+    "rotation": "Casino  rotation",
+    "geo": "Uzbekistan",
+    "delta": 1,
+    "total": 3,
+    "cap": 100
+  },
+  {
+    "ts": "2026-03-08 20:11",
+    "offer": "50ftd!Q3 -3204 LuckyWave crash - [ASO] [UK]",
+    "offer_id": "1173",
+    "rotation": "Crash Rotation",
+    "geo": "United Kingdom",
+    "delta": 1,
+    "total": 30,
+    "cap": 50
+  }
+]

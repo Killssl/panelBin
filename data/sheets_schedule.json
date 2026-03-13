@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "interval_minutes": 10,
+  "sheet_name": "all"
+}

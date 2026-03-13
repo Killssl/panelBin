@@ -1,0 +1,5935 @@
+{
+  "rotations": [
+    {
+      "id": "118",
+      "name": "Casino  rotation",
+      "geos": [
+        {
+          "name": "Belgium BE",
+          "offers": [
+            {
+              "offer_id": "681",
+              "offer_name": "UncapMorospin - FCP Partners - BE €250 Slots/Cross",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 272
+              }
+            },
+            {
+              "offer_id": "765",
+              "offer_name": "New Oscarspin - Chilly P - BE reg 250 €",
+              "weight": 90,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 292
+              }
+            },
+            {
+              "offer_id": "804",
+              "offer_name": "WinAirlines Reg Page SLOT BE 240eur",
+              "weight": 90,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 282
+              }
+            },
+            {
+              "offer_id": "1139",
+              "offer_name": "Piperspin Reg - BE - ToTheMoonAffs",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 189
+              }
+            },
+            {
+              "offer_id": "1346",
+              "offer_name": "2005528  AT BE IE CA - ASO - Frumzi - 250 [SLOT] - 247Partners",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 293
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1347",
+              "offer_name": "2005528  AT BE IE CA - ASO - Dragonia- 250 [SLOT] - 247Partners",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 291
+              }
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "1348",
+              "offer_name": "2005526  AT BE IE CA - ASO - RoboCat - 250 [SLOT] REG- 247Partners",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 297
+              }
+            }
+          ]
+        },
+        {
+          "name": "Germany DE",
+          "offers": [
+            {
+              "offer_id": "1317",
+              "offer_name": "Uncap! Morospin - FCP Partners - DE €350 Slots/Cross betting reg",
+              "weight": 120,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 415
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "802",
+              "offer_name": "WinAirlines Reg Page SLOT DE 240eur",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 285
+              }
+            },
+            {
+              "offer_id": "1137",
+              "offer_name": "Piperspin Reg  -DE - ToTheMoonAffs",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            },
+            {
+              "offer_id": "1491",
+              "offer_name": "CAP20!Q3 - 3671 Boomzino - [ASO]",
+              "weight": 60,
+              "cap": 20,
+              "filled": 3,
+              "remain": 17,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Brazil BR",
+          "offers": [
+            {
+              "offer_id": "1535",
+              "offer_name": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+              "weight": 100,
+              "cap": 100,
+              "filled": 70,
+              "remain": 30,
+              "rate": {
+                "currency": "€",
+                "value": 22
+              }
+            },
+            {
+              "offer_id": "662",
+              "offer_name": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+              "weight": 80,
+              "cap": 400,
+              "filled": 143,
+              "remain": 257,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1443",
+              "offer_name": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+              "weight": 70,
+              "cap": 300,
+              "filled": 210,
+              "remain": 90,
+              "rate": {
+                "currency": "$",
+                "value": 16
+              }
+            },
+            {
+              "offer_id": "1645",
+              "offer_name": "CAP50!- ClickLead - 6189_DBBet_BR_ASO_cross 25 USD",
+              "weight": 60,
+              "filled": 1
+            },
+            {
+              "offer_id": "1499",
+              "offer_name": "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg Slot",
+              "weight": 60,
+              "cap": 200,
+              "filled": 16,
+              "remain": 184,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1651",
+              "offer_name": "CAP20! 5723 WinCraft CPA BR - 25 USD Casino",
+              "weight": 60
+            },
+            {
+              "offer_id": "1649",
+              "offer_name": "CAP30!Profitov -11933 WinCraft [BR] ASO Cross-brand 25 USD",
+              "weight": 60,
+              "filled": 2
+            },
+            {
+              "offer_id": "1469",
+              "offer_name": "CAP300! VidaVegas - BR (ASO)",
+              "weight": 60,
+              "cap": 300,
+              "filled": 272,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 23
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Canada CA",
+          "offers": [
+            {
+              "offer_id": "1314",
+              "offer_name": "Morospin - FCP Partners - CA €200 Slots/Cross Ferrari promo",
+              "weight": 110,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 244
+              }
+            },
+            {
+              "offer_id": "1346",
+              "offer_name": "2005528  AT BE IE CA - ASO - Frumzi - 250 [SLOT] - 247Partners",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 293
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1347",
+              "offer_name": "2005528  AT BE IE CA - ASO - Dragonia- 250 [SLOT] - 247Partners",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 291
+              }
+            },
+            {
+              "offer_id": "1109",
+              "offer_name": "CAP20!Advertise -Spinmama -CA REG",
+              "weight": 60,
+              "cap": 20,
+              "filled": 9,
+              "remain": 11,
+              "rate": {
+                "currency": "$",
+                "value": 186
+              }
+            },
+            {
+              "offer_id": "1476",
+              "offer_name": "CAP20! TheLimitedClub -4921 Vegas Now [CA] ASO iOS",
+              "weight": 60,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 260
+              }
+            },
+            {
+              "offer_id": "1450",
+              "offer_name": "1win reg form revshare CA",
+              "weight": 50,
+              "filled": 0
+            },
+            {
+              "offer_id": "922",
+              "offer_name": "CAP20!Advertise Glitchspin Casino - CA ( slot+cross)",
+              "weight": 30,
+              "cap": 20,
+              "filled": 7,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 231
+              }
+            },
+            {
+              "offer_id": "1348",
+              "offer_name": "2005526  AT BE IE CA - ASO - RoboCat - 250 [SLOT] REG- 247Partners",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 297
+              }
+            }
+          ]
+        },
+        {
+          "name": "Austria AT",
+          "offers": [
+            {
+              "offer_id": "680",
+              "offer_name": "Uncap!Morospin - FCP Partners - AT €280 Slots/Cross",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 280
+              }
+            },
+            {
+              "offer_id": "1346",
+              "offer_name": "2005528  AT BE IE CA - ASO - Frumzi - 250 [SLOT] - 247Partners",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 293
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1627",
+              "offer_name": "Piperspin Casino - AT - ToTheMoonAffs 260Euro",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1347",
+              "offer_name": "2005528  AT BE IE CA - ASO - Dragonia- 250 [SLOT] - 247Partners",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 291
+              }
+            },
+            {
+              "offer_id": "514",
+              "offer_name": "CAP30!  Spinit AT- 7starsP - 200 CPA",
+              "weight": 60,
+              "cap": 30,
+              "filled": 7,
+              "remain": 23,
+              "rate": {
+                "currency": "€",
+                "value": 200
+              }
+            },
+            {
+              "offer_id": "1348",
+              "offer_name": "2005526  AT BE IE CA - ASO - RoboCat - 250 [SLOT] REG- 247Partners",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 297
+              }
+            }
+          ]
+        },
+        {
+          "name": "Italy IT",
+          "offers": [
+            {
+              "offer_id": "751",
+              "offer_name": "Uncap!Morospin - FCP Partners -IT €170 Slots/Cross",
+              "weight": 110,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 198
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1141",
+              "offer_name": "Piperspin Reg - IT - ToTheMoonAffs",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 166
+              }
+            },
+            {
+              "offer_id": "1536",
+              "offer_name": "Padrino Partners - Needforslots PT PL RO IT",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "806",
+              "offer_name": "WinAirlines Reg Page SLOT IT 200eur",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "720",
+              "offer_name": "CAP40! TheLimitedClub - 3456 Wildsino [IT] ASO",
+              "weight": 40,
+              "cap": 40,
+              "filled": 4,
+              "remain": 36,
+              "rate": {
+                "currency": "$",
+                "value": 270
+              }
+            }
+          ]
+        },
+        {
+          "name": "France FR",
+          "offers": [
+            {
+              "offer_id": "1345",
+              "offer_name": "Uncap! Slot  2005523  FR - Dragonia - 180 REG - 247Partners",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1328",
+              "offer_name": "300ftd!Profitov - 10652 SlotLair [FR] ASO IOS Cross-brand Slots",
+              "weight": 100,
+              "cap": 30,
+              "filled": 23,
+              "remain": 7,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1296",
+              "offer_name": "Betmen Affs - SpinGranny  FR 160",
+              "weight": 50,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 186
+              }
+            },
+            {
+              "offer_id": "1182",
+              "offer_name": "20ftd!3SNET -(5531) Slott CPA FR",
+              "weight": 40
+            },
+            {
+              "offer_id": "1354",
+              "offer_name": "CAP20!Q3 -3804 Hidden jack casino - [ASO]  [FR]",
+              "weight": 35,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 209
+              }
+            },
+            {
+              "offer_id": "1330",
+              "offer_name": "300ftd!Profitov - 10654 Amonbet [FR] ASO IOS Cross-brand Slots",
+              "weight": 35,
+              "cap": 30,
+              "filled": 13,
+              "remain": 17,
+              "rate": {
+                "currency": "$",
+                "value": 176
+              }
+            },
+            {
+              "offer_id": "1358",
+              "offer_name": "CAP20! Profitov -  11154 Slotmonkey [FR] ASO IOS Slots",
+              "weight": 30,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 213
+              }
+            },
+            {
+              "offer_id": "1386",
+              "offer_name": "20ftd!3SNET -(5531) Slott CPA FR fox wheel",
+              "weight": 20,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 180
+              }
+            }
+          ]
+        },
+        {
+          "name": "Poland PL",
+          "offers": [
+            {
+              "offer_id": "1098",
+              "offer_name": "CAP30! Advertise -Cashed - PL",
+              "weight": 80,
+              "cap": 30,
+              "filled": 1,
+              "remain": 29,
+              "rate": {
+                "currency": "$",
+                "value": 178
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1628",
+              "offer_name": "Piperspin Casino - PL - ToTheMoonAffs 180Euro",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1536",
+              "offer_name": "Padrino Partners - Needforslots PT PL RO IT",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "United Kingdom UK",
+          "offers": [
+            {
+              "offer_id": "1367",
+              "offer_name": "CAP60!Q3 -2706 Fortunica - [ASO] [UK]",
+              "weight": 100,
+              "cap": 60,
+              "filled": 7,
+              "remain": 53,
+              "rate": {
+                "currency": "€",
+                "value": 210
+              }
+            },
+            {
+              "offer_id": "1361",
+              "offer_name": "50ftd! - Huffson- Spin Million Casino UK Cross/Slot/Main keys",
+              "weight": 60,
+              "cap": 50,
+              "filled": 35,
+              "remain": 15,
+              "rate": {
+                "currency": "€",
+                "value": 210
+              }
+            },
+            {
+              "offer_id": "1353",
+              "offer_name": "CAP20!Q3 -3804 Hidden jack casino - [ASO]  [UK]",
+              "weight": 60,
+              "cap": 20,
+              "filled": 6,
+              "remain": 14,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1637",
+              "offer_name": "CAP30! Kaasino UK 210 Euro",
+              "weight": 60
+            },
+            {
+              "offer_id": "1521",
+              "offer_name": "CAP10!TheLimitedClub - 4992 Vegas Nova [UK] ASO",
+              "weight": 60,
+              "cap": 10,
+              "filled": 1,
+              "remain": 9,
+              "rate": {
+                "currency": "$",
+                "value": 210
+              }
+            },
+            {
+              "offer_id": "1183",
+              "offer_name": "CAP70!Advertise Harry Casino - UK (ASO slot / cross)",
+              "weight": 60,
+              "cap": 50,
+              "filled": 20,
+              "remain": 30,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1516",
+              "offer_name": "CAP20!Q3 -3926 1Red - [ASO] [UK]",
+              "weight": 50,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spain ES",
+          "offers": [
+            {
+              "offer_id": "679",
+              "offer_name": "Uncap!Morospin - FCP Partners - ES €200 Slots/Cross",
+              "weight": 120,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 200
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1144",
+              "offer_name": "Piperspin Reg - ES- ToTheMoonAffs",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 176
+              }
+            },
+            {
+              "offer_id": "1503",
+              "offer_name": "CAP20 Profitov -11383 FatPirate [ES] ASO Cross/Slots",
+              "weight": 60,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 220
+              }
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "805",
+              "offer_name": "WinAirlines Reg Page SLOT ES 180eur",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            }
+          ]
+        },
+        {
+          "name": "Finland FI",
+          "offers": [
+            {
+              "offer_id": "1274",
+              "offer_name": "CAP30!Advertise Casinova - FI (ASO slot)",
+              "weight": 100,
+              "cap": 30,
+              "filled": 4,
+              "remain": 26,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            },
+            {
+              "offer_id": "1557",
+              "offer_name": "FCP -Morospin | Casino | ASO | FI | 220 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 220
+              }
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Greece GR",
+          "offers": [
+            {
+              "offer_id": "640",
+              "offer_name": "CAP15! TheLimitedClub - 3541 MoroSpin [GR] ASO iOS",
+              "weight": 100,
+              "cap": 15,
+              "filled": 2,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 157
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "Switzerland CH",
+          "offers": [
+            {
+              "offer_id": "1313",
+              "offer_name": "Morospin - FCP Partners - CH 350€ CasinoReg from 01/01",
+              "weight": 110,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 415
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1515",
+              "offer_name": "CAP10/geo! Rave Pertners - Casinacho BE CH DE ES FI GR IT PL",
+              "weight": 70,
+              "cap": 10,
+              "filled": 0,
+              "remain": 10
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1461",
+              "offer_name": "CAP20!11513 OnlySpins [CH] ASO IOS General, Cross-brand",
+              "weight": 40,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20
+            }
+          ]
+        },
+        {
+          "name": "Australia AU",
+          "offers": [
+            {
+              "offer_id": "684",
+              "offer_name": "Uncap!Morospin - FCP Partners - AU €200 Slots/Cross",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 233
+              }
+            },
+            {
+              "offer_id": "1475",
+              "offer_name": "CAP20! TheLimitedClub -4920 Vegas Now [AU] ASO iOS",
+              "weight": 100,
+              "cap": 20,
+              "filled": 7,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 308
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Norway NO",
+          "offers": [
+            {
+              "offer_id": "1339",
+              "offer_name": "CAP20!Huffson - VERDE -NO 250 Slots",
+              "weight": 100,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 250
+              }
+            },
+            {
+              "offer_id": "1558",
+              "offer_name": "FCP -Morospin | Casino | ASO | NO | 220 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 220
+              }
+            },
+            {
+              "offer_id": "1340",
+              "offer_name": "CAP20!Huffson - NV casino-NO 250 Slots",
+              "weight": 70,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 270
+              }
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turkey TR",
+          "offers": [
+            {
+              "offer_id": "1526",
+              "offer_name": "CAP50! CpaGetti Vegaslot TR",
+              "weight": 100,
+              "cap": 50,
+              "filled": 7,
+              "remain": 43,
+              "rate": {
+                "currency": "$",
+                "value": 85
+              }
+            },
+            {
+              "offer_id": "941",
+              "offer_name": "CAP50!1xbet- TR 65usd",
+              "weight": 80,
+              "cap": 50,
+              "filled": 9,
+              "remain": 41,
+              "rate": {
+                "currency": "$",
+                "value": 65
+              }
+            },
+            {
+              "offer_id": "1468",
+              "offer_name": "CAP50!Advertise -VegasSlot - TR (ASO cross/slot)",
+              "weight": 50,
+              "cap": 50,
+              "filled": 16,
+              "remain": 34,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            },
+            {
+              "offer_id": "1508",
+              "offer_name": "CAP20 Profitov -11612 Vegasslot [TR] ASO Cross-brand Slots",
+              "weight": 50,
+              "cap": 20,
+              "filled": 8,
+              "remain": 12,
+              "rate": {
+                "currency": "$",
+                "value": 80
+              }
+            },
+            {
+              "offer_id": "1514",
+              "offer_name": "CAP15!Q3 - 3986 [PRIVATE] Bahsegel - [ASO]",
+              "weight": 20,
+              "cap": 15,
+              "filled": 2,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            },
+            {
+              "offer_id": "1513",
+              "offer_name": "CAP15!Q3 - 3988 [PRIVATE] Rokubet - [ASO]",
+              "weight": 20,
+              "cap": 15,
+              "filled": 1,
+              "remain": 14,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            }
+          ]
+        },
+        {
+          "name": "Malaysia MY",
+          "offers": [
+            {
+              "offer_id": "939",
+              "offer_name": "CAP100!1xbet- MY 55usd",
+              "weight": 100,
+              "cap": 100,
+              "filled": 67,
+              "remain": 33,
+              "rate": {
+                "currency": "$",
+                "value": 55
+              }
+            },
+            {
+              "offer_id": "1548",
+              "offer_name": "CAP50!- ClickLead -6064_DK88_MY_ASO_50$",
+              "weight": 100,
+              "cap": 50,
+              "filled": 0,
+              "remain": 50,
+              "rate": {
+                "currency": "$",
+                "value": 50
+              }
+            },
+            {
+              "offer_id": "1437",
+              "offer_name": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+              "weight": 60,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 30
+            },
+            {
+              "offer_id": "871",
+              "offer_name": "CAP130!Q3 - 3209 VivaJack MY",
+              "weight": 30,
+              "cap": 130,
+              "filled": 3,
+              "remain": 127,
+              "rate": {
+                "currency": "$",
+                "value": 35
+              }
+            }
+          ]
+        },
+        {
+          "name": "Portugal PT",
+          "offers": [
+            {
+              "offer_id": "1452",
+              "offer_name": "Piperspin-Reg  PT - ToTheMoonAffs",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 118
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1536",
+              "offer_name": "Padrino Partners - Needforslots PT PL RO IT",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Croatia HR",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1615",
+              "offer_name": "BonusKong Slots - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Luxembourg LU",
+          "offers": [
+            {
+              "offer_id": "1560",
+              "offer_name": "FCP -Morospin | Casino | ASO | LUX | 190 EUR",
+              "weight": 100,
+              "filled": 1,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "Argentina AR",
+          "offers": [
+            {
+              "offer_id": "1363",
+              "offer_name": "TopX RS- AR REG",
+              "weight": 100
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 100
+            },
+            {
+              "offer_id": "1303",
+              "offer_name": "30ftd!! Profitov -11063 FragaBet [AR] ASO IOS Cross-brand",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Hungary HU",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 80
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1629",
+              "offer_name": "Piperspin Casino - HU - ToTheMoonAffs 150Euro",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Sweden SE",
+          "offers": [
+            {
+              "offer_id": "1089",
+              "offer_name": "NEW!Huffson - VERDE - SE 250",
+              "weight": 100,
+              "cap": 30,
+              "filled": 2,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 250
+              }
+            },
+            {
+              "offer_id": "1090",
+              "offer_name": "CAP30!Advertise -Julius Casino - SE",
+              "weight": 60,
+              "cap": 30,
+              "filled": 0,
+              "remain": 30
+            },
+            {
+              "offer_id": "1338",
+              "offer_name": "CAP20!Huffson - NV Casino - SE 250 Slots",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20
+            },
+            {
+              "offer_id": "1099",
+              "offer_name": "CAP50! Advertise -Glitchspin Casino - SE",
+              "weight": 60,
+              "cap": 50,
+              "filled": 0,
+              "remain": 50,
+              "rate": {
+                "currency": "$",
+                "value": 208
+              }
+            }
+          ]
+        },
+        {
+          "name": "India IN",
+          "offers": [
+            {
+              "offer_id": "1331",
+              "offer_name": "50day! Profitov -  11085 OLYMP [IN] ASO",
+              "weight": 100,
+              "cap": 50,
+              "filled": 4,
+              "remain": 46,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            },
+            {
+              "offer_id": "581",
+              "offer_name": "CAP30!Advertise - 4rabet - IN (ASO cross)",
+              "weight": 60,
+              "cap": 30,
+              "filled": 7,
+              "remain": 23,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            },
+            {
+              "offer_id": "943",
+              "offer_name": "CAP100!1xbet- UZ 15usd",
+              "weight": 40,
+              "cap": 100,
+              "filled": 3,
+              "remain": 97,
+              "rate": {
+                "currency": "$",
+                "value": 15
+              }
+            },
+            {
+              "offer_id": "937",
+              "offer_name": "CAP50!1xbet- IN 40usd",
+              "weight": 40,
+              "cap": 50,
+              "filled": 3,
+              "remain": 47,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "1411",
+              "offer_name": "TopX RS- IN Reg",
+              "weight": 20,
+              "filled": 0
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 20
+            }
+          ]
+        },
+        {
+          "name": "Ireland IE",
+          "offers": [
+            {
+              "offer_id": "953",
+              "offer_name": "uncap!Advertise -Slot7 - IE",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 214
+              }
+            },
+            {
+              "offer_id": "1346",
+              "offer_name": "2005528  AT BE IE CA - ASO - Frumzi - 250 [SLOT] - 247Partners",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 293
+              }
+            },
+            {
+              "offer_id": "1347",
+              "offer_name": "2005528  AT BE IE CA - ASO - Dragonia- 250 [SLOT] - 247Partners",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 291
+              }
+            },
+            {
+              "offer_id": "1348",
+              "offer_name": "2005526  AT BE IE CA - ASO - RoboCat - 250 [SLOT] REG- 247Partners",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 297
+              }
+            }
+          ]
+        },
+        {
+          "name": "Romania RO",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 60
+            },
+            {
+              "offer_id": "1536",
+              "offer_name": "Padrino Partners - Needforslots PT PL RO IT",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Czechia CZ",
+          "offers": [
+            {
+              "offer_id": "954",
+              "offer_name": "uncap!Advertise -Slot7 - CZ",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 153
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Slovenia SI",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Denmark DK",
+          "offers": [
+            {
+              "offer_id": "1559",
+              "offer_name": "FCP -Morospin | Casino | ASO | DK | 220 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 220
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Mexico MX",
+          "offers": [
+            {
+              "offer_id": "916",
+              "offer_name": "CAP30!Advertise - Apuesta360 - MX  all flows",
+              "weight": 100,
+              "cap": 30,
+              "filled": 12,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 29
+              }
+            },
+            {
+              "offer_id": "1613",
+              "offer_name": "CAP50!1xbet- MX 14 USD",
+              "weight": 60
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 50
+            }
+          ]
+        },
+        {
+          "name": "Bangladesh BD",
+          "offers": [
+            {
+              "offer_id": "940",
+              "offer_name": "CAP50!1xbet- BD 35usd",
+              "weight": 100,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 35
+              }
+            },
+            {
+              "offer_id": "1053",
+              "offer_name": "CAP50! Olymp Casino - BD reg - Godlike P",
+              "weight": 100,
+              "cap": 50,
+              "filled": 22,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            }
+          ]
+        },
+        {
+          "name": "Russia RU",
+          "offers": [
+            {
+              "offer_id": "945",
+              "offer_name": "daily100!1xbet- RU 100usd",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 100
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 50
+            },
+            {
+              "offer_id": "882",
+              "offer_name": "CAP100! Olymp Casino -RU - Godlike P REG",
+              "weight": 50,
+              "cap": 100,
+              "filled": 0,
+              "remain": 100,
+              "rate": {
+                "currency": "$",
+                "value": 75
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pakistan PK",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 100
+            },
+            {
+              "offer_id": "938",
+              "offer_name": "CAP100!1xbet- PK 30usd",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "US United States",
+          "offers": [
+            {
+              "offer_id": "1136",
+              "offer_name": "+100! 9063 -  Profitov Bovada [US] ASO IOS Brand (clone)",
+              "weight": 100,
+              "cap": 200,
+              "filled": 71,
+              "remain": 129,
+              "rate": {
+                "currency": "$",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1488",
+              "offer_name": "20ftd!Q3 - 3890 BetOnline [US] - [ASO]",
+              "weight": 60,
+              "cap": 20,
+              "filled": 3,
+              "remain": 17,
+              "rate": {
+                "currency": "$",
+                "value": 140
+              }
+            },
+            {
+              "offer_id": "1436",
+              "offer_name": "CAP50! Advertise  Bovada - US (ASO cross/slot)",
+              "weight": 20,
+              "cap": 30,
+              "filled": 11,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 200
+              }
+            }
+          ]
+        },
+        {
+          "name": "Macedonia MK",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Albania AL",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Montenegro ME",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Netherlands NL",
+          "offers": [
+            {
+              "offer_id": "1166",
+              "offer_name": "XL.Partners - Winzoria NL Reg Page",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 214
+              }
+            },
+            {
+              "offer_id": "1178",
+              "offer_name": "20ftd!- ClickLead - 5109_SpinPanda_NL_ASO_IOS",
+              "weight": 50,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 248
+              }
+            }
+          ]
+        },
+        {
+          "name": "United Arab Emirates, UAE, AE",
+          "offers": [
+            {
+              "offer_id": "1511",
+              "offer_name": "CAP20 Profitov -11622 CasinoLab [AE] ASO Slots",
+              "weight": 100,
+              "cap": 20,
+              "filled": 5,
+              "remain": 15,
+              "rate": {
+                "currency": "€",
+                "value": 240
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 50
+            }
+          ]
+        },
+        {
+          "name": "Serbia RS",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Slovakia SK",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Liechtenstein LI",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Greenland GL",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Iceland IS",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 70
+            }
+          ]
+        },
+        {
+          "name": "Uzbekistan UZ",
+          "offers": [
+            {
+              "offer_id": "1054",
+              "offer_name": "CAP100! Olymp Casino -UZ reg - Godlike P",
+              "weight": 100,
+              "cap": 150,
+              "filled": 110,
+              "remain": 40,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            },
+            {
+              "offer_id": "1287",
+              "offer_name": "No perf!Betwinner UZ",
+              "weight": 5,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "943",
+              "offer_name": "CAP100!1xbet- UZ 15usd",
+              "weight": 5,
+              "cap": 100,
+              "filled": 3,
+              "remain": 97,
+              "rate": {
+                "currency": "$",
+                "value": 15
+              }
+            }
+          ]
+        },
+        {
+          "name": "Privacy page",
+          "offers": [
+            {
+              "offer_id": "8",
+              "offer_name": "General Privacy",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Latvia LV",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Estonia EE",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Lithuania TL",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Bosnia and Herzegovina BA",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Bulgaria BG",
+          "offers": [
+            {
+              "offer_id": "1523",
+              "offer_name": "CAP20/geo!Q3 -3991 YEP Casino - [ASO] [PL,DE,EE,LT,LV,RO,HU,GR,BE,LU,IS,BA,AL,ME,HR,BG,SL,MK]",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Azerbaijan AZ",
+          "offers": [
+            {
+              "offer_id": "670",
+              "offer_name": "CAP20! Olymp Casino - AZ - Godlike P",
+              "weight": 100,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tajikistan TJ",
+          "offers": [
+            {
+              "offer_id": "1531",
+              "offer_name": "CAP30!1xbet- TJ 25usd",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Kazakhstan KZ",
+          "offers": [
+            {
+              "offer_id": "1333",
+              "offer_name": "Betwinner Partners KZ - Sport main",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Kyrgyzstan KG",
+          "offers": [
+            {
+              "offer_id": "674",
+              "offer_name": "30day! Olymp Casino -KG - Godlike P",
+              "weight": 100,
+              "cap": 70,
+              "filled": 18,
+              "remain": 52,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            }
+          ]
+        },
+        {
+          "name": "South Korea KR",
+          "offers": [
+            {
+              "offer_id": "1055",
+              "offer_name": "30!Advertise -Spinmama - KR",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Chile CL",
+          "offers": [
+            {
+              "offer_id": "1357",
+              "offer_name": "CAP200! Profitov -  8102 JugaBet [CL] ASO IOS Cross Casino",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Guinea GN",
+          "offers": [
+            {
+              "offer_id": "944",
+              "offer_name": "CAP100!1xbet- GN Guinea 12usd",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Turkmenistan TM",
+          "offers": [
+            {
+              "offer_id": "1534",
+              "offer_name": "1xbet - TM usd",
+              "weight": 60,
+              "filled": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "117",
+      "name": "Betting Rotation",
+      "geos": [
+        {
+          "name": "Brazil BR",
+          "offers": [
+            {
+              "offer_id": "1469",
+              "offer_name": "CAP300! VidaVegas - BR (ASO)",
+              "weight": 100,
+              "cap": 300,
+              "filled": 272,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 23
+              }
+            },
+            {
+              "offer_id": "662",
+              "offer_name": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+              "weight": 100,
+              "cap": 400,
+              "filled": 143,
+              "remain": 257,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1500",
+              "offer_name": "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg bet",
+              "weight": 90,
+              "cap": 200,
+              "filled": 8,
+              "remain": 192,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1535",
+              "offer_name": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+              "weight": 80,
+              "cap": 100,
+              "filled": 70,
+              "remain": 30,
+              "rate": {
+                "currency": "€",
+                "value": 22
+              }
+            },
+            {
+              "offer_id": "1646",
+              "offer_name": "CAP50!- ClickLead - 6189_DBBet_BR_ASO_betting 25 USD",
+              "weight": 60,
+              "filled": 41
+            },
+            {
+              "offer_id": "1443",
+              "offer_name": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+              "weight": 50,
+              "cap": 300,
+              "filled": 210,
+              "remain": 90,
+              "rate": {
+                "currency": "$",
+                "value": 16
+              }
+            }
+          ]
+        },
+        {
+          "name": "Netherlands NL",
+          "offers": [
+            {
+              "offer_id": "1166",
+              "offer_name": "XL.Partners - Winzoria NL Reg Page",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 214
+              }
+            },
+            {
+              "offer_id": "1449",
+              "offer_name": "CAP20!Advertise Carlospin - NL (ASO Betting)",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20
+            },
+            {
+              "offer_id": "902",
+              "offer_name": "STOP!9914 Poko.bet [NL] ASO Cross-brand",
+              "weight": 100,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 272
+              }
+            },
+            {
+              "offer_id": "1462",
+              "offer_name": "CAP30!11518 Amonbet [NL] ASO IOS Cross-brand Sport",
+              "weight": 100,
+              "cap": 30,
+              "filled": 1,
+              "remain": 29,
+              "rate": {
+                "currency": "$",
+                "value": 226
+              }
+            },
+            {
+              "offer_id": "1586",
+              "offer_name": "CAP20! 3SNET  5446 SpinSino NL - 190 EUR",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            }
+          ]
+        },
+        {
+          "name": "France FR",
+          "offers": [
+            {
+              "offer_id": "1448",
+              "offer_name": "30ftd!11435 Amonbet [FR] ASO Android Cross-brand Sport",
+              "weight": 100,
+              "cap": 30,
+              "filled": 6,
+              "remain": 24,
+              "rate": {
+                "currency": "$",
+                "value": 184
+              }
+            },
+            {
+              "offer_id": "1618",
+              "offer_name": "CAP20! 3SNET 5245 Spin Million FR - 180 EUR",
+              "weight": 80,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 60,
+              "rate": {
+                "currency": "$",
+                "value": 306
+              }
+            },
+            {
+              "offer_id": "1617",
+              "offer_name": "CAP20! 3SNET 5305 Casino Prestige FR - 180 EUR",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            }
+          ]
+        },
+        {
+          "name": "Argentina AR",
+          "offers": [
+            {
+              "offer_id": "1372",
+              "offer_name": "CAP20!- ClickLead -6031_Apuesta360_AR_ASO",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20
+            },
+            {
+              "offer_id": "1363",
+              "offer_name": "TopX RS- AR REG",
+              "weight": 100,
+              "filled": 0
+            },
+            {
+              "offer_id": "1303",
+              "offer_name": "30ftd!! Profitov -11063 FragaBet [AR] ASO IOS Cross-brand",
+              "weight": 100,
+              "cap": 30,
+              "filled": 0,
+              "remain": 30,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            }
+          ]
+        },
+        {
+          "name": "Morocco MA",
+          "offers": [
+            {
+              "offer_id": "1549",
+              "offer_name": "CAP50!- ClickLead - 4323_Parimatch_MA_ASO_betting",
+              "weight": 100,
+              "cap": 50,
+              "filled": 0,
+              "remain": 50,
+              "rate": {
+                "currency": "$",
+                "value": 42
+              }
+            },
+            {
+              "offer_id": "1116",
+              "offer_name": "80ftd!Q3 -2605 Melbet - [MA] Betting",
+              "weight": 100,
+              "cap": 80,
+              "filled": 41,
+              "remain": 39,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "1498",
+              "offer_name": "1win reg form revshare Africa 1x",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "Bangladesh BD",
+          "offers": [
+            {
+              "offer_id": "1053",
+              "offer_name": "CAP50! Olymp Casino - BD reg - Godlike P",
+              "weight": 100,
+              "cap": 50,
+              "filled": 22,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1520",
+              "offer_name": "50ftd!- ClickLead -  6042_Kheli.bet_BD_ASO_sport",
+              "weight": 100,
+              "cap": 50,
+              "filled": 4,
+              "remain": 46,
+              "rate": {
+                "currency": "$",
+                "value": 20.8
+              }
+            },
+            {
+              "offer_id": "1581",
+              "offer_name": "CAP20! 3SNET 5620 kheliBet  BD - 22 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 22
+              }
+            }
+          ]
+        },
+        {
+          "name": "US United States",
+          "offers": [
+            {
+              "offer_id": "1136",
+              "offer_name": "+100! 9063 -  Profitov Bovada [US] ASO IOS Brand (clone)",
+              "weight": 100,
+              "cap": 200,
+              "filled": 71,
+              "remain": 129,
+              "rate": {
+                "currency": "$",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1589",
+              "offer_name": "CAP25! Profitov 10078 SportsBetting [US] ASO Cross 170 USD",
+              "weight": 60,
+              "cap": 25,
+              "filled": 0,
+              "remain": 25,
+              "rate": {
+                "currency": "$",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "1436",
+              "offer_name": "CAP50! Advertise  Bovada - US (ASO cross/slot)",
+              "weight": 50,
+              "cap": 30,
+              "filled": 11,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 200
+              }
+            },
+            {
+              "offer_id": "1488",
+              "offer_name": "20ftd!Q3 - 3890 BetOnline [US] - [ASO]",
+              "weight": 50,
+              "cap": 20,
+              "filled": 3,
+              "remain": 17,
+              "rate": {
+                "currency": "$",
+                "value": 140
+              }
+            }
+          ]
+        },
+        {
+          "name": "Turkey TR",
+          "offers": [
+            {
+              "offer_id": "1442",
+              "offer_name": "25!!Profitov -10856 JoinBet [TR] ASO Cross",
+              "weight": 70,
+              "cap": 25,
+              "filled": 0,
+              "remain": 25
+            },
+            {
+              "offer_id": "1468",
+              "offer_name": "CAP50!Advertise -VegasSlot - TR (ASO cross/slot)",
+              "weight": 70,
+              "cap": 50,
+              "filled": 14,
+              "remain": 36,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            },
+            {
+              "offer_id": "1514",
+              "offer_name": "CAP15!Q3 - 3986 [PRIVATE] Bahsegel - [ASO]",
+              "weight": 60,
+              "cap": 15,
+              "filled": 2,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            },
+            {
+              "offer_id": "1513",
+              "offer_name": "CAP15!Q3 - 3988 [PRIVATE] Rokubet - [ASO]",
+              "weight": 60,
+              "cap": 15,
+              "filled": 0,
+              "remain": 15,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            }
+          ]
+        },
+        {
+          "name": "India IN",
+          "offers": [
+            {
+              "offer_id": "1331",
+              "offer_name": "50day! Profitov -  11085 OLYMP [IN] ASO",
+              "weight": 100,
+              "cap": 50,
+              "filled": 4,
+              "remain": 46,
+              "rate": {
+                "currency": "$",
+                "value": 35
+              }
+            },
+            {
+              "offer_id": "1620",
+              "offer_name": "CAP20! 3SNET 5566 BlueChip CPA IN - 17 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 17
+              }
+            },
+            {
+              "offer_id": "1410",
+              "offer_name": "20/day! Olymp Casino - IN - Godlike P",
+              "weight": 60
+            },
+            {
+              "offer_id": "1411",
+              "offer_name": "TopX RS- IN Reg",
+              "weight": 20,
+              "filled": 0
+            }
+          ]
+        },
+        {
+          "name": "Canada CA",
+          "offers": [
+            {
+              "offer_id": "1610",
+              "offer_name": "CAP20! 3SNET 5635 Metaspins CA - 180 EUR",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1476",
+              "offer_name": "CAP20! TheLimitedClub -4921 Vegas Now [CA] ASO iOS",
+              "weight": 60,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 308
+              }
+            },
+            {
+              "offer_id": "1580",
+              "offer_name": "CAP20! 3SNET 5275 GG casino CA  - 210 EUR",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 210
+              }
+            },
+            {
+              "offer_id": "1450",
+              "offer_name": "1win reg form revshare CA",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "United Arab Emirates, UAE, AE",
+          "offers": [
+            {
+              "offer_id": "1511",
+              "offer_name": "CAP20 Profitov -11622 CasinoLab [AE] ASO Slots",
+              "weight": 100
+            },
+            {
+              "offer_id": "1016",
+              "offer_name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "weight": 80
+            },
+            {
+              "offer_id": "1652",
+              "offer_name": "CAP20! 5511 Spinit AE - 200 EUR Betting",
+              "weight": 60
+            }
+          ]
+        },
+        {
+          "name": "Senegal SN",
+          "offers": [
+            {
+              "offer_id": "1498",
+              "offer_name": "1win reg form revshare Africa 1x",
+              "weight": 100
+            },
+            {
+              "offer_id": "1539",
+              "offer_name": "CAP50-100! DB bet - CI, SN 6,5$",
+              "weight": 60,
+              "cap": 100,
+              "filled": 1,
+              "remain": 99,
+              "rate": {
+                "currency": "$",
+                "value": 6.5
+              }
+            },
+            {
+              "offer_id": "1171",
+              "offer_name": "CAP60!Q3 -2467 Melbet - [ASO]  [SN]",
+              "weight": 60,
+              "cap": 60,
+              "filled": 33,
+              "remain": 27,
+              "rate": {
+                "currency": "$",
+                "value": 7
+              }
+            }
+          ]
+        },
+        {
+          "name": "Austria AT",
+          "offers": [
+            {
+              "offer_id": "1625",
+              "offer_name": "Piperspin BET - AT - ToTheMoonAffs 250Euro",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 250
+              }
+            },
+            {
+              "offer_id": "1268",
+              "offer_name": "WinAirlines Reg Page SLOT AT BE CZ DE GR  HU IE IT PL SK SI ES CH",
+              "weight": 60,
+              "filled": 0
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 60,
+              "filled": 1,
+              "rate": {
+                "currency": "$",
+                "value": 308
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ghana GH",
+          "offers": [
+            {
+              "offer_id": "1497",
+              "offer_name": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+              "weight": 100,
+              "cap": 70,
+              "filled": 36,
+              "remain": 34,
+              "rate": {
+                "currency": "$",
+                "value": 3
+              }
+            },
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "1170",
+              "offer_name": "30ftd!Q3 -2467 Melbet - [ASO]  [GH]",
+              "weight": 50,
+              "cap": 30,
+              "filled": 20,
+              "remain": 10,
+              "rate": {
+                "currency": "$",
+                "value": 8
+              }
+            }
+          ]
+        },
+        {
+          "name": "Malaysia MY",
+          "offers": [
+            {
+              "offer_id": "1547",
+              "offer_name": "CAP50!- ClickLead - 6064_DK88_MY_betting_50$",
+              "weight": 100,
+              "cap": 50,
+              "filled": 0,
+              "remain": 50,
+              "rate": {
+                "currency": "$",
+                "value": 50
+              }
+            },
+            {
+              "offer_id": "1437",
+              "offer_name": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+              "weight": 60,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "1502",
+              "offer_name": "CAP30 Profitov -11455 Longfu88 [MY] ASO Slots/Cross",
+              "weight": 40,
+              "cap": 30,
+              "filled": 2,
+              "remain": 28,
+              "rate": {
+                "currency": "€",
+                "value": 30
+              }
+            }
+          ]
+        },
+        {
+          "name": "South Korea KR",
+          "offers": [
+            {
+              "offer_id": "1055",
+              "offer_name": "30!Advertise -Spinmama - KR",
+              "weight": 100
+            },
+            {
+              "offer_id": "1473",
+              "offer_name": "CAP30!Advertise - KoiFortune - KR (ASO cross/slot)",
+              "weight": 100,
+              "cap": 30,
+              "filled": 0,
+              "remain": 30
+            }
+          ]
+        },
+        {
+          "name": "Sweden SE",
+          "offers": [
+            {
+              "offer_id": "1099",
+              "offer_name": "CAP50! Advertise -Glitchspin Casino - SE",
+              "weight": 100,
+              "cap": 50,
+              "rate": {
+                "currency": "$",
+                "value": 208
+              }
+            },
+            {
+              "offer_id": "1337",
+              "offer_name": "CAP20!Huffson - VERDE - SE 250 Slots",
+              "weight": 100,
+              "cap": 20
+            }
+          ]
+        },
+        {
+          "name": "Uzbekistan UZ",
+          "offers": [
+            {
+              "offer_id": "1054",
+              "offer_name": "CAP100! Olymp Casino -UZ reg - Godlike P",
+              "weight": 100,
+              "cap": 150,
+              "filled": 108,
+              "remain": 42,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            },
+            {
+              "offer_id": "1619",
+              "offer_name": "CAP20! 3SNET 5660 Betzo UZ - 25 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            },
+            {
+              "offer_id": "346",
+              "offer_name": "1win reg form revshare UZ",
+              "weight": 30
+            }
+          ]
+        },
+        {
+          "name": "Spain ES",
+          "offers": [
+            {
+              "offer_id": "1552",
+              "offer_name": "FCP -Morospin | Bet | ASO | ES | 180 EUR",
+              "weight": 110,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1503",
+              "offer_name": "CAP20 Profitov -11383 FatPirate [ES] ASO Cross/Slots",
+              "weight": 80,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 220
+              }
+            }
+          ]
+        },
+        {
+          "name": "Australia AU",
+          "offers": [
+            {
+              "offer_id": "1556",
+              "offer_name": "FCP -Morospin | Bet | ASO | AU | 180 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1475",
+              "offer_name": "CAP20! TheLimitedClub -4920 Vegas Now [AU] ASO iOS",
+              "weight": 70,
+              "cap": 20,
+              "filled": 7,
+              "remain": 13,
+              "rate": {
+                "currency": "$",
+                "value": 308
+              }
+            }
+          ]
+        },
+        {
+          "name": "Phillipines PH",
+          "offers": [
+            {
+              "offer_id": "1091",
+              "offer_name": "CAP30!Advertise - Melbet -PH",
+              "weight": 100
+            },
+            {
+              "offer_id": "1606",
+              "offer_name": "CAP20! 3SNET  5465 GGbet CPA TH+PH 15 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 15
+              }
+            }
+          ]
+        },
+        {
+          "name": "Germany DE",
+          "offers": [
+            {
+              "offer_id": "1137",
+              "offer_name": "Piperspin Reg  -DE - ToTheMoonAffs",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            },
+            {
+              "offer_id": "1491",
+              "offer_name": "CAP20!Q3 - 3671 Boomzino - [ASO]",
+              "weight": 60,
+              "cap": 20,
+              "filled": 3,
+              "remain": 17,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ivory Coast CI",
+          "offers": [
+            {
+              "offer_id": "1539",
+              "offer_name": "CAP50-100! DB bet - CI, SN 6,5$",
+              "weight": 60,
+              "cap": 100,
+              "filled": 1,
+              "remain": 99,
+              "rate": {
+                "currency": "$",
+                "value": 6.5
+              }
+            },
+            {
+              "offer_id": "1550",
+              "offer_name": "CAP20-30!Advertise - Afropari - CI 6$",
+              "weight": 60,
+              "cap": 30,
+              "filled": 0,
+              "remain": 30,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "1203",
+              "offer_name": "TopX RS- new CI REG",
+              "weight": 20,
+              "filled": 1
+            },
+            {
+              "offer_id": "1498",
+              "offer_name": "1win reg form revshare Africa 1x",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Nepal NP",
+          "offers": [
+            {
+              "offer_id": "1585",
+              "offer_name": "CAP40-50!Advertise - Melbet - NP (ASO cross bet) 25$",
+              "weight": 80,
+              "cap": 50,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            },
+            {
+              "offer_id": "1582",
+              "offer_name": "CAP20! 3SNET 5373 Tab66 CPA NP - 20 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            }
+          ]
+        },
+        {
+          "name": "DR Congo CD",
+          "offers": [
+            {
+              "offer_id": "894",
+              "offer_name": "CAP100! Advertise -Mojabet - CD (ASO Chicken)",
+              "weight": 70,
+              "cap": 100,
+              "filled": 80,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 7
+              }
+            },
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "South Africa ZA",
+          "offers": [
+            {
+              "offer_id": "886",
+              "offer_name": "CAP30!Advertise -Easybet - ZA (ASO cross/slot)",
+              "weight": 100,
+              "cap": 30,
+              "filled": 14,
+              "remain": 16,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "1294",
+              "offer_name": "CAP30! Advertise -Rollblock - ZA (ASO)",
+              "weight": 25,
+              "cap": 30,
+              "filled": 1,
+              "remain": 29,
+              "rate": {
+                "currency": "$",
+                "value": 8
+              }
+            }
+          ]
+        },
+        {
+          "name": "Burkina Faso BF",
+          "offers": [
+            {
+              "offer_id": "1551",
+              "offer_name": "CAP20-30!Advertise - Afropari - BF 6$",
+              "weight": 60,
+              "cap": 30,
+              "filled": 0,
+              "remain": 30,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Egypt EG",
+          "offers": [
+            {
+              "offer_id": "1587",
+              "offer_name": "CAP20! 3SNET  5472 Fastpari EG - 12 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 12
+              }
+            },
+            {
+              "offer_id": "1389",
+              "offer_name": "CAP20!- ClickLead -5433_Spinbetter_EG_ASO",
+              "weight": 40,
+              "cap": 20,
+              "filled": 12,
+              "remain": 8,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1498",
+              "offer_name": "1win reg form revshare Africa 1x",
+              "weight": 20
+            }
+          ]
+        },
+        {
+          "name": "Kenya KE",
+          "offers": [
+            {
+              "offer_id": "1286",
+              "offer_name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "weight": 60
+            },
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Switzerland CH",
+          "offers": [
+            {
+              "offer_id": "1074",
+              "offer_name": "RodeoSlots Wheel - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 60,
+              "rate": {
+                "currency": "$",
+                "value": 306
+              }
+            },
+            {
+              "offer_id": "1266",
+              "offer_name": "Tonyspins  Reg Page - Shogun Affiliates DE CH AT ES BE IT SK CA PL GR AU CZ HU SI PT DK RO HR FI AL ME MK RS IS GL LU LI",
+              "weight": 60,
+              "filled": 1,
+              "rate": {
+                "currency": "$",
+                "value": 308
+              }
+            }
+          ]
+        },
+        {
+          "name": "Privacy page",
+          "offers": [
+            {
+              "offer_id": "8",
+              "offer_name": "General Privacy",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "1win  CA",
+          "offers": [
+            {
+              "offer_id": "1450",
+              "offer_name": "1win reg form revshare CA",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "1win multigeo EU crypto",
+          "offers": [
+            {
+              "offer_id": "1458",
+              "offer_name": "1win reg form revshare EU crypto",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Russia RU (Not 1x, not 1win)",
+          "offers": [
+            {
+              "offer_id": "882",
+              "offer_name": "CAP100! Olymp Casino -RU - Godlike P REG",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Russia RU (1x)",
+          "offers": [
+            {
+              "offer_id": "882",
+              "offer_name": "CAP100! Olymp Casino -RU - Godlike P REG",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Algeria DZ",
+          "offers": [
+            {
+              "offer_id": "1498",
+              "offer_name": "1win reg form revshare Africa 1x",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Togo TG",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guinea GN",
+          "offers": [
+            {
+              "offer_id": "1078",
+              "offer_name": "uncap! Advertise -Lonaguibet - GN",
+              "weight": 100,
+              "filled": 48,
+              "rate": {
+                "currency": "€",
+                "value": 3.5
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mozambique MZ",
+          "offers": [
+            {
+              "offer_id": "1351",
+              "offer_name": "CAP500!!Profitov  54  10982 PrideBet [MZ] ASO IOS Crash",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Indonesia ID",
+          "offers": [
+            {
+              "offer_id": "1611",
+              "offer_name": "CAP20! 3SNET 5659 DK88 CPA MY - 45 USD",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 16
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sri Lanka LK",
+          "offers": [
+            {
+              "offer_id": "1612",
+              "offer_name": "CAP20! 3SNET 5718 DBbet CPA ID+LK - 16 USD",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 16
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kyrgyzstan KG",
+          "offers": [
+            {
+              "offer_id": "674",
+              "offer_name": "30day! Olymp Casino -KG - Godlike P",
+              "weight": 100,
+              "cap": 70,
+              "filled": 18,
+              "remain": 52,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            }
+          ]
+        },
+        {
+          "name": "Azerbaijan AZ",
+          "offers": [
+            {
+              "offer_id": "670",
+              "offer_name": "CAP20! Olymp Casino - AZ - Godlike P",
+              "weight": 100,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Poland PL",
+          "offers": [
+            {
+              "offer_id": "1626",
+              "offer_name": "Piperspin BET - PL - ToTheMoonAffs 200Euro",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 200
+              }
+            }
+          ]
+        },
+        {
+          "name": "Latvia LV",
+          "offers": [
+            {
+              "offer_id": "1165",
+              "offer_name": "25ftdl! Profitov -10600 Pistolo [LV] ASO IOS Crash",
+              "weight": 100,
+              "cap": 25,
+              "rate": {
+                "currency": "$",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lithuania LT",
+          "offers": [
+            {
+              "offer_id": "586",
+              "offer_name": "CAP30!Advertise - Vulkan Spiele - LT (ASO Chicken)",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "United Kingdom UK",
+          "offers": [
+            {
+              "offer_id": "1470",
+              "offer_name": "CAP15!Bass.win - UK  bet",
+              "weight": 60,
+              "cap": 15,
+              "filled": 3,
+              "remain": 12,
+              "rate": {
+                "currency": "$",
+                "value": 200
+              }
+            },
+            {
+              "offer_id": "1471",
+              "offer_name": "CAP20! TheLimitedClub - 4814 Beonbet [UK] ASO cross",
+              "weight": 40,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18
+            }
+          ]
+        },
+        {
+          "name": "Italy IT",
+          "offers": [
+            {
+              "offer_id": "1141",
+              "offer_name": "Piperspin Reg - IT - ToTheMoonAffs",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 166
+              }
+            }
+          ]
+        },
+        {
+          "name": "Czechia CZ",
+          "offers": [
+            {
+              "offer_id": "1289",
+              "offer_name": "FCP -Morospin | Bet | ASO | CZ | 150 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Japan JP",
+          "offers": [
+            {
+              "offer_id": "1583",
+              "offer_name": "CAP20! 3SNET 2751 GGbet JP - 150 EUR",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Finland FI",
+          "offers": [
+            {
+              "offer_id": "1553",
+              "offer_name": "FCP -Morospin | Bet | ASO | FI | 190 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            }
+          ]
+        },
+        {
+          "name": "Norway NO",
+          "offers": [
+            {
+              "offer_id": "1554",
+              "offer_name": "FCP -Morospin | Bet | ASO | NO | 210 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 210
+              }
+            }
+          ]
+        },
+        {
+          "name": "Belgium BE",
+          "offers": [
+            {
+              "offer_id": "1139",
+              "offer_name": "Piperspin Reg - BE - ToTheMoonAffs",
+              "weight": 100,
+              "rate": {
+                "currency": "$",
+                "value": 189
+              }
+            }
+          ]
+        },
+        {
+          "name": "Romania RO",
+          "offers": [
+            {
+              "offer_id": "1555",
+              "offer_name": "FCP -Morospin | Bet | ASO | RO | 100 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 100
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mexico MX",
+          "offers": [
+            {
+              "offer_id": "916",
+              "offer_name": "CAP30!Advertise - Apuesta360 - MX  all flows",
+              "weight": 100,
+              "cap": 30,
+              "filled": 19,
+              "remain": 11
+            }
+          ]
+        },
+        {
+          "name": "Chile CL",
+          "offers": [
+            {
+              "offer_id": "1356",
+              "offer_name": "CAP200! Profitov -  8102 JugaBet [CL] ASO IOS Cross Sport",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Colombia CO",
+          "offers": [
+            {
+              "offer_id": "1371",
+              "offer_name": "CAP20!- ClickLead -6031_Apuesta360_CO_ASO",
+              "weight": 100,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 18
+              }
+            }
+          ]
+        },
+        {
+          "name": "Saudi Arabia SA",
+          "offers": [
+            {
+              "offer_id": "1016",
+              "offer_name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Qatar QA",
+          "offers": [
+            {
+              "offer_id": "1016",
+              "offer_name": "CAP50!Advertise  Spinbara - GCC (AE, BH, KW, QA, SA) - ASO cross/slot",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Singapore SG",
+          "offers": [
+            {
+              "offer_id": "1584",
+              "offer_name": "CAP20! 3SNET 4965 GEMBET CPA SG - 180 USD",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 180
+              }
+            }
+          ]
+        },
+        {
+          "name": "Thailand TH",
+          "offers": [
+            {
+              "offer_id": "1606",
+              "offer_name": "CAP20! 3SNET  5465 GGbet CPA TH+PH 15 Euro",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 15
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mauritania MR",
+          "offers": [
+            {
+              "offer_id": "1608",
+              "offer_name": "CAP20! 3SNET 4675 Melbet MR - 15 USD",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 15
+              }
+            }
+          ]
+        },
+        {
+          "name": "Myanmar MM",
+          "offers": [
+            {
+              "offer_id": "1609",
+              "offer_name": "CAP20! 3SNET 4675 Melbet MM - 25 USD",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kazahstan KZ",
+          "offers": [
+            {
+              "offer_id": "1333",
+              "offer_name": "Betwinner Partners KZ - Sport main",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zambia ZM",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cameroon CM",
+          "offers": [
+            {
+              "offer_id": "1588",
+              "offer_name": "CAP50! 3SNET  4264 PremierBet CM - 6 USD",
+              "weight": 60,
+              "cap": 50,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tanzania TZ",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pakistan PK",
+          "offers": [
+            {
+              "offer_id": "1545",
+              "offer_name": "CAP20! 5660 Betzo PK 20USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            }
+          ]
+        },
+        {
+          "name": "Armenia AM",
+          "offers": [
+            {
+              "offer_id": "1380",
+              "offer_name": "CAP20! 3SNET 2440 BetWinner AM",
+              "weight": 30,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            },
+            {
+              "offer_id": "1385",
+              "offer_name": "CAP50ftd!  Profitov 11130 JugaBet [AR] ASO Cross",
+              "weight": 30,
+              "cap": 50,
+              "filled": 0,
+              "remain": 50
+            }
+          ]
+        },
+        {
+          "name": "Uganda UG",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rwanda RW",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Niger NE",
+          "offers": [
+            {
+              "offer_id": "1605",
+              "offer_name": "CAP20! 3SNET  5312 Betandyou - 6 USD | BF, TG, CD, ZM, UG, GH, KE, TZ, RW, NE",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "121",
+      "name": "Crash Rotation",
+      "geos": [
+        {
+          "name": "France FR",
+          "offers": [
+            {
+              "offer_id": "1344",
+              "offer_name": "Uncap! Chicken 2005524  FR - ASO - Dragonia - 160 REG - 247Partners",
+              "weight": 100,
+              "filled": 5,
+              "rate": {
+                "currency": "$",
+                "value": 188
+              }
+            },
+            {
+              "offer_id": "1632",
+              "offer_name": "CAP20! 17328 29black Alfaleads 150 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1600",
+              "offer_name": "CAP20! 4095 Prestige Casino crash FR - [ASO]  150 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1633",
+              "offer_name": "CAP20! 17343  Lucky Treasure Alfaleads FR 170 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "1590",
+              "offer_name": "CAP20! 17007 monacojack Alfaleads 150 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1653",
+              "offer_name": "CAP10! 1954 Glhf | FR | ASO 160 EUR",
+              "weight": 60
+            },
+            {
+              "offer_id": "1639",
+              "offer_name": "CAP20! 1957 Uspin | FR | ASO crash 150 EUR",
+              "weight": 60
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1298",
+              "offer_name": "Betmen Affs - SpinGranny  FR 110eur Crash",
+              "weight": 30,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 130
+              }
+            }
+          ]
+        },
+        {
+          "name": "Canada CA",
+          "offers": [
+            {
+              "offer_id": "1571",
+              "offer_name": "FCP -Morospin | ASO | CRASH | CA 160 EUR",
+              "weight": 110,
+              "filled": 3,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 90,
+              "filled": 1,
+              "rate": 0
+            },
+            {
+              "offer_id": "1602",
+              "offer_name": "CAP20! 4095 Prestige Casino crash CA  - [ASO]  170 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "1647",
+              "offer_name": "CAP30! CpaGetti GGBet CA 185 USD",
+              "weight": 60
+            },
+            {
+              "offer_id": "1616",
+              "offer_name": "CAP20! Westar CA  145 USD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 145
+              }
+            },
+            {
+              "offer_id": "1648",
+              "offer_name": "CAP15! CpaGetti Lanista CA 185 USD",
+              "weight": 60
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1450",
+              "offer_name": "1win reg form revshare CA",
+              "weight": 50,
+              "filled": 0
+            }
+          ]
+        },
+        {
+          "name": "Belgium BE",
+          "offers": [
+            {
+              "offer_id": "1572",
+              "offer_name": "FCP -Morospin | ASO | CRASH | BE 160 EUR",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "remain": 4,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1140",
+              "offer_name": "Piperspin -Chicken BE - ToTheMoonAffs",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 188
+              }
+            },
+            {
+              "offer_id": "799",
+              "offer_name": "WinAirlines Reg Page BE CHICKEN 190eur",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1245",
+              "offer_name": "CAP25! HYBRID10925 MyEmpire [BE] ASO IOS Crash - 160 EUR + 30%",
+              "weight": 70,
+              "cap": 25,
+              "filled": 3,
+              "remain": 22,
+              "rate": 7.74
+            },
+            {
+              "offer_id": "1243",
+              "offer_name": "CAP25! HYBRID 10923 Neon54 [BE] ASO IOS Crash - 160 EUR + 30%",
+              "weight": 70,
+              "cap": 25,
+              "filled": 5,
+              "remain": 20,
+              "rate": 0
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Switzerland CH",
+          "offers": [
+            {
+              "offer_id": "1574",
+              "offer_name": "FCP -Morospin | ASO | CRASH | CH 230 EUR",
+              "weight": 110,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 230
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1238",
+              "offer_name": "PiperSpin CH ToTheMoon Chicken",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 234
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "861",
+              "offer_name": "New!RoboCat - CH -Chicken  247Partners",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 354
+              }
+            },
+            {
+              "offer_id": "1459",
+              "offer_name": "CAP20!10011 Gransino [CH] ASO IOS General Crash",
+              "weight": 50,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "$",
+                "value": 351
+              }
+            },
+            {
+              "offer_id": "1460",
+              "offer_name": "CAP20!11508 Dragonia [CH] ASO IOS Crash",
+              "weight": 50,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20
+            }
+          ]
+        },
+        {
+          "name": "Finland FI",
+          "offers": [
+            {
+              "offer_id": "1566",
+              "offer_name": "FCP -Morospin | ASO | CRASH | FI   180 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1320",
+              "offer_name": "20ftd!Q3 -3777 Polestar Crash - [ASO]  [FI]",
+              "weight": 80,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 237
+              }
+            },
+            {
+              "offer_id": "1274",
+              "offer_name": "CAP30!Advertise Casinova - FI (ASO slot)",
+              "weight": 80,
+              "cap": 30,
+              "filled": 4,
+              "remain": 26,
+              "rate": 4.97
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Norway NO",
+          "offers": [
+            {
+              "offer_id": "1565",
+              "offer_name": "FCP -Morospin | ASO | CRASH | NO 180 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1599",
+              "offer_name": "WinAirlines Reg Page NO Crash 160 Euro",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1624",
+              "offer_name": "Piperspin Crash  - NO- ToTheMoonAffs 180Euro",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 180
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Italy IT",
+          "offers": [
+            {
+              "offer_id": "1569",
+              "offer_name": "FCP -Morospin | ASO | CRASH | IT   140 EUR",
+              "weight": 110,
+              "filled": 1,
+              "rate": {
+                "currency": "€",
+                "value": 140
+              }
+            },
+            {
+              "offer_id": "1142",
+              "offer_name": "Piperspin-Chicken IT - ToTheMoonAffs",
+              "weight": 80,
+              "filled": 1,
+              "rate": {
+                "currency": "$",
+                "value": 165
+              }
+            },
+            {
+              "offer_id": "801",
+              "offer_name": "WinAirlines Reg Page IT CHICKEN 160eur",
+              "weight": 80,
+              "filled": 1,
+              "rate": {
+                "currency": "$",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1603",
+              "offer_name": "CAP20! 4095 Prestige Casino crash IT - [ASO]  160 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 1,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 1,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spain ES",
+          "offers": [
+            {
+              "offer_id": "1573",
+              "offer_name": "FCP -Morospin | ASO | CRASH | ES 140 EUR",
+              "weight": 110,
+              "filled": 1,
+              "rate": {
+                "currency": "€",
+                "value": 140
+              }
+            },
+            {
+              "offer_id": "1143",
+              "offer_name": "Piperspin -Chicken ES - ToTheMoonAffs",
+              "weight": 80,
+              "filled": 1,
+              "rate": {
+                "currency": "$",
+                "value": 177
+              }
+            },
+            {
+              "offer_id": "800",
+              "offer_name": "WinAirlines Reg Page ES CHICKEN 160eur",
+              "weight": 80,
+              "filled": 2,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1265",
+              "offer_name": "Tonyspins  - Shogun Affiliates  Chicken Road Land DE CH AT ES BE IT CA AU",
+              "weight": 60,
+              "filled": 2,
+              "rate": {
+                "currency": "$",
+                "value": 141
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Germany DE",
+          "offers": [
+            {
+              "offer_id": "1564",
+              "offer_name": "FCP -Morospin | ASO | CRASH | DE 170 EUR",
+              "weight": 120,
+              "filled": 2,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            },
+            {
+              "offer_id": "1138",
+              "offer_name": "Piperspin Chicken  -DE - ToTheMoonAffs",
+              "weight": 70,
+              "filled": 2,
+              "rate": {
+                "currency": "$",
+                "value": 236
+              }
+            },
+            {
+              "offer_id": "797",
+              "offer_name": "WinAirlines Reg Page DE CHICKEN 190eur",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1601",
+              "offer_name": "CAP20! 4095 Prestige Casino crash DE  - [ASO]  170 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Czechia CZ",
+          "offers": [
+            {
+              "offer_id": "1568",
+              "offer_name": "FCP -Morospin | ASO | CRASH | CZ  90 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "863",
+              "offer_name": "New!RoboCat - CZ -Chicken  247Partners",
+              "weight": 90,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 141
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1211",
+              "offer_name": "Piperspin-Chicken  CZ - ToTheMoonAffs",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 152
+              }
+            }
+          ]
+        },
+        {
+          "name": "Greece GR",
+          "offers": [
+            {
+              "offer_id": "1570",
+              "offer_name": "FCP -Morospin | ASO | CRASH | GR 110 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 110
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 1,
+              "rate": 0
+            },
+            {
+              "offer_id": "1302",
+              "offer_name": "CAP35!Morospin - FCP | GR | 100 EUR | ASO | Crash",
+              "weight": 80,
+              "cap": 50,
+              "filled": 22,
+              "remain": 28,
+              "rate": {
+                "currency": "€",
+                "value": 100
+              }
+            },
+            {
+              "offer_id": "1213",
+              "offer_name": "Piperspin-Chicken  GR - ToTheMoonAffs",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 153
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Russia RU",
+          "offers": [
+            {
+              "offer_id": "882",
+              "offer_name": "CAP100! Olymp Casino -RU - Godlike P REG",
+              "weight": 100
+            },
+            {
+              "offer_id": "945",
+              "offer_name": "daily100!1xbet- RU 100usd",
+              "weight": 100
+            },
+            {
+              "offer_id": "1318",
+              "offer_name": "CAP10!!! CpaGetti Metelitsa RU",
+              "weight": 100
+            },
+            {
+              "offer_id": "1324",
+              "offer_name": "CAP30FTD! Pokerdom RU",
+              "weight": 100
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Bangladesh BD",
+          "offers": [
+            {
+              "offer_id": "1278",
+              "offer_name": "CAP50!- ClickLead - 6042 Kheli.bet ASO iOS CHICKEN Reg Form BD",
+              "weight": 70,
+              "cap": 50,
+              "filled": 5,
+              "remain": 45,
+              "rate": {
+                "currency": "$",
+                "value": 14
+              }
+            },
+            {
+              "offer_id": "940",
+              "offer_name": "CAP50!1xbet- BD 35usd",
+              "weight": 60,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 35
+              }
+            },
+            {
+              "offer_id": "1382",
+              "offer_name": "CAP20! 3SNET 4953 Krikya CPA BD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": 0
+            },
+            {
+              "offer_id": "1396",
+              "offer_name": "CAP20! 3SNET 5518 Dhoni88 CPA BD",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": 0
+            },
+            {
+              "offer_id": "1519",
+              "offer_name": "50ftd!- ClickLead -  6042_Kheli.bet_BD_ASO_chicken",
+              "weight": 60,
+              "cap": 50,
+              "filled": 3,
+              "remain": 47,
+              "rate": {
+                "currency": "$",
+                "value": 14.4
+              }
+            },
+            {
+              "offer_id": "1053",
+              "offer_name": "CAP50! Olymp Casino - BD reg - Godlike P",
+              "weight": 60,
+              "cap": 50,
+              "filled": 22,
+              "remain": 28,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1364",
+              "offer_name": "TopX RS- BD new  REG",
+              "weight": 20,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Brazil BR",
+          "offers": [
+            {
+              "offer_id": "1443",
+              "offer_name": "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg",
+              "weight": 100,
+              "cap": 200,
+              "filled": 134,
+              "remain": 66,
+              "rate": {
+                "currency": "$",
+                "value": 16
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1535",
+              "offer_name": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+              "weight": 80,
+              "cap": 100,
+              "filled": 64,
+              "remain": 36,
+              "rate": {
+                "currency": "€",
+                "value": 22
+              }
+            },
+            {
+              "offer_id": "662",
+              "offer_name": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+              "weight": 70,
+              "cap": 400,
+              "filled": 129,
+              "remain": 271,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1469",
+              "offer_name": "CAP300! VidaVegas - BR (ASO)",
+              "weight": 30,
+              "cap": 300,
+              "filled": 267,
+              "remain": 33,
+              "rate": {
+                "currency": "$",
+                "value": 23
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Poland PL",
+          "offers": [
+            {
+              "offer_id": "1567",
+              "offer_name": "FCP -Morospin | ASO | CRASH | PL 130 EUR",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 130
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1623",
+              "offer_name": "Piperspin Crash  - PL - ToTheMoonAffs 130Euro",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 130
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1270",
+              "offer_name": "CAP20!Morospin - FCP Partners | PL | 130 EUR | ASO | Crash",
+              "weight": 50,
+              "cap": 20,
+              "filled": 6,
+              "remain": 14,
+              "rate": {
+                "currency": "€",
+                "value": 130
+              }
+            }
+          ]
+        },
+        {
+          "name": "United Kingdom UK/GB",
+          "offers": [
+            {
+              "offer_id": "1256",
+              "offer_name": "15/day! Profitov -9256 SlotLair [UK] ASO IOS Crash",
+              "weight": 100,
+              "filled": 4
+            },
+            {
+              "offer_id": "1173",
+              "offer_name": "50ftd!Q3 -3204 LuckyWave crash - [ASO] [UK]",
+              "weight": 70,
+              "cap": 50,
+              "filled": 33,
+              "remain": 17,
+              "rate": {
+                "currency": "$",
+                "value": 118
+              }
+            },
+            {
+              "offer_id": "1640",
+              "offer_name": "CAP20! 1958 Uspin | UK  | ASO crash 150 EUR",
+              "weight": 60
+            },
+            {
+              "offer_id": "1634",
+              "offer_name": "CAP20! 17361 Betmac 140 Euro",
+              "weight": 60
+            },
+            {
+              "offer_id": "1544",
+              "offer_name": "CAP20! 5305 Casino Prestige UK - 160 EUR Crash",
+              "weight": 50,
+              "cap": 20,
+              "filled": 14,
+              "remain": 6,
+              "rate": {
+                "currency": "€",
+                "value": 160
+              }
+            },
+            {
+              "offer_id": "1543",
+              "offer_name": "CAP20! 5245 Spin Million UK - 150 EUR Crash",
+              "weight": 30,
+              "cap": 20,
+              "filled": 6,
+              "remain": 14,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            }
+          ]
+        },
+        {
+          "name": "Austria AT",
+          "offers": [
+            {
+              "offer_id": "1575",
+              "offer_name": "FCP -Morospin | ASO | CRASH | AT 150 EUR",
+              "weight": 120,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 150
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1622",
+              "offer_name": "Piperspin Crash  - AT - ToTheMoonAffs 160Euro",
+              "weight": 70
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Malaysia MY",
+          "offers": [
+            {
+              "offer_id": "939",
+              "offer_name": "CAP100!1xbet- MY 55usd",
+              "weight": 100,
+              "cap": 100,
+              "filled": 67,
+              "remain": 33,
+              "rate": {
+                "currency": "$",
+                "value": 55
+              }
+            },
+            {
+              "offer_id": "1437",
+              "offer_name": "CAP30-50! Advertise  DashKing (DK88) - MY (ASO cross/slot)",
+              "weight": 60,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "1650",
+              "offer_name": "CAP20! 3SNET 5659 DK88 CPA MY - 40 USD Crash",
+              "weight": 60
+            },
+            {
+              "offer_id": "1635",
+              "offer_name": "CAP50!- ClickLead - LongFu88 30 Euro",
+              "weight": 60
+            },
+            {
+              "offer_id": "1370",
+              "offer_name": "CAP50!- ClickLead -6064_DK88_MY_ASO_chiken",
+              "weight": 50,
+              "cap": 50,
+              "filled": 33,
+              "remain": 17,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Hungary HU",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1621",
+              "offer_name": "Piperspin Crash - HU - ToTheMoonAffs 140 Euro",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 140
+              }
+            },
+            {
+              "offer_id": "862",
+              "offer_name": "New!RoboCat - HU -Chicken  247Partners",
+              "weight": 75,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 141
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "DR Congo CD",
+          "offers": [
+            {
+              "offer_id": "1161",
+              "offer_name": "CAP50-70!Advertise -Mojabet - CD (ASO chicken)",
+              "weight": 100,
+              "cap": 100,
+              "filled": 81,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 7
+              }
+            },
+            {
+              "offer_id": "894",
+              "offer_name": "CAP100! Advertise -Mojabet - CD (ASO Chicken)",
+              "weight": 100
+            },
+            {
+              "offer_id": "979",
+              "offer_name": "CAP50! 5455 MOJABET CD -Democratic Republic of Congo",
+              "weight": 100,
+              "cap": 50,
+              "filled": 19,
+              "remain": 31,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Netherlands NL",
+          "offers": [
+            {
+              "offer_id": "1167",
+              "offer_name": "XL.Partners - Winzoria NL Chicken",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 211
+              }
+            },
+            {
+              "offer_id": "1487",
+              "offer_name": "CAP20!11587 CasinoLab [NL] ASO IOS Crash",
+              "weight": 60,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "€",
+                "value": 200
+              }
+            },
+            {
+              "offer_id": "1604",
+              "offer_name": "CAP20! 4095 Prestige Casino crash NL - [ASO]  190 Euro",
+              "weight": 60,
+              "cap": 20,
+              "filled": 0,
+              "remain": 20,
+              "rate": {
+                "currency": "€",
+                "value": 190
+              }
+            },
+            {
+              "offer_id": "1322",
+              "offer_name": "20ftd!Q3 -2882 Magius crash - [ASO]  [NL]",
+              "weight": 30,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 176
+              }
+            },
+            {
+              "offer_id": "1277",
+              "offer_name": "CAP20!Advertise Carlospin - NL (ASO Chicken)",
+              "weight": 30,
+              "cap": 20,
+              "filled": 15,
+              "remain": 5,
+              "rate": {
+                "currency": "$",
+                "value": 235
+              }
+            }
+          ]
+        },
+        {
+          "name": "Senegal SN",
+          "offers": [
+            {
+              "offer_id": "1160",
+              "offer_name": "CAP30!Advertise -Mojabet - SN (ASO chicken)",
+              "weight": 100,
+              "cap": 50,
+              "filled": 3,
+              "remain": 47,
+              "rate": {
+                "currency": "$",
+                "value": 7
+              }
+            },
+            {
+              "offer_id": "1286",
+              "offer_name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 10
+              }
+            },
+            {
+              "offer_id": "1171",
+              "offer_name": "CAP60!Q3 -2467 Melbet - [ASO]  [SN]",
+              "weight": 60,
+              "cap": 60,
+              "filled": 33,
+              "remain": 27,
+              "rate": {
+                "currency": "$",
+                "value": 7
+              }
+            },
+            {
+              "offer_id": "1062",
+              "offer_name": "CAP50!Advertise - Mojabet - SN",
+              "weight": 50
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Denmark DK",
+          "offers": [
+            {
+              "offer_id": "1563",
+              "offer_name": "FCP -Morospin | Crush | DK | 180 EUR",
+              "weight": 100,
+              "filled": 1
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Romania RO",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1561",
+              "offer_name": "FCP -Morospin | Crush | RO | 90 EUR",
+              "weight": 100,
+              "cap": 20,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guinea GN",
+          "offers": [
+            {
+              "offer_id": "1078",
+              "offer_name": "uncap! Advertise -Lonaguibet - GN",
+              "weight": 100
+            },
+            {
+              "offer_id": "1286",
+              "offer_name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 10
+              }
+            },
+            {
+              "offer_id": "944",
+              "offer_name": "CAP100!1xbet- GN Guinea 12usd",
+              "weight": 50
+            }
+          ]
+        },
+        {
+          "name": "Portugal PT",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1453",
+              "offer_name": "Piperspin Chichen R - PT - ToTheMoonAffs",
+              "weight": 80,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 118
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "India IN",
+          "offers": [
+            {
+              "offer_id": "1331",
+              "offer_name": "50day! Profitov -  11085 OLYMP [IN] ASO",
+              "weight": 100,
+              "cap": 50,
+              "filled": 1,
+              "remain": 49,
+              "rate": {
+                "currency": "$",
+                "value": 35
+              }
+            },
+            {
+              "offer_id": "937",
+              "offer_name": "CAP50!1xbet- IN 40usd",
+              "weight": 60,
+              "cap": 50,
+              "filled": 5,
+              "remain": 45,
+              "rate": {
+                "currency": "$",
+                "value": 40
+              }
+            },
+            {
+              "offer_id": "1362",
+              "offer_name": "CAP50!Profitov -11133 Parimatch [IN] ASO Cross-brand Crash",
+              "weight": 60,
+              "cap": 50,
+              "filled": 7,
+              "remain": 43,
+              "rate": {
+                "currency": "$",
+                "value": 15
+              }
+            },
+            {
+              "offer_id": "693",
+              "offer_name": "TopX RS- IN Chicken Land",
+              "weight": 10,
+              "filled": 0,
+              "rate": 0.8
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Egypt EG",
+          "offers": [
+            {
+              "offer_id": "942",
+              "offer_name": "CAP100!1xbet-EG 20usd",
+              "weight": 100,
+              "cap": 100,
+              "filled": 0,
+              "remain": 100,
+              "rate": {
+                "currency": "$",
+                "value": 20
+              }
+            },
+            {
+              "offer_id": "1246",
+              "offer_name": "CAP20!5384- 3SNET - Fastpari EG",
+              "weight": 60,
+              "cap": 20,
+              "filled": 6,
+              "remain": 14,
+              "rate": {
+                "currency": "$",
+                "value": 12
+              }
+            },
+            {
+              "offer_id": "895",
+              "offer_name": "CAP30! Advertise -Melbet - EG (ASO Chicken)",
+              "weight": 60,
+              "cap": 30,
+              "filled": 1,
+              "remain": 29,
+              "rate": {
+                "currency": "$",
+                "value": 12
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Turkey TR",
+          "offers": [
+            {
+              "offer_id": "941",
+              "offer_name": "CAP50!1xbet- TR 65usd",
+              "weight": 70,
+              "cap": 50,
+              "filled": 10,
+              "remain": 40,
+              "rate": {
+                "currency": "$",
+                "value": 65
+              }
+            },
+            {
+              "offer_id": "900",
+              "offer_name": "CAP20!Q3 -2980 7Slots slots - [ASO]  [TR]",
+              "weight": 70,
+              "cap": 20,
+              "filled": 12,
+              "remain": 8,
+              "rate": {
+                "currency": "$",
+                "value": 69
+              }
+            },
+            {
+              "offer_id": "1644",
+              "offer_name": "CAP50! 17244 Pinco TR  Alfaleads 65 USD",
+              "weight": 60
+            },
+            {
+              "offer_id": "1162",
+              "offer_name": "CAP30-40!Advertise -GetirBet - TR (ASO chicken)",
+              "weight": 10,
+              "cap": 40,
+              "filled": 1,
+              "remain": 39,
+              "rate": {
+                "currency": "$",
+                "value": 60
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Luxemburg LU",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1239",
+              "offer_name": "Piperspin LU Chicken land ToTheMoon",
+              "weight": 50
+            }
+          ]
+        },
+        {
+          "name": "Australia AU",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1562",
+              "offer_name": "FCP -Morospin | Crush | AU | 170 EU",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 170
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ireland IE",
+          "offers": [
+            {
+              "offer_id": "1212",
+              "offer_name": "Piperspin-Chicken  IE - ToTheMoonAffs",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 177
+              }
+            },
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            }
+          ]
+        },
+        {
+          "name": "Slovenia SI",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Slovakia SK",
+          "offers": [
+            {
+              "offer_id": "1269",
+              "offer_name": "WinAirlines Reg Page CHICKEN AU AT BE BR CA CZ DK FI DE GR HU IE IT LU PL PT RO SK SI ES CH",
+              "weight": 100,
+              "filled": 0,
+              "rate": 0
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "United Arab Emirates AE",
+          "offers": [
+            {
+              "offer_id": "1201",
+              "offer_name": "10ftd!Q3 -3599 Vassbet - AE Chicken",
+              "weight": 100,
+              "cap": 10,
+              "filled": 3,
+              "remain": 7,
+              "rate": {
+                "currency": "$",
+                "value": 176
+              }
+            },
+            {
+              "offer_id": "714",
+              "offer_name": "CAP20!Q3 -2848 24Casino - [AE]",
+              "weight": 50,
+              "cap": 20,
+              "filled": 2,
+              "remain": 18,
+              "rate": {
+                "currency": "$",
+                "value": 209
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Nigeria NG",
+          "offers": [
+            {
+              "offer_id": "1220",
+              "offer_name": "20ftd!3SNET - (4992) Surebet247 CPA NG",
+              "weight": 100,
+              "cap": 20,
+              "filled": 8,
+              "remain": 12,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "1221",
+              "offer_name": "20ftd!3SNET - (5317) Betjara CPA NG",
+              "weight": 30,
+              "cap": 20,
+              "filled": 1,
+              "remain": 19,
+              "rate": {
+                "currency": "$",
+                "value": 5
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10,
+              "filled": 1
+            }
+          ]
+        },
+        {
+          "name": "Croatia HR",
+          "offers": [
+            {
+              "offer_id": "1614",
+              "offer_name": "BonusKong Chicken Road - Shogun Affiliates BE DE HR IT ES NO FI",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            },
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "South Africa ZA",
+          "offers": [
+            {
+              "offer_id": "886",
+              "offer_name": "CAP30!Advertise -Easybet - ZA (ASO cross/slot)",
+              "weight": 100,
+              "cap": 30,
+              "filled": 14,
+              "remain": 16,
+              "rate": {
+                "currency": "$",
+                "value": 6
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Mexico MX",
+          "offers": [
+            {
+              "offer_id": "916",
+              "offer_name": "CAP30!Advertise - Apuesta360 - MX  all flows",
+              "weight": 100,
+              "cap": 30,
+              "filled": 21,
+              "remain": 9,
+              "rate": 0
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Pakistan PK",
+          "offers": [
+            {
+              "offer_id": "938",
+              "offer_name": "CAP100!1xbet- PK 30usd",
+              "weight": 100
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Phillippines PH",
+          "offers": [
+            {
+              "offer_id": "1419",
+              "offer_name": "CAP40!Advertise - PingwinCasino - PH (ASO)",
+              "weight": 100,
+              "cap": 40,
+              "filled": 26,
+              "remain": 14,
+              "rate": {
+                "currency": "$",
+                "value": 25
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Armenia AM",
+          "offers": [
+            {
+              "offer_id": "946",
+              "offer_name": "CAP50! 1XBET WW",
+              "weight": 100
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Uzbekistan UZ",
+          "offers": [
+            {
+              "offer_id": "673",
+              "offer_name": "CAP100! Olymp Casino -UZ - Godlike P",
+              "weight": 100,
+              "cap": 150,
+              "filled": 118,
+              "remain": 32,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Privacy Page",
+          "offers": [
+            {
+              "offer_id": "8",
+              "offer_name": "General Privacy",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "United States US",
+          "offers": [
+            {
+              "offer_id": "1136",
+              "offer_name": "+100! 9063 -  Profitov Bovada [US] ASO IOS Brand (clone)",
+              "weight": 100,
+              "cap": 200,
+              "filled": 80,
+              "remain": 120,
+              "rate": {
+                "currency": "$",
+                "value": 180
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sweden SE",
+          "offers": [
+            {
+              "offer_id": "1299",
+              "offer_name": "20ftd!Q3 -3765 GGBet crash - [ASO] [SE]",
+              "weight": 100,
+              "cap": 20,
+              "filled": 5,
+              "remain": 15,
+              "rate": {
+                "currency": "$",
+                "value": 188
+              }
+            }
+          ]
+        },
+        {
+          "name": "New Zealand NZ",
+          "offers": [
+            {
+              "offer_id": "1595",
+              "offer_name": "WinAirlines Reg Page NZ Crash 100 Euro",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Estonia EE",
+          "offers": [
+            {
+              "offer_id": "585",
+              "offer_name": "CAP30!Advertise - Vulkan Spiele - EE (ASO Chicken)",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Latvia LV",
+          "offers": [
+            {
+              "offer_id": "1165",
+              "offer_name": "25ftdl! Profitov -10600 Pistolo [LV] ASO IOS Crash",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Lithuania LT",
+          "offers": [
+            {
+              "offer_id": "586",
+              "offer_name": "CAP30!Advertise - Vulkan Spiele - LT (ASO Chicken)",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Sierra Leone SL",
+          "offers": [
+            {
+              "offer_id": "1232",
+              "offer_name": "CAP100!Advertise Elephantbet - SL (ASO Chicken)",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "name": "Ghana GH",
+          "offers": [
+            {
+              "offer_id": "1497",
+              "offer_name": "CAP70!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash",
+              "weight": 100,
+              "cap": 70,
+              "filled": 40,
+              "remain": 30,
+              "rate": {
+                "currency": "$",
+                "value": 3
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kyrgyzstan KG",
+          "offers": [
+            {
+              "offer_id": "674",
+              "offer_name": "30day! Olymp Casino -KG - Godlike P",
+              "weight": 100,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 30
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ivory Coast CI",
+          "offers": [
+            {
+              "offer_id": "1286",
+              "offer_name": "Betwinner African Countries  Burkina Faso, Benin, Democratic Republic of the Congo, Republic of the Congo, Ivory Coast, Cameroon, Gabon, Ghana, Guinea, Guinea-Bissau, Kenya, Mali, Mozambique, Nigeria, Senegal, Somalia, Togo, Tanzania, Uganda, South Africa, Zambia",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 10
+              }
+            },
+            {
+              "offer_id": "1100",
+              "offer_name": "TopX RS- CI CHICKEN",
+              "weight": 20,
+              "filled": 1,
+              "rate": 0.06
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Kazakhstan KZ",
+          "offers": [
+            {
+              "offer_id": "1546",
+              "offer_name": "CAP20!1xbet- KZ 100 USD",
+              "weight": 70
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Azerbaijan AZ",
+          "offers": [
+            {
+              "offer_id": "670",
+              "offer_name": "CAP20! Olymp Casino - AZ - Godlike P",
+              "weight": 70,
+              "filled": 0,
+              "rate": {
+                "currency": "$",
+                "value": 45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Liechtenstein LI",
+          "offers": [
+            {
+              "offer_id": "1075",
+              "offer_name": "RodeoSlot Chicken Royal - Shogun Affiliates CH AT PL GR SI SK RO DK HU HR CZ",
+              "weight": 60,
+              "filled": 0,
+              "rate": {
+                "currency": "€",
+                "value": 90
+              }
+            }
+          ]
+        },
+        {
+          "name": "Georgia GE",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            },
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Saudi Arabia SA",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Kuwait KW",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Bahrain BH",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Nepal NP",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        },
+        {
+          "name": "Sri-Lanka LK",
+          "offers": [
+            {
+              "offer_id": "20",
+              "offer_name": "1win reg form revshare WW",
+              "weight": 10
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_rotations": 3,
+  "total_offers": 554,
+  "synced_at": "2026-03-13 10:04:08"
+}

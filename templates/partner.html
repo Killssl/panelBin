@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partner Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/partner.css">
+
+</head>
+<body>
+
+<!-- ── LOGIN ────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Partner Portal</div>
+    <div class="login-sub">Войдите чтобы продолжить</div>
+    <div class="field">
+      <label>Логин</label>
+      <input class="inp" id="lUser" type="text" placeholder="username" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Пароль</label>
+      <input class="inp" id="lPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="err-msg" id="lErr"></div>
+    <button class="btn primary full" id="lBtn" onclick="doLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- ── APP ──────────────────────────────────────── -->
+<div id="app">
+  <header>
+    <div class="header-logo">⚡ Partner</div>
+    <div class="header-user">Вы вошли как <span id="hUser"></span></div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="doLogout()">Выйти</button>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="offers" onclick="switchTab('offers')">📋 Офферы</div>
+    <div class="tab" data-tab="new" onclick="switchTab('new')">＋ Новая заявка</div>
+    <div class="tab" data-tab="requests" onclick="switchTab('requests')">
+      📩 Мои заявки <span id="pendingBadge" style="display:none;margin-left:4px;background:var(--yellow);color:#000;border-radius:10px;padding:1px 6px;font-size:.7em"></span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- OFFERS PAGE -->
+    <div class="page active" id="page-offers">
+      <div class="section-title">Доступные офферы</div>
+      <div id="offersList"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- NEW REQUEST PAGE -->
+    <div class="page" id="page-new">
+      <div class="section-title">Новая заявка на оффер</div>
+      <div class="card">
+        <div class="form-grid">
+
+          <!-- Подход -->
+          <div class="field span2">
+            <label>Подход *</label>
+            <div class="chip-group" id="rApproachGroup">
+              <div class="chip" data-val="Crash" onclick="selectChip(this)">🎯 Crash</div>
+              <div class="chip" data-val="Casino" onclick="selectChip(this)">🎰 Casino</div>
+              <div class="chip" data-val="Betting" onclick="selectChip(this)">⚽ Betting</div>
+            </div>
+          </div>
+
+          <!-- Кап + Название -->
+          <div class="field span2">
+            <label>Кап и название оффера *</label>
+            <div class="cap-name-row">
+              <select class="inp" id="rCap" onchange="onCapChange(this)">
+                <option value="Unlimited">♾️ Unlimited</option>
+                <option value="CAP10">10 fd/day</option>
+                <option value="CAP15">15 fd/day</option>
+                <option value="CAP20">20 fd/day</option>
+                <option value="CAP25">25 fd/day</option>
+                <option value="CAP30">30 fd/day</option>
+                <option value="CAP35">35 fd/day</option>
+                <option value="CAP40">40 fd/day</option>
+                <option value="CAP45">45 fd/day</option>
+                <option value="CAP50">50 fd/day</option>
+                <option value="CAP60">60 fd/day</option>
+                <option value="CAP70">70 fd/day</option>
+                <option value="CAP80">80 fd/day</option>
+                <option value="CAP90">90 fd/day</option>
+                <option value="CAP100">100 fd/day</option>
+                <option value="custom">✏️ Свой кап...</option>
+              </select>
+              <input class="inp" id="rCapCustom" type="number" min="1" placeholder="Введите число" style="display:none;flex:0 0 auto;width:130px" oninput="onCapCustomInput(this)">
+              <input class="inp" id="rName" type="text" placeholder="Например: BetBoom RU">
+            </div>
+            <div style="margin-top:6px;font-size:.72em;color:var(--text2)" id="rCapPreview"></div>
+          </div>
+
+          <!-- GEO -->
+          <div class="field">
+            <label>GEO *</label>
+            <input class="inp" id="rGeo" type="text" placeholder="RU, UA, KZ...">
+          </div>
+
+          <!-- Ставка + валюта -->
+          <div class="field">
+            <label>Ставка</label>
+            <div class="rate-row">
+              <input class="inp" id="rRate" type="text" placeholder="50">
+              <select class="inp" id="rCurrency">
+                <option value="USD">🇺🇸 USD $</option>
+                <option value="EUR">🇪🇺 EUR €</option>
+                <option value="BRL">🇧🇷 BRL R$</option>
+                <option value="GBP">🇬🇧 GBP £</option>
+                <option value="CAD">🇨🇦 CAD $</option>
+                <option value="AUD">🇦🇺 AUD $</option>
+                <option value="INR">🇮🇳 INR ₹</option>
+                <option value="MXN">🇲🇽 MXN $</option>
+                <option value="NGN">🇳🇬 NGN ₦</option>
+                <option value="ZAR">🇿🇦 ZAR R</option>
+                <option value="TRY">🇹🇷 TRY ₺</option>
+                <option value="UAH">🇺🇦 UAH ₴</option>
+                <option value="KZT">🇰🇿 KZT ₸</option>
+                <option value="RUB">🇷🇺 RUB ₽</option>
+                <option value="PLN">🇵🇱 PLN zł</option>
+                <option value="CZK">🇨🇿 CZK Kč</option>
+                <option value="RON">🇷🇴 RON lei</option>
+                <option value="HUF">🇭🇺 HUF Ft</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- URL -->
+          <div class="field span2">
+            <label>URL оффера</label>
+            <input class="inp" id="rUrl" type="text" placeholder="https://...">
+          </div>
+
+          <!-- Комментарий -->
+          <div class="field span2">
+            <label>Комментарий</label>
+            <textarea class="inp" id="rComment" rows="3" placeholder="Условия, ограничения, вопросы..." style="resize:vertical"></textarea>
+          </div>
+        </div>
+        <div class="err-msg" id="rErr"></div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn primary" id="rBtn" onclick="submitRequest()">Отправить заявку</button>
+          <button class="btn" onclick="clearForm()">Очистить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY REQUESTS PAGE -->
+    <div class="page" id="page-requests">
+      <div class="section-title">Мои заявки</div>
+      <div id="requestsList"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+  <script src="/static/js/partner.js"></script>
+</body>
+</html>

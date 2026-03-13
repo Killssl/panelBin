@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Binom Rotations Panel</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div class="title">Binom Rotations</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnRefresh" class="btn">Обновить</button>
+        <button class="btn" onclick="openAdmin()" style="opacity:.75;font-size:.85em">⚙️ Admin</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="filters">
+          <label class="field">
+            <span>Поиск</span>
+            <input id="q" type="text" placeholder="Название / ID..." autocomplete="off"/>
+          </label>
+
+          <label class="field">
+            <span>Статус</span>
+            <select id="status">
+              <option value="">Любой</option>
+              <option value="active">active</option>
+              <option value="paused">paused</option>
+              <option value="deleted">deleted</option>
+            </select>
+          </label>
+
+          <label class="field small">
+            <span>Per page</span>
+            <input id="perPage" type="number" min="1" max="500" value="50"/>
+          </label>
+
+          <button id="btnApply" class="btn primary">Применить</button>
+        </div>
+
+        <div class="meta">
+          <div class="pill" id="serverTime">—</div>
+          <div class="pill" id="countPill">0</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 90px;">ID</th>
+              <th>Rotation</th>
+              <th style="width: 120px;">Status</th>
+              <th style="width: 190px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="4" class="muted">Нажми "Обновить".</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="details">
+        <div class="details-head">
+          <div>
+            <div class="details-title" id="detailsTitle">Детали</div>
+            <div class="details-sub" id="detailsSub">Жми Rules — увидишь карточки активных офферов.</div>
+          </div>
+          <div class="details-search" id="detailsSearchWrap" style="display:none;">
+            <input id="offerSearch" type="text" placeholder="Поиск оффера..." autocomplete="off"/>
+            <span id="offerSearchCount" class="pill">—</span>
+          </div>
+          <div class="pill" id="detailsMeta">—</div>
+        </div>
+
+        <div id="cards" class="cards"></div>
+        <pre id="detailsJson" style="display:none">{}</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="muted">AFF</span>
+    </footer>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ADMIN OVERLAY
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="adminOverlay">
+
+    <!-- Login -->
+    <div id="adminLoginScreen">
+      <div class="adm-login-box">
+        <h2>⚙️ Панель администратора</h2>
+        <div class="adm-field">
+          <label>Логин</label>
+          <input class="adm-inp" id="admLoginUser" type="text" placeholder="admin">
+        </div>
+        <div class="adm-field">
+          <label>Пароль</label>
+          <input class="adm-inp" id="admLoginPass" type="password" placeholder="••••••">
+        </div>
+        <button class="adm-btn primary" style="width:100%;justify-content:center;margin-top:4px"
+                onclick="admDoLogin()">Войти</button>
+        <div class="adm-err" id="admLoginErr"></div>
+        <div style="margin-top:16px;text-align:center">
+          <button class="adm-btn sm" onclick="closeAdmin()">← На главную</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App -->
+    <div id="adminApp">
+      <div class="adm-sidebar">
+        <div class="adm-logo">Admin Panel<span>Управление</span></div>
+        <div class="adm-nav">
+          <div class="adm-nav-item active" onclick="admNav('networks')" id="adm-nav-networks">
+            <span class="ico">🌐</span> Сети
+          </div>
+          <div class="adm-nav-item" onclick="admNav('requests')" id="adm-nav-requests">
+            <span class="ico">📋</span> Заявки
+            <span id="admPendingBadge" class="adm-nav-badge" style="display:none"></span>
+          </div>
+          <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
+            <span class="ico">👥</span> Пользователи
+          </div>
+        </div>
+        <div class="adm-sidebar-bottom">
+          <div class="adm-user-chip">
+            <span id="admSidebarUser">—</span>
+            <button class="adm-btn sm danger" onclick="admLogout()" style="padding:3px 8px">Выйти</button>
+          </div>
+          <button class="adm-btn sm" onclick="closeAdmin()"
+                  style="width:100%;justify-content:center">← На главную</button>
+        </div>
+      </div>
+
+      <div class="adm-main">
+        <div class="adm-topbar">
+          <span class="adm-topbar-title" id="admTopbarTitle">Сети</span>
+        </div>
+        <div class="adm-content">
+
+          <!-- Networks -->
+          <div class="adm-panel active" id="adm-panel-networks">
+            <div class="adm-toolbar">
+              <button class="adm-btn" onclick="admLoadNetworks()" id="admSyncBtn">🔄 Обновить из Binom</button>
+              <span id="admSyncStatus" class="adm-muted" style="font-size:.78em"></span>
+            </div>
+            <div class="adm-tbl-wrap">
+              <table class="adm-tbl">
+                <thead><tr>
+                  <th>Название</th><th>ID</th><th>Аккаунт партнёра</th>
+                  <th>Postback URL</th><th>Статус</th><th>Действия</th>
+                </tr></thead>
+                <tbody id="admNetworksTbody">
+                  <tr><td colspan="6" class="adm-empty">Загрузка…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Requests -->
+          <div class="adm-panel" id="adm-panel-requests">
+            <div class="adm-toolbar">
+              <div class="adm-filter-chips">
+                <span class="adm-chip active" onclick="admSetReqFilter(null,this)">Все</span>
+                <span class="adm-chip" onclick="admSetReqFilter('pending',this)">⏳ Ожидают</span>
+                <span class="adm-chip" onclick="admSetReqFilter('approved',this)">✅ Одобрены</span>
+                <span class="adm-chip" onclick="admSetReqFilter('rejected',this)">❌ Отклонены</span>
+              </div>
+              <button class="adm-btn sm" onclick="admLoadRequests()" style="margin-left:auto">🔄</button>
+            </div>
+            <div class="adm-tbl-wrap">
+              <table class="adm-tbl">
+                <thead><tr>
+                  <th>Партнёр</th><th>Оффер</th><th>GEO</th><th>Ставка</th>
+                  <th>Ссылка</th><th>Комментарий</th><th>Статус</th>
+                  <th>Ответ</th><th>Дата</th><th></th>
+                </tr></thead>
+                <tbody id="admRequestsTbody">
+                  <tr><td colspan="10" class="adm-empty">Загрузка…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Users -->
+          <div class="adm-panel" id="adm-panel-users">
+            <div class="adm-toolbar">
+              <button class="adm-btn primary" onclick="admOpenCreateUser()">+ Добавить пользователя</button>
+              <button class="adm-btn sm" onclick="admLoadUsers()">🔄</button>
+            </div>
+            <div class="adm-tbl-wrap">
+              <table class="adm-tbl">
+                <thead><tr><th>Логин</th><th>Роль</th><th>UID</th><th>Создан</th><th>Действия</th></tr></thead>
+                <tbody id="admUsersTbody">
+                  <tr><td colspan="5" class="adm-empty">Загрузка…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Drawer -->
+  <div class="adm-drawer" id="admDrawer">
+    <div class="adm-drawer-header">
+      <span class="adm-drawer-title" id="admDrawerTitle">Настройки сети</span>
+      <button class="adm-btn sm" onclick="admCloseDrawer()">✕</button>
+    </div>
+    <div class="adm-drawer-body" id="admDrawerBody"></div>
+  </div>
+
+  <!-- Modal: Approve -->
+  <div class="adm-overlay" id="admModalApprove" style="display:none">
+    <div class="adm-modal" style="width:640px;max-height:92vh;overflow-y:auto">
+      <div class="adm-modal-title">✅ Одобрить + создать оффер в Binom</div>
+
+      <!-- Инфо о заявке -->
+      <div id="admApproveInfo" style="background:#0f1724;border:1px solid #1e2d45;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:.8em;color:#94a3b8;line-height:1.9"></div>
+
+      <div style="font-size:.72em;color:#60a5fa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">🎯 Оффер в Binom</div>
+
+      <div class="adm-field">
+        <label>Название *</label>
+        <input class="adm-inp" id="admApproveOfferName" type="text" placeholder="CAP20! BetBoom + 50 EUR (FR)">
+      </div>
+
+      <div class="adm-field">
+        <label>URL оффера *</label>
+        <input class="adm-inp" id="admApproveUrl" type="text" placeholder="https://...&afp1={clickid}">
+        <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="adm-uid-pill" style="cursor:pointer;font-size:.72em" onclick="admInsertToken('{clickid}')">+ {clickid}</span>
+          <span class="adm-uid-pill" style="cursor:pointer;font-size:.72em" onclick="admInsertToken('{traffic_source_name}')">+ {traffic_source_name}</span>
+          <span class="adm-uid-pill" style="cursor:pointer;font-size:.72em" onclick="admInsertToken('{campaign_id}')">+ {campaign_id}</span>
+          <span class="adm-uid-pill" style="cursor:pointer;font-size:.72em" onclick="admInsertToken('{country}')">+ {country}</span>
+        </div>
+      </div>
+
+      <div class="adm-field">
+        <label>Postback URL</label>
+        <input class="adm-inp" id="admApprovePostback" type="text" placeholder="https://tracker.com/postback?cnv_id={afp1}&cnv_status=ftd&payout={Comission_Amount}">
+      </div>
+
+      <div class="adm-form-row">
+        <div class="adm-field">
+          <label>Affiliate Network</label>
+          <select class="adm-inp" id="admApproveAffNet">
+            <option value="">⏳ загрузка...</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label>Country (GEO)</label>
+          <div style="position:relative">
+            <input class="adm-inp" id="admApproveCountryQ" type="text" placeholder="DE, FR, US... или название"
+                   autocomplete="off" oninput="admFilterCountries(this.value)" onfocus="admShowCountryDrop()"
+                   style="padding-right:28px">
+            <input type="hidden" id="admApproveCountry">
+            <div id="admCountryDrop" style="display:none;position:absolute;z-index:999;top:100%;left:0;right:0;
+                 max-height:180px;overflow-y:auto;background:#1a2333;border:1px solid #334155;border-radius:8px;
+                 margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.5)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="adm-field">
+          <label>Payout</label>
+          <input class="adm-inp" id="admApprovePayout" type="number" step="0.01" placeholder="0">
+        </div>
+        <div class="adm-field">
+          <label>Валюта</label>
+          <select class="adm-inp" id="admApproveCurrency">
+            <option value="USD">USD $</option>
+            <option value="EUR">EUR €</option>
+            <option value="BRL">BRL R$</option>
+            <option value="GBP">GBP £</option>
+            <option value="CAD">CAD $</option>
+            <option value="AUD">AUD $</option>
+            <option value="TRY">TRY ₺</option>
+            <option value="UAH">UAH ₴</option>
+            <option value="KZT">KZT ₸</option>
+            <option value="PLN">PLN zł</option>
+          </select>
+        </div>
+        <div class="adm-field" style="display:flex;align-items:flex-end;padding-bottom:12px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.8em;color:#94a3b8">
+            <input type="checkbox" id="admApproveAutoPayout" checked style="accent-color:#6366f1"> Auto payout
+          </label>
+        </div>
+      </div>
+
+      <!-- Conversion cap -->
+      <div style="margin-bottom:10px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.82em;color:#94a3b8">
+          <input type="checkbox" id="admApproveConvCap" style="accent-color:#6366f1"
+                 onchange="document.getElementById('admCapFields').style.display=this.checked?'block':'none'">
+          Conversion cap
+        </label>
+      </div>
+      <div id="admCapFields" style="display:none;background:#0f1724;border:1px solid #1e2d45;border-radius:8px;padding:12px;margin-bottom:12px">
+        <div class="adm-form-row">
+          <div class="adm-field" style="margin-bottom:0">
+            <label>Max cap</label>
+            <input class="adm-inp" id="admApproveMaxCap" type="number" min="1" placeholder="20">
+          </div>
+          <div class="adm-field" style="margin-bottom:0">
+            <label>Reset every (сек)</label>
+            <input class="adm-inp" id="admApproveResetSec" type="number" placeholder="86400 = 1 день">
+          </div>
+        </div>
+        <div class="adm-field" style="margin-top:10px;margin-bottom:0">
+          <label>Reset starting from</label>
+          <input class="adm-inp" id="admApproveResetFrom" type="datetime-local">
+        </div>
+      </div>
+
+      <!-- Alternative offer -->
+      <div class="adm-field">
+        <label>Alternative offer (при переполненном капе)</label>
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <input class="adm-inp" id="admAltOfferSearch" type="text" placeholder="Поиск по названию / стране..."
+                 style="flex:1" oninput="admSearchAltOffers(this.value)">
+          <button class="adm-btn sm" onclick="admSearchAltOffers('')">Все</button>
+        </div>
+        <select class="adm-inp" id="admApproveAltOffer" size="4" style="height:88px">
+          <option value="">— нет —</option>
+        </select>
+      </div>
+
+      <!-- Priority — настройка пути в ротации, не поля оффера -->
+      <div class="adm-field">
+        <label>Priority <span style="color:#475569;font-size:.75em">(применяется к пути в ротации)</span></label>
+        <select class="adm-inp" id="admApprovePriority">
+          <option value="offers_alternative">Offers in path, Alternative offer</option>
+          <option value="alternative_offers">Alternative offer, Offers in path</option>
+          <option value="offers_only">Offers in path only</option>
+        </select>
+      </div>
+
+      <div style="border-top:1px solid #1e2d45;margin:14px 0"></div>
+
+      <!-- Ротация -->
+      <div style="font-size:.72em;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">📌 Добавить в ротацию</div>
+
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="adm-field">
+          <label>Rotation ID</label>
+          <div style="display:flex;gap:6px">
+            <input class="adm-inp" id="admApproveRotId" type="text" placeholder="65" style="flex:1">
+            <button class="adm-btn sm" onclick="admLoadGeos()" id="admLoadGeosBtn">GEO ↓</button>
+          </div>
+        </div>
+        <div class="adm-field">
+          <label>GEO в ротации</label>
+          <select class="adm-inp" id="admApproveGeo" disabled>
+            <option value="">— загрузите ротацию —</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label>Вес</label>
+          <input class="adm-inp" id="admApproveWeight" type="number" value="50" min="1" max="100">
+        </div>
+      </div>
+
+      <div id="admApproveBindomErr" style="color:#e05050;font-size:.78em;min-height:18px;margin-bottom:4px"></div>
+
+      <div style="border-top:1px solid #1e2d45;margin:12px 0"></div>
+
+      <div class="adm-field">
+        <label>Комментарий партнёру</label>
+        <textarea class="adm-inp" id="admApproveComment" rows="2" placeholder="Принято!"></textarea>
+      </div>
+
+      <div class="adm-modal-actions">
+        <button class="adm-btn" onclick="admCloseModal('admModalApprove')">Отмена</button>
+        <button class="adm-btn" onclick="admSubmitApproveOnly()">Только статус ✓</button>
+        <button class="adm-btn success" onclick="admSubmitApprove()">🚀 Создать оффер + одобрить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reject -->
+  <div class="adm-overlay" id="admModalReject" style="display:none">
+    <div class="adm-modal">
+      <div class="adm-modal-title">❌ Отклонить заявку</div>
+      <div class="adm-field">
+        <label>Причина</label>
+        <textarea class="adm-inp" id="admRejectComment" placeholder="Укажите причину…"></textarea>
+      </div>
+      <div class="adm-modal-actions">
+        <button class="adm-btn" onclick="admCloseModal('admModalReject')">Отмена</button>
+        <button class="adm-btn danger" onclick="admSubmitReject()">✗ Отклонить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create network -->
+  <div class="adm-overlay" id="admModalCreateNet" style="display:none">
+    <div class="adm-modal">
+      <div class="adm-modal-title">🌐 Новая сеть</div>
+      <div class="adm-field">
+        <label>Название *</label>
+        <input class="adm-inp" id="admCnName" type="text" placeholder="MyPartners Network">
+      </div>
+      <div class="adm-field">
+        <label>Postback URL</label>
+        <input class="adm-inp" id="admCnPostback" type="text" placeholder="https://...">
+      </div>
+      <div class="adm-field">
+        <label>Заметки</label>
+        <textarea class="adm-inp" id="admCnNotes"></textarea>
+      </div>
+      <div class="adm-err" id="admCnErr"></div>
+      <div class="adm-modal-actions">
+        <button class="adm-btn" onclick="admCloseModal('admModalCreateNet')">Отмена</button>
+        <button class="adm-btn primary" onclick="admSubmitCreateNet()">Создать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create user -->
+  <div class="adm-overlay" id="admModalCreateUser" style="display:none">
+    <div class="adm-modal">
+      <div class="adm-modal-title">👤 Новый пользователь</div>
+      <div class="adm-form-row">
+        <div class="adm-field">
+          <label>Логин *</label>
+          <input class="adm-inp" id="admCuUser" type="text" placeholder="partner1">
+        </div>
+        <div class="adm-field">
+          <label>Пароль *</label>
+          <input class="adm-inp" id="admCuPass" type="password">
+        </div>
+      </div>
+      <div class="adm-field">
+        <label>Роль</label>
+        <select class="adm-inp" id="admCuRole">
+          <option value="partner">Партнёр</option>
+          <option value="admin">Администратор</option>
+        </select>
+      </div>
+      <div class="adm-err" id="admCuErr"></div>
+      <div class="adm-modal-actions">
+        <button class="adm-btn" onclick="admCloseModal('admModalCreateUser')">Отмена</button>
+        <button class="adm-btn primary" onclick="admSubmitCreateUser()">Создать</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>

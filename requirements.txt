@@ -1,0 +1,20 @@
+# Web framework
+Flask==3.1.0
+Werkzeug==3.1.0
+ 
+# HTTP requests
+requests==2.32.5
+ 
+# Environment variables
+python-dotenv==1.1.0
+ 
+# Timezone support
+pytz==2025.2
+ 
+# Task scheduler (Google Sheets auto-sync)
+APScheduler==3.11.0
+ 
+# Google Sheets API
+google-auth==2.38.0
+google-auth-httplib2==0.2.0
+google-api-python-client==2.165.0
