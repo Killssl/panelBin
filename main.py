@@ -1,6 +1,5 @@
-from datetime import datetime
-from functools import wraps
 from datetime import datetime, timedelta
+from functools import wraps
 from flask import Flask, jsonify, Response, render_template, session, redirect, request, make_response
 
 from app.utils.config import PORT, LOCAL_TZ, APP_PREFIX, BINOM_BASE, ADMIN_LOGIN, ADMIN_PASSWORD, FLASK_SECRET_KEY, SESSION_LIFETIME_DAYS
@@ -18,9 +17,11 @@ app = Flask(
 )
 
 app.secret_key = FLASK_SECRET_KEY
-app.config["SESSION_COOKIE_HTTPONLY"]      = True
-app.config["SESSION_COOKIE_SAMESITE"]      = "Lax"
-app.config["PERMANENT_SESSION_LIFETIME"]   = timedelta(days=SESSION_LIFETIME_DAYS)
+app.config["SESSION_COOKIE_HTTPONLY"]    = True
+app.config["SESSION_COOKIE_SAMESITE"]   = "Lax"
+app.config["SESSION_COOKIE_PATH"]       = APP_PREFIX + "/" if APP_PREFIX else "/"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=SESSION_LIFETIME_DAYS)
+app.config["APPLICATION_ROOT"]          = APP_PREFIX or "/"
 
 
 # ---------- CORS ----------
@@ -40,12 +41,22 @@ def login_required(fn):
     def wrapper(*args, **kwargs):
         if not session.get("logged_in"):
             return redirect(APP_PREFIX + "/login")
-        # Если сессия из прошлого месяца — сбрасываем
         if session.get("month") != datetime.now().strftime("%Y-%m"):
             session.clear()
             return redirect(APP_PREFIX + "/login")
         return fn(*args, **kwargs)
     return wrapper
+
+
+def _inject_prefix(html: str) -> str:
+    """Вставляет APP_PREFIX в HTML и фиксирует пути к статике."""
+    inject = f'<script>window.APP_PREFIX = "{APP_PREFIX}";</script>'
+    html = html.replace("</head>", inject + "\n</head>", 1)
+    if APP_PREFIX:
+        # Фиксируем абсолютные пути к статике
+        html = html.replace('href="/static/', f'href="{APP_PREFIX}/static/')
+        html = html.replace('src="/static/',  f'src="{APP_PREFIX}/static/')
+    return html
 
 
 # ---------- Login / Logout ----------
@@ -54,7 +65,8 @@ def login_required(fn):
 def login_page():
     if session.get("logged_in"):
         return redirect(APP_PREFIX + "/")
-    return render_template("login.html", app_prefix=APP_PREFIX)
+    html = _inject_prefix(render_template("login.html", app_prefix=APP_PREFIX))
+    return Response(html, mimetype="text/html")
 
 
 @app.post("/login")
@@ -84,14 +96,11 @@ def logout():
 @app.get("/")
 @login_required
 def index():
-    html = render_template("index.html")
-    inject = f'<script>window.APP_PREFIX = "{APP_PREFIX}";</script>'
-    html = html.replace("</head>", inject + "\n</head>", 1)
-    return Response(html, mimetype="text/html")
+    return Response(_inject_prefix(render_template("index.html")), mimetype="text/html")
 
 @app.get("/partner")
 def partner_page():
-    return render_template("partner.html")
+    return Response(_inject_prefix(render_template("partner.html")), mimetype="text/html")
 
 @app.get("/favicon.ico")
 def favicon():
