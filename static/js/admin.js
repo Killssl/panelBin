@@ -17,7 +17,11 @@ const ADM = {
 
 const h = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-const _PREFIX = (window.APP_PREFIX || '').replace(/\/$/, '');
+function _getPrefix() {
+  if (window.APP_PREFIX) return String(window.APP_PREFIX).replace(/\/+$/, '');
+  const m = window.location.pathname.match(/^(\/[^/]+)\//);
+  return (m && m[1] !== '/static') ? m[1] : '';
+}
 
 async function admApi(method, path, body) {
   const opts = {
@@ -29,7 +33,7 @@ async function admApi(method, path, body) {
   };
   if (body !== undefined) opts.body = JSON.stringify(body);
   try {
-    const r = await fetch(_PREFIX + path, opts);
+    const r = await fetch(_getPrefix() + path, opts);
     return r.json();
   } catch (e) {
     return { ok: false, error: String(e) };
@@ -64,7 +68,7 @@ document.addEventListener('keydown', e => {
 (async function autoFetchSessionToken() {
   if (ADM.token) return; // уже есть
   try {
-    const r = await fetch(_PREFIX + '/api/auth/session_token');
+    const r = await fetch(_getPrefix() + '/api/auth/session_token');
     if (r.ok) {
       const j = await r.json();
       if (j.ok && j.token) {
@@ -74,6 +78,33 @@ document.addEventListener('keydown', e => {
   } catch(e) {}
 })();
 
+
+// ─── Rotations config ────────────────────────────────────────────────────────
+const ADM_ROTATIONS = [
+  { id: "121", name: "Crash" },
+  { id: "124", name: "Casino" },
+  { id: "118", name: "Betting" },
+  { id: "61",  name: "Slots" },
+  { id: "117", name: "Mixed" },
+];
+
+function admInitRotationsList() {
+  const el = document.getElementById('admRotationsList');
+  if (!el) return;
+  el.innerHTML = ADM_ROTATIONS.map(r => `
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;
+                  background:#0f1724;border:1px solid #1e3a5f;border-radius:6px">
+      <input type="checkbox" class="adm-rot-check" data-rot-id="${r.id}"
+             style="accent-color:#6366f1;width:14px;height:14px">
+      <span style="color:#e2e8f0;font-size:.85em">${h(r.name)}</span>
+      <span style="color:#475569;font-size:.75em">#${r.id}</span>
+    </label>
+  `).join('');
+}
+
+function admGetSelectedRotations() {
+  return [...document.querySelectorAll('.adm-rot-check:checked')].map(cb => cb.dataset.rotId);
+}
 
 // ─── Open / Close overlay ─────────────────────────────────────────────────────
 
@@ -92,6 +123,7 @@ function closeAdmin() {
   document.getElementById('adminOverlay')?.classList.remove('open');
   document.body.style.overflow = '';
   admCloseDrawer();
+  admStopTrackingAutoRefresh();
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -134,7 +166,7 @@ function admShowApp(username) {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи' };
+const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов' };
 
 function admNav(name) {
   document.querySelectorAll('.adm-nav-item').forEach(n => n.classList.remove('active'));
@@ -146,6 +178,8 @@ function admNav(name) {
   if (name === 'networks') admLoadNetworks();
   if (name === 'requests') admLoadRequests();
   if (name === 'users')    admLoadUsers();
+  if (name === 'tracking') { admLoadTracking(); admStartTrackingAutoRefresh(); }
+  else admStopTrackingAutoRefresh();
 }
 
 // ─── Networks (from Binom) ────────────────────────────────────────────────────
@@ -564,13 +598,13 @@ function admOpenApprove(id) {
   document.getElementById('admApproveAutoPayout').checked = true;
   document.getElementById('admApproveConvCap').checked    = false;
   document.getElementById('admCapFields').style.display   = 'none';
+  admInitRotationsList();
   document.getElementById('admApproveCurrency').value     = 'USD';
-  document.getElementById('admApprovePriority').value     = 'offers_in_path_alternative';
+  document.getElementById('admApprovePriority').value     = 'offers_alternative';
   document.getElementById('admApproveBindomErr').textContent = '';
   document.getElementById('admApproveAltOffer').innerHTML = '<option value="">— нет —</option>';
   const geoSel = document.getElementById('admApproveGeo');
-  geoSel.innerHTML = '<option value="">— загрузите ротацию —</option>';
-  geoSel.disabled  = true;
+  geoSel.innerHTML = '<option value="">— нажмите GEO ↓ —</option>';
 
   // Load affiliate networks
   admApi('GET', '/api/binom/affiliate_networks').then(j => {
@@ -648,12 +682,31 @@ function admOpenApprove(id) {
       document.getElementById('admCapFields').style.display = 'block';
       document.getElementById('admApproveMaxCap').value = capNum[1];
       // Default: 86400s (1 day), resetFrom stays empty until user fills it
-      document.getElementById('admApproveResetSec').value  = '86400';
-      document.getElementById('admApproveResetFrom').value = '';
+      document.getElementById('admApproveResetSec').value = '86400';
+      // Год вперёд от сейчас
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + 1);
+      const pad = n => String(n).padStart(2, '0');
+      const resetFromVal = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+                           'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      document.getElementById('admApproveResetFrom').value = resetFromVal;
     }
 
     // Auto-select affiliate network by partner's binom_network_id
     admAutoSelectAffNet();
+
+    // Подтягиваем postback URL партнёрки
+    if (req.binom_network_id) {
+      admApi('GET', `/api/admin/networks/${req.binom_network_id}`).then(netJ => {
+        if (!netJ.ok) return;
+        const net = netJ.network || {};
+        const pb  = net.postback_url || net.postbackUrl || net.postback || '';
+        const pbEl = document.getElementById('admApprovePostback');
+        if (pbEl && !pbEl.value && pb) {
+          pbEl.value = pb;
+        }
+      });
+    }
   });
 
   document.getElementById('admModalApprove').style.display = 'flex';
@@ -757,24 +810,52 @@ function admInsertToken(token) {
   inp.setSelectionRange(pos + token.length, pos + token.length);
 }
 
-async function admLoadGeos() {
-  const rotId = document.getElementById('admApproveRotId').value.trim();
-  if (!rotId) return;
+async function admLoadAllGeos() {
+  const selected = admGetSelectedRotations();
+  if (!selected.length) {
+    document.getElementById('admApproveBindomErr').textContent = 'Выберите хотя бы одну ротацию';
+    return;
+  }
   const btn = document.getElementById('admLoadGeosBtn');
   btn.textContent = '⏳';
   btn.disabled = true;
-  const j = await admApi('GET', `/api/rotation/${rotId}/active_offers_grouped`);
+
+  // Грузим GEO из всех выбранных ротаций параллельно
+  const results = await Promise.all(
+    selected.map(rotId => admApi('GET', `/api/rotation/${rotId}/active_offers_grouped`))
+  );
+
   btn.textContent = 'GEO ↓';
   btn.disabled = false;
+
   const errEl = document.getElementById('admApproveBindomErr');
-  if (!j.ok) { errEl.textContent = j.error || 'Ошибка загрузки ротации'; return; }
   errEl.textContent = '';
+
+  // Собираем уникальные GEO из всех ротаций
+  const geoSet = new Map(); // geoTitle → count of rotations
+  for (const j of results) {
+    if (!j.ok) continue;
+    for (const g of (j.groups || [])) {
+      const key = g.geoTitle;
+      geoSet.set(key, (geoSet.get(key) || 0) + 1);
+    }
+  }
+
+  if (!geoSet.size) { errEl.textContent = 'Нет GEO в выбранных ротациях'; return; }
+
+  // Сортируем — сначала те что есть во всех ротациях
+  const geosSorted = [...geoSet.entries()]
+    .sort(([,a],[,b]) => b - a)
+    .map(([title, cnt]) => ({ title, cnt }));
+
   const geoSel = document.getElementById('admApproveGeo');
-  const geos = (j.groups || []).map(g => g.geoTitle);
-  if (!geos.length) { errEl.textContent = 'Нет GEO в этой ротации'; return; }
   geoSel.innerHTML = '<option value="">— выберите GEO —</option>' +
-    geos.map(g => `<option value="${h(g)}">${h(g)}</option>`).join('');
-  geoSel.disabled = false;
+    geosSorted.map(g => {
+      const badge = g.cnt === selected.length ? '' : ` (${g.cnt}/${selected.length} ротаций)`;
+      return `<option value="${h(g.title)}">${h(g.title)}${badge}</option>`;
+    }).join('');
+
+  // Автовыбор по GEO заявки
   const reqGeo = (ADM.pendingReqData?.geo || '').toUpperCase().slice(0,2);
   if (reqGeo) {
     for (const opt of geoSel.options) {
@@ -782,6 +863,9 @@ async function admLoadGeos() {
     }
   }
 }
+
+// Совместимость со старым кодом
+async function admLoadGeos() { return admLoadAllGeos(); }
 
 function admOpenReject(id) {
   ADM.pendingReqId = id;
@@ -819,53 +903,72 @@ async function admSubmitApprove() {
   const altOffer   = document.getElementById('admApproveAltOffer').value || null;
   // priority — не поле оффера в Binom, убираем из payload
   // const priority = document.getElementById('admApprovePriority').value;
-  const rotId      = document.getElementById('admApproveRotId').value.trim();
+  const rotIds     = admGetSelectedRotations();
   const geo        = document.getElementById('admApproveGeo').value.trim();
   const weight     = parseInt(document.getElementById('admApproveWeight').value) || 50;
   const comment    = document.getElementById('admApproveComment').value.trim();
 
   if (!name) { errEl.textContent = 'Укажите название оффера'; return; }
   if (!url)  { errEl.textContent = 'Укажите URL оффера'; return; }
-  if (rotId && !geo) { errEl.textContent = 'Выберите GEO для ротации'; return; }
+  if (rotIds.length && !geo) { errEl.textContent = 'Выберите GEO для ротаций'; return; }
 
-  errEl.style.color   = '#94a3b8';
-  errEl.textContent   = '⏳ Создаю оффер в Binom...';
+  errEl.style.color = '#94a3b8';
+  errEl.textContent = '⏳ Создаю оффер в Binom...';
 
+  // Создаём оффер (без ротации — потом добавим в каждую)
   const payload = {
     name, url,
-    postback_url:          postback    || undefined,
-    affiliate_network_id:  affNet      || undefined,
-    country:               country     || undefined,
-    payout:                payout      || undefined,
+    postback_url:          postback   || undefined,
+    affiliate_network_id:  affNet     || undefined,
+    country:               country    || undefined,
+    payout:                payout     || undefined,
     currency,
     auto_payout:           autoPay,
     conversion_cap:        convCap,
     max_cap:               convCap && maxCap ? maxCap : undefined,
     reset_cap_seconds:     convCap && resetSec ? resetSec : undefined,
     reset_cap_from:        convCap && resetFrom ? resetFrom : undefined,
-    alternative_offer_id:  altOffer    || undefined,
-    // priority не передаём в offer body
-    rotation_id:           rotId       || undefined,
-    geo:                   geo         || undefined,
-    weight,
+    alternative_offer_id:  altOffer   || undefined,
   };
 
   const j = await admApi('POST', '/api/binom/offers', payload);
   if (!j.ok) {
-    errEl.style.color   = '#e05050';
-    errEl.textContent   = '❌ ' + (j.error || 'Ошибка создания оффера');
+    errEl.style.color = '#e05050';
+    errEl.textContent = '❌ ' + (j.error || 'Ошибка создания оффера');
     return;
   }
 
-  const offerIdMsg = j.binom_offer_id ? ` (ID: ${j.binom_offer_id})` : '';
-  const rotMsg = j.rotation_added === true  ? ' + добавлен в ротацию ✓'
-               : j.rotation_error           ? ` ⚠️ ${j.rotation_error}` : '';
-  errEl.style.color   = '#3ecf8e';
-  errEl.textContent   = `✅ Оффер создан${offerIdMsg}${rotMsg}`;
+  const offerId    = j.binom_offer_id;
+  const offerIdMsg = offerId ? ` (ID: ${offerId})` : '';
+  errEl.textContent = `✅ Оффер создан${offerIdMsg}`;
+
+  // Добавляем в каждую выбранную ротацию отдельным запросом
+  console.log('[approve] rotIds:', rotIds, 'geo:', geo, 'offerId:', offerId);
+  const rotResults = [];
+  for (const rotId of rotIds) {
+    errEl.textContent = `⏳ Добавляю в ротацию #${rotId}...`;
+    const partnerName = ADM.pendingReqData?.partner_name || '';
+    const rj = await admApi('POST', '/api/binom/offers/add_to_rotation', {
+      offer_id: offerId, rotation_id: rotId, geo, weight,
+      offer_name: name,
+      max_cap: (convCap && maxCap) ? maxCap : undefined,
+      partner_name: partnerName,
+    });
+    console.log('[add_to_rotation] rotId:', rotId, 'response:', rj);
+    rotResults.push({ rotId, ok: rj.ok, error: rj.rotation_error || rj.error });
+  }
+
+  const rotOk  = rotResults.filter(r => r.ok).map(r => '#' + r.rotId).join(', ');
+  const rotFail = rotResults.filter(r => !r.ok).map(r => `#${r.rotId}: ${r.error}`).join('; ');
+  const rotMsg  = rotOk ? ` + ротации: ${rotOk} ✓` : '';
+  const rotErrMsg = rotFail ? ` ⚠️ ${rotFail}` : '';
+
+  errEl.style.color = '#3ecf8e';
+  errEl.textContent = `✅ Оффер создан${offerIdMsg}${rotMsg}${rotErrMsg}`;
 
   await admApi('POST', `/api/admin/requests/${ADM.pendingReqId}/approve`, {
-    comment: comment || `Оффер создан в Binom${offerIdMsg}`,
-    rotation_id: rotId || undefined,
+    comment: comment || `Оффер создан в Binom${offerIdMsg}${rotMsg}`,
+    rotation_id: rotIds[0] || undefined,
   });
 
   setTimeout(() => {
@@ -934,6 +1037,78 @@ async function admResetTok(id) {
 // ─── Google Sheets Sync Panel ─────────────────────────────────────────────────
 
 
+// ─── Partner account helpers ──────────────────────────────────────────────────
+
+function admCopyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.createElement('div');
+    msg.textContent = 'Скопировано!';
+    msg.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:8px 16px;border-radius:8px;font-size:.85em;z-index:9999';
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 1500);
+  });
+}
+
+async function admCreateAccount(netId) {
+  const errEl = document.getElementById('dAccErr');
+  const username = document.getElementById('dAccUser')?.value.trim();
+  const password = document.getElementById('dAccPass')?.value.trim();
+  if (!username) { if (errEl) errEl.textContent = 'Укажите логин'; return; }
+  if (errEl) errEl.textContent = '';
+  const j = await admApi('POST', `/api/admin/networks/${netId}/create_account`, {
+    username, password: password || undefined,
+  });
+  if (!j.ok) { if (errEl) errEl.textContent = j.error || 'Ошибка создания'; return; }
+  admOpenDrawer(netId);
+  admLoadNetworks();
+}
+
+async function admRegenUID(netId) {
+  if (!confirm('Сгенерировать новый UID? Старый перестанет работать.')) return;
+  const j = await admApi('POST', `/api/admin/networks/${netId}/regen_uid`);
+  if (j.ok) { admOpenDrawer(netId); }
+  else { alert('Ошибка: ' + (j.error || 'не удалось обновить UID')); }
+}
+
+async function admDeleteAccount(netId) {
+  if (!confirm('Удалить аккаунт партнёра?')) return;
+  const j = await admApi('DELETE', `/api/admin/networks/${netId}/account`);
+  if (j.ok) { admOpenDrawer(netId); admLoadNetworks(); }
+  else { alert('Ошибка: ' + (j.error || 'не удалось удалить аккаунт')); }
+}
+
+async function admSubmitReject() {
+  const comment = document.getElementById('admRejectComment').value.trim();
+  const j = await admApi('POST', `/api/admin/requests/${ADM.pendingReqId}/reject`, { comment });
+  if (!j.ok) { alert('Ошибка: ' + (j.error || 'не удалось отклонить')); return; }
+  admCloseModal('admModalReject');
+  admLoadRequests();
+  admLoadPendingCount();
+}
+
+async function admSubmitCreateNet() {
+  const errEl = document.getElementById('admCnErr');
+  errEl.textContent = '';
+  const name     = document.getElementById('admCnName').value.trim();
+  const postback = document.getElementById('admCnPostback').value.trim();
+  const notes    = document.getElementById('admCnNotes').value.trim();
+  if (!name) { errEl.textContent = 'Укажите название'; return; }
+  const j = await admApi('POST', '/api/admin/networks', { name, postback_url: postback, notes });
+  if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
+  admCloseModal('admModalCreateNet');
+  admLoadNetworks();
+}
+
+(function injectSheetsSyncBtn() {
+  const btn = document.createElement("button");
+  btn.className = "btn sheets-sync-btn";
+  btn.textContent = "📊 Sheets Sync";
+  btn.addEventListener("click", () => openSheetsSyncPanel());
+  const filterRow = document.querySelector(".filter-row") || document.querySelector(".controls");
+  if (filterRow) filterRow.appendChild(btn);
+  else document.body.appendChild(btn);
+})();
+
 function openSheetsSyncPanel() {
   document.getElementById("sheetsSyncPanel")?.remove();
 
@@ -984,6 +1159,8 @@ function openSheetsSyncPanel() {
       <div id="ssSyncLog" style="background:#0f1724;border:1px solid #1e3a5f;border-radius:8px;padding:12px;font-size:12px;font-family:monospace;min-height:100px;white-space:pre-wrap;color:#94a3b8">
         Нажми "Синк сейчас" или "Dry run"...
       </div>
+
+
     </div>
   `;
   document.body.appendChild(panel);
@@ -993,7 +1170,7 @@ function openSheetsSyncPanel() {
 async function ssEnsureToken() {
   if (ADM.token) return true;
   try {
-    const r = await fetch(_PREFIX + '/api/auth/session_token');
+    const r = await fetch(_getPrefix() + '/api/auth/session_token');
     if (r.ok) {
       const j = await r.json();
       if (j.ok && j.token) {
@@ -1077,6 +1254,353 @@ async function ssFillIds(dryRun) {
   } else {
     ssLog(JSON.stringify(j, null, 2));
   }
+}
+
+let _trackingSort   = { col: 'pct', dir: -1 }; // -1 = desc
+let _trackingFilter = 'active'; // active | stopped | no_perform | all
+
+let _trackingRefreshTimer = null;
+let _trackingLastUpdated  = null;
+
+function admStartTrackingAutoRefresh() {
+  admStopTrackingAutoRefresh();
+  // Проверяем updated_at кеша каждые 30 сек — если изменился, перерисовываем
+  _trackingRefreshTimer = setInterval(async () => {
+    try {
+      const j = await admApi('GET', '/api/tracking/fd?_=' + Date.now());
+      const vals = Object.values(j.fd || {});
+      const latest = vals.map(v => v.updated_at || '').sort().pop() || '';
+      if (latest && latest !== _trackingLastUpdated) {
+        _trackingLastUpdated = latest;
+        admLoadTracking();
+      }
+    } catch(e) {}
+  }, 30000);
+}
+
+function admStopTrackingAutoRefresh() {
+  if (_trackingRefreshTimer) {
+    clearInterval(_trackingRefreshTimer);
+    _trackingRefreshTimer = null;
+  }
+  _trackingLastUpdated = null;
+}
+
+function trkSetFilter(f, btn) {
+  _trackingFilter = f;
+  document.querySelectorAll('.trk-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  admLoadTracking();
+}
+
+function trkToggleSort(col) {
+  if (_trackingSort.col === col) _trackingSort.dir *= -1;
+  else { _trackingSort.col = col; _trackingSort.dir = -1; }
+  admLoadTracking();
+}
+
+function trkSortArrow(col) {
+  if (_trackingSort.col !== col) return '<span style="color:#334155;font-size:.8em">⇅</span>';
+  return _trackingSort.dir === -1 ? '▼' : '▲';
+}
+
+async function admLoadTracking() {
+  const el = document.getElementById('admTrackingTable');
+  if (!el) return;
+  el.innerHTML = '<div class="adm-empty">Загрузка...</div>';
+  try {
+    const [j, jfd] = await Promise.all([
+      admApi('GET', '/api/tracking/offers?_=' + Date.now()),
+      admApi('GET', '/api/tracking/fd'),
+    ]);
+    if (!j.ok) { el.innerHTML = '<div class="adm-empty" style="color:#ef4444">Ошибка загрузки</div>'; return; }
+    const offers = Object.entries(j.offers || {});
+    const fdMap  = jfd.fd || {};
+    if (!offers.length) {
+      el.innerHTML = '<div class="adm-empty">Нет отслеживаемых офферов.</div>';
+      return;
+    }
+
+    // Сортировка
+    // Фильтр по статусу
+    const filtered = _trackingFilter === 'all'
+      ? offers
+      : offers.filter(([id, o]) => {
+          const status = o.status || 'active';
+          return status === _trackingFilter;
+        });
+
+    const sorted = filtered.slice().sort(([ia, a], [ib, b]) => {
+      const fda = fdMap[ia]?.fd ?? -1;
+      const fdb = fdMap[ib]?.fd ?? -1;
+      const ca  = a.max_cap || 0;
+      const cb  = b.max_cap || 0;
+      if (_trackingSort.col === 'fd') return _trackingSort.dir * (fda - fdb);
+      if (_trackingSort.col === 'pct') {
+        const pa = ca ? fda / ca : -1;
+        const pb = cb ? fdb / cb : -1;
+        return _trackingSort.dir * (pa - pb);
+      }
+      return 0;
+    });
+
+    const rows = sorted.map(([id, o]) => {
+      const fdInfo   = fdMap[id] || {};
+      const fd       = fdInfo.fd;
+      const maxCap   = o.max_cap;
+      const fdText   = fd !== null && fd !== undefined ? String(fd) : '—';
+      const capText  = maxCap ? ` / ${maxCap}` : '';
+      const pct      = (maxCap && fd != null) ? Math.min(100, Math.round(fd / maxCap * 100)) : null;
+      const barColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981';
+      const updAt    = fdInfo.updated_at ? `<div style="color:#475569;font-size:.7em">${fdInfo.updated_at.slice(11,16)}</div>` : '';
+      const fdCell   = fd != null
+        ? `<div>
+            <b style="color:${barColor}">${fdText}</b><span style="color:#94a3b8">${capText}</span>
+            ${pct != null ? `<div style="height:4px;background:#1e3a5f;border-radius:2px;margin-top:3px">
+              <div style="height:4px;background:${barColor};border-radius:2px;width:${pct}%"></div>
+            </div>` : ''}
+            ${updAt}
+           </div>`
+        : `<span style="color:#475569">—</span>`;
+      const status = o.status || 'active';
+      const statusDot = status === 'stopped'    ? '<span style="color:#ef4444;font-size:.7em"> ● стоп</span>'
+                      : status === 'no_perform' ? '<span style="color:#f59e0b;font-size:.7em"> ● не перформ</span>'
+                      : '';
+      const manualBadge = o.manual ? ' <span style="color:#60a5fa;font-size:.7em">вручную</span>' : '';
+
+      return `<tr>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis">
+          <span id="trkNameDisplay_${h(id)}" style="cursor:pointer;color:#e2e8f0"
+                onclick="admEditTrackingName('${h(id)}')" title="Нажмите чтобы изменить">
+            ${h(o.name || '—')}${manualBadge}${statusDot}
+          </span>
+
+        </td>
+        <td><span style="color:#60a5fa">#${h(id)}</span></td>
+        <td class="adm-muted" style="font-size:.8em">${h(o.partner_name || '—')}</td>
+        <td><b style="color:#3ecf8e">${h(o.start_date || '—')}</b></td>
+        <td>${fdCell}</td>
+        <td class="adm-muted" style="font-size:.78em">#${h(o.rotation_id || '—')} · ${h(o.geo || '—')}</td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            ${status !== 'stopped'    ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#ef4444" onclick="trkSetStatus('${h(id)}','stopped')">⏹ Стоп</button>` : ''}
+            ${status !== 'no_perform' ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#f59e0b" onclick="trkSetStatus('${h(id)}','no_perform')">⚠ Не перф</button>` : ''}
+            ${status !== 'active'     ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#10b981" onclick="trkSetStatus('${h(id)}','active')">▶ Актив</button>` : ''}
+            <button class="adm-btn sm danger" style="font-size:.7em;padding:2px 6px" onclick="admDeleteTracking('${h(id)}')">✕</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="trk-filter adm-btn sm ${_trackingFilter==='active'?'active':''}"
+          onclick="trkSetFilter('active',this)" style="color:#10b981">● Активные</button>
+        <button class="trk-filter adm-btn sm ${_trackingFilter==='stopped'?'active':''}"
+          onclick="trkSetFilter('stopped',this)" style="color:#ef4444">● Стопнутые</button>
+        <button class="trk-filter adm-btn sm ${_trackingFilter==='no_perform'?'active':''}"
+          onclick="trkSetFilter('no_perform',this)" style="color:#f59e0b">● Не перформ</button>
+        <button class="trk-filter adm-btn sm ${_trackingFilter==='all'?'active':''}"
+          onclick="trkSetFilter('all',this)" style="color:#94a3b8">Все</button>
+      </div>
+      <div class="adm-tbl-wrap">
+        <table class="adm-tbl">
+          <thead><tr>
+            <th>Оффер</th><th>ID</th><th>Партнёр</th><th>Дата старта</th>
+            <th style="cursor:pointer;user-select:none" onclick="trkToggleSort('pct')">FD / Кап ${trkSortArrow('pct')}</th>
+            <th>Ротация / GEO</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    el.innerHTML = '<div class="adm-empty" style="color:#ef4444">Ошибка: ' + h(String(e)) + '</div>';
+  }
+}
+
+
+
+function admCancelTrackingName(id) {
+  document.getElementById('trkNameDisplay_' + id).style.display = 'inline';
+  document.getElementById('trkNameInput_' + id).style.display = 'none';
+}
+
+async function admSaveTrackingName(id) {
+  const inp = document.getElementById('trkNameInput_' + id);
+  if (!inp) return;
+  const newName = inp.value.trim();
+  if (!newName) { admCancelTrackingName(id); return; }
+
+  const j = await admApi('POST', `/api/tracking/offers/${id}`, { name: newName });
+  if (j.ok) {
+    admLoadTracking();
+  } else {
+    admCancelTrackingName(id);
+  }
+}
+
+
+function admTrackSort(key) {
+  const cur = ADM._trackSort || '';
+  if (cur === key + '_desc') ADM._trackSort = key + '_asc';
+  else ADM._trackSort = key + '_desc';
+  admLoadTracking();
+}
+
+function admSortIcon(key) {
+  const cur = ADM._trackSort || '';
+  if (cur === key + '_desc') return '▼';
+  if (cur === key + '_asc')  return '▲';
+  return '⇅';
+}
+
+async function admEditTrackingName(id) {
+  // Берём свежие данные с сервера
+  const j = await admApi('GET', '/api/tracking/offers?_=' + Date.now());
+  if (!j.ok) return;
+  const o = j.offers[id];
+  if (!o) return;
+
+  // Убираем старый модал если есть
+  document.getElementById('trkEditModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'trkEditModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:12px;padding:24px;width:480px;max-width:95vw">
+      <div style="font-size:1em;font-weight:600;color:#e2e8f0;margin-bottom:16px">✏️ Редактировать оффер</div>
+      <div class="adm-field"><label>Название</label>
+        <input class="adm-inp" id="trkEditName" type="text" value="${h(o.name||'')}">
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><label>Партнёр</label>
+          <input class="adm-inp" id="trkEditPartner" type="text" value="${h(o.partner_name||'')}">
+        </div>
+        <div class="adm-field"><label>Кап</label>
+          <input class="adm-inp" id="trkEditCap" type="number" value="${h(String(o.max_cap||''))}">
+        </div>
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><label>Дата старта</label>
+          <input class="adm-inp" id="trkEditDate" type="date" value="${h(o.start_date||'')}">
+        </div>
+        <div class="adm-field"><label>GEO</label>
+          <input class="adm-inp" id="trkEditGeo" type="text" value="${h(o.geo||'')}">
+        </div>
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><label>Ротация ID</label>
+          <input class="adm-inp" id="trkEditRot" type="text" value="${h(o.rotation_id||'')}">
+        </div>
+        <div class="adm-field"><label>Binom ID</label>
+          <input class="adm-inp" id="trkEditId" type="text" value="${h(id)}" readonly style="opacity:.5">
+        </div>
+      </div>
+      <div class="adm-err" id="trkEditErr" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="adm-btn" onclick="document.getElementById('trkEditModal').remove()">Отмена</button>
+        <button class="adm-btn primary" onclick="admSaveTrackingEdit('${h(id)}')">💾 Сохранить</button>
+      </div>
+    </div>`;
+
+  // Закрытие по backdrop
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+  document.getElementById('trkEditName').focus();
+}
+
+async function admSaveTrackingEdit(id) {
+  const errEl = document.getElementById('trkEditErr');
+  const name  = document.getElementById('trkEditName').value.trim();
+  if (!name) { errEl.textContent = 'Название обязательно'; return; }
+
+  const cap = document.getElementById('trkEditCap').value.trim();
+  console.log('[trkEdit] saving id:', id, 'name:', name, 'cap:', cap);
+  const upd = await admApi('POST', `/api/tracking/offers/${id}`, {
+    name,
+    partner_name: document.getElementById('trkEditPartner').value.trim(),
+    max_cap:      cap ? parseInt(cap) : null,
+    start_date:   document.getElementById('trkEditDate').value.trim(),
+    geo:          document.getElementById('trkEditGeo').value.trim(),
+    rotation_id:  document.getElementById('trkEditRot').value.trim(),
+  });
+
+  console.log('[trkEdit] response:', upd);
+  if (!upd.ok) { errEl.textContent = upd.error || 'Ошибка'; return; }
+  document.getElementById('trkEditModal').remove();
+  admLoadTracking(); // сразу показываем новые текстовые данные
+  // Обновляем FD кеш и перерисовываем с полоской
+  admApi('POST', '/api/tracking/fd/refresh').then(() => {
+    setTimeout(() => admLoadTracking(), 1500);
+  });
+}
+
+async function admRefreshTrackingFD() {
+  const j = await admApi('POST', '/api/tracking/fd/refresh');
+  if (j.ok) {
+    setTimeout(() => admLoadTracking(), 3000); // даём 3 сек на обновление
+  }
+}
+
+function admToggleTrackingForm() {
+  const el = document.getElementById('admTrackingForm');
+  if (!el) return;
+  const shown = el.style.display !== 'none';
+  el.style.display = shown ? 'none' : 'block';
+  if (!shown) {
+    // Ставим сегодняшнюю дату по умолчанию
+    const d = new Date().toISOString().slice(0, 10);
+    const dateEl = document.getElementById('trkStartDate');
+    if (dateEl && !dateEl.value) dateEl.value = d;
+  }
+}
+
+async function admSubmitTrackingManual() {
+  const errEl = document.getElementById('trkErr');
+  errEl.textContent = '';
+  const offerId   = document.getElementById('trkOfferId').value.trim();
+  const name      = document.getElementById('trkName').value.trim();
+  const startDate = document.getElementById('trkStartDate').value.trim();
+  const partner   = document.getElementById('trkPartner').value.trim();
+  const maxCap    = document.getElementById('trkMaxCap').value.trim();
+  const rotId     = document.getElementById('trkRotId').value.trim();
+  const geo       = document.getElementById('trkGeo').value.trim();
+
+  if (!offerId || !name || !startDate) {
+    errEl.textContent = 'Заполните Binom ID, название и дату старта';
+    return;
+  }
+
+  const j = await admApi('POST', '/api/tracking/manual', {
+    offer_id:     offerId,
+    name,
+    start_date:   startDate,
+    partner_name: partner,
+    max_cap:      maxCap ? parseInt(maxCap) : undefined,
+    rotation_id:  rotId,
+    geo,
+  });
+
+  if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
+
+  // Очищаем поля формы
+  ['trkOfferId','trkName','trkPartner','trkMaxCap','trkRotId','trkGeo'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('admTrackingForm').style.display = 'none';
+  admLoadTracking();
+}
+
+async function trkSetStatus(offerId, status) {
+  const j = await admApi('POST', `/api/tracking/offers/${offerId}/status`, { status });
+  if (j.ok) admLoadTracking();
+}
+
+async function admDeleteTracking(offerId) {
+  if (!confirm('Удалить оффер из трекинга? Синк вернётся к стандартной логике.')) return;
+  const j = await admApi('DELETE', `/api/tracking/offers/${offerId}`);
+  if (j.ok) admLoadTracking();
 }
 
 function ssLog(text) {

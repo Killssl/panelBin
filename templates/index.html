@@ -138,6 +138,9 @@
           <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
             <span class="ico">👥</span> Пользователи
           </div>
+          <div class="adm-nav-item" onclick="admNav('tracking')" id="adm-nav-tracking">
+            <span class="ico">📅</span> Трекинг
+          </div>
         </div>
         <div class="adm-sidebar-bottom">
           <div class="adm-user-chip">
@@ -196,6 +199,54 @@
                   <tr><td colspan="10" class="adm-empty">Загрузка…</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Tracking -->
+          <div class="adm-panel" id="adm-panel-tracking">
+            <div class="adm-toolbar">
+              <span style="color:#94a3b8;font-size:.85em">Офферы добавленные через панель — FD считается с даты старта</span>
+              <button class="adm-btn sm" onclick="admLoadTracking()" style="margin-left:auto" title="Обновить из кеша">🔄</button>
+              <button class="adm-btn sm primary" onclick="admRefreshTrackingFD()" title="Запросить свежие данные из Binom">⚡ Обновить FD</button>
+            </div>
+            <div id="admTrackingFormWrap" style="margin-bottom:16px">
+              <button class="adm-btn primary" onclick="admToggleTrackingForm()">+ Добавить вручную</button>
+              <div id="admTrackingForm" style="display:none;background:#0f1724;border:1px solid #1e3a5f;border-radius:8px;padding:16px;margin-top:10px">
+                <div style="font-size:.82em;color:#94a3b8;margin-bottom:12px">Добавить существующий оффер из Binom</div>
+                <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
+                  <div class="adm-field"><label>Binom ID оффера *</label>
+                    <input class="adm-inp" id="trkOfferId" type="text" placeholder="1234">
+                  </div>
+                  <div class="adm-field"><label>Название *</label>
+                    <input class="adm-inp" id="trkName" type="text" placeholder="CAP30! Leon [TR]">
+                  </div>
+                  <div class="adm-field"><label>Партнёр</label>
+                    <input class="adm-inp" id="trkPartner" type="text" placeholder="Partner name">
+                  </div>
+                </div>
+                <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr 1fr">
+                  <div class="adm-field"><label>Дата старта *</label>
+                    <input class="adm-inp" id="trkStartDate" type="date">
+                  </div>
+                  <div class="adm-field"><label>Кап</label>
+                    <input class="adm-inp" id="trkMaxCap" type="number" placeholder="30">
+                  </div>
+                  <div class="adm-field"><label>Ротация ID</label>
+                    <input class="adm-inp" id="trkRotId" type="text" placeholder="121">
+                  </div>
+                  <div class="adm-field"><label>GEO</label>
+                    <input class="adm-inp" id="trkGeo" type="text" placeholder="TR">
+                  </div>
+                </div>
+                <div class="adm-err" id="trkErr" style="margin-bottom:8px"></div>
+                <div style="display:flex;gap:8px">
+                  <button class="adm-btn primary" onclick="admSubmitTrackingManual()">Добавить</button>
+                  <button class="adm-btn" onclick="admToggleTrackingForm()">Отмена</button>
+                </div>
+              </div>
+            </div>
+            <div id="admTrackingTable">
+              <div class="adm-empty">Загрузка...</div>
             </div>
           </div>
 
@@ -358,28 +409,32 @@
 
       <div style="border-top:1px solid #1e2d45;margin:14px 0"></div>
 
-      <!-- Ротация -->
-      <div style="font-size:.72em;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">📌 Добавить в ротацию</div>
+      <!-- Ротации (мультивыбор) -->
+      <div style="font-size:.72em;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">📌 Добавить в ротации</div>
 
-      <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="adm-field">
-          <label>Rotation ID</label>
-          <div style="display:flex;gap:6px">
-            <input class="adm-inp" id="admApproveRotId" type="text" placeholder="65" style="flex:1">
-            <button class="adm-btn sm" onclick="admLoadGeos()" id="admLoadGeosBtn">GEO ↓</button>
-          </div>
+      <div class="adm-field">
+        <label>Выберите ротации <span style="color:#475569;font-size:.75em">(можно несколько)</span></label>
+        <div id="admRotationsList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+          <!-- Заполняется JS -->
         </div>
-        <div class="adm-field">
-          <label>GEO в ротации</label>
-          <select class="adm-inp" id="admApproveGeo" disabled>
-            <option value="">— загрузите ротацию —</option>
+      </div>
+
+      <div class="adm-field" style="display:flex;gap:12px;align-items:flex-end">
+        <div style="flex:1">
+          <label>GEO <span style="color:#475569;font-size:.75em">(одно для всех выбранных ротаций)</span></label>
+          <select class="adm-inp" id="admApproveGeo">
+            <option value="">— выберите GEO —</option>
           </select>
         </div>
-        <div class="adm-field">
+        <div style="width:90px">
           <label>Вес</label>
           <input class="adm-inp" id="admApproveWeight" type="number" value="50" min="1" max="100">
         </div>
+        <button class="adm-btn sm" onclick="admLoadAllGeos()" id="admLoadGeosBtn" style="margin-bottom:12px">GEO ↓</button>
       </div>
+
+      <!-- скрытый input для совместимости со старым кодом -->
+      <input type="hidden" id="admApproveRotId">
 
       <div id="admApproveBindomErr" style="color:#e05050;font-size:.78em;min-height:18px;margin-bottom:4px"></div>
 

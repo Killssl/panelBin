@@ -1,0 +1,25 @@
+{
+  "stop:CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] ": {
+    "offer_name": "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg slot",
+    "sheet": "Casino",
+    "network": "Q3",
+    "message_id": 62
+  },
+  "stop:CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] ": {
+    "offer_name": "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "sheet": "Crash",
+    "network": "Q3"
+  },
+  "stop:CAP400!(3415) 3SNET - Leon CPA BR bl5": {
+    "offer_name": "CAP400!(3415) 3SNET - Leon CPA BR bl5",
+    "sheet": "Crash",
+    "network": "3SNET",
+    "message_id": 59
+  },
+  "stop:4290 DBbet - [CPA] - [ASO] - [BR] 20 USD": {
+    "offer_name": "4290 DBbet - [CPA] - [ASO] - [BR] 20 USD",
+    "sheet": "Трекинг",
+    "network": "AMILeads",
+    "message_id": 63
+  }
+}

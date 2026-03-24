@@ -39,7 +39,7 @@
   </header>
 
   <div class="tabs">
-    <div class="tab active" data-tab="offers" onclick="switchTab('offers')">📋 Офферы</div>
+    <div class="tab active" data-tab="my_offers" onclick="switchTab('my_offers')">🎯 Мои офферы</div>
     <div class="tab" data-tab="new" onclick="switchTab('new')">＋ Новая заявка</div>
     <div class="tab" data-tab="requests" onclick="switchTab('requests')">
       📩 Мои заявки <span id="pendingBadge" style="display:none;margin-left:4px;background:var(--yellow);color:#000;border-radius:10px;padding:1px 6px;font-size:.7em"></span>
@@ -49,7 +49,30 @@
   <div class="main">
 
     <!-- OFFERS PAGE -->
-    <div class="page active" id="page-offers">
+    <div class="page active" id="page-my_offers">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <button onclick="loadMyOffers(true)"
+          style="padding:6px 14px;border-radius:20px;border:1px solid #1e3a5f;background:#0d1b2e;color:#60a5fa;cursor:pointer;font-size:.82em">
+          🔄 Обновить
+        </button>
+        <div style="width:1px;height:20px;background:#1e3a5f"></div>
+        <button class="mo-filter active" onclick="setMyOffersFilter('active', this)"
+          style="padding:6px 14px;border-radius:20px;border:1px solid #1e3a5f;background:#0d1b2e;color:#10b981;cursor:pointer;font-size:.82em">
+          ● Активные
+        </button>
+        <button class="mo-filter" onclick="setMyOffersFilter('stopped', this)"
+          style="padding:6px 14px;border-radius:20px;border:1px solid #1e3a5f;background:#0d1b2e;color:#ef4444;cursor:pointer;font-size:.82em">
+          ● Стопнутые
+        </button>
+        <button class="mo-filter" onclick="setMyOffersFilter('all', this)"
+          style="padding:6px 14px;border-radius:20px;border:1px solid #1e3a5f;background:#0d1b2e;color:#94a3b8;cursor:pointer;font-size:.82em">
+          Все
+        </button>
+      </div>
+      <div id="myOffersList"><div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div></div>
+    </div>
+
+    <div class="page" id="page-offers">
       <div class="section-title">Доступные офферы</div>
       <div id="offersList"><div class="empty"><div class="spinner"></div></div></div>
     </div>
@@ -60,14 +83,24 @@
       <div class="card">
         <div class="form-grid">
 
-          <!-- Подход -->
+          <!-- Подход (мультивыбор) -->
           <div class="field span2">
-            <label>Подход *</label>
+            <label>Подход * <span style="color:var(--text2);font-size:.8em">(можно выбрать несколько)</span></label>
             <div class="chip-group" id="rApproachGroup">
-              <div class="chip" data-val="Crash" onclick="selectChip(this)">🎯 Crash</div>
-              <div class="chip" data-val="Casino" onclick="selectChip(this)">🎰 Casino</div>
-              <div class="chip" data-val="Betting" onclick="selectChip(this)">⚽ Betting</div>
+              <div class="chip" data-val="Crash" onclick="toggleChip(this)">🎯 Crash</div>
+              <div class="chip" data-val="Casino" onclick="toggleChip(this)">🎰 Casino</div>
+              <div class="chip" data-val="Betting" onclick="toggleChip(this)">⚽ Betting</div>
             </div>
+          </div>
+
+          <!-- Базовый оффер из Binom -->
+          <div class="field span2">
+            <label>Базовый оффер из Binom <span style="color:var(--text2);font-size:.8em">(подставит постбек и настройки)</span></label>
+            <input class="inp" id="rBaseOfferSearch" type="text" placeholder="Поиск по названию..."
+                   oninput="filterBaseOffers(this.value)" autocomplete="off">
+            <select class="inp" id="rBaseOffer" size="4" style="height:90px;margin-top:6px" onchange="onBaseOfferSelect(this)">
+              <option value="">— не выбрано —</option>
+            </select>
           </div>
 
           <!-- Кап + Название -->

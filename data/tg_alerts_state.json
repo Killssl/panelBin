@@ -5,7 +5,7 @@
   },
   "CAP300! TheLimitedClub - 4835 Leon [BR] ASO Reg": {
     "in_threshold": false,
-    "max_cap": 300
+    "max_cap": 700
   },
   "CAP400!(3415) 3SNET - Leon CPA BR bl5": {
     "in_threshold": false,
@@ -24,7 +24,7 @@
     "max_cap": 100
   },
   "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg slot": {
-    "in_threshold": false,
+    "in_threshold": true,
     "max_cap": 200
   },
   "1xbet- IN 40usd": {
@@ -377,11 +377,11 @@
   },
   "CAP100!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR": {
     "in_threshold": false,
-    "max_cap": 100
+    "max_cap": 200
   },
   "CAP300! VidaVegas - BR (ASO)": {
     "in_threshold": false,
-    "max_cap": 300
+    "max_cap": 400
   },
   "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg Slot": {
     "in_threshold": false,
@@ -748,7 +748,7 @@
     "max_cap": 20
   },
   "CAP200!Q3 - 3438 [PRIVATE] Leon - [ASO] Reg bet": {
-    "in_threshold": false,
+    "in_threshold": true,
     "max_cap": 200
   },
   "CAP100! 16954  Brazzino777  BR 24$": {
@@ -1098,5 +1098,113 @@
   "CAP20/geo!Q3 -3991 YEP Casino": {
     "in_threshold": false,
     "max_cap": 20
+  },
+  "CAP30! 4290 DBbet - [CPA] - [ASO] - [BR] 20 USD": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP50!- ClickLead - 4323_Parimatch_MA_ASO_betting 42 USD": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP30! MA 17147 WinWinbet 35 USD": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP50! BR 17111 Vidavegas 23 EUR": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP30! GN 15011  GoldPari 9 USD Casino": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP700! TheLimitedClub - 4835 Leon [BR] ASO Reg": {
+    "in_threshold": false,
+    "max_cap": 700
+  },
+  "CAP20! 5316 Play Fortuna [BR] ASO 25 USD": {
+    "in_threshold": false,
+    "max_cap": 20
+  },
+  "CAP50! 3SNET - 5586 Jonbet CPA BR - 125 BRL": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "5009 DBbet [BR] ASO": {
+    "in_threshold": false,
+    "max_cap": 100
+  },
+  "4290 DBbet - [CPA] - [ASO] - [BR] 20 USD": {
+    "in_threshold": true,
+    "max_cap": 30
+  },
+  "CAP100! 1926 Blaze | BR | ASO/UAC 25 USD": {
+    "in_threshold": false,
+    "max_cap": 100
+  },
+  "CAP30!- ClickLead - 5836_Melbet_BR_ASO_betting": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP200!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR": {
+    "in_threshold": false,
+    "max_cap": 200
+  },
+  "CAP400! VidaVegas - BR (ASO)": {
+    "in_threshold": false,
+    "max_cap": 400
+  },
+  "CAP100! TheLimitedClub - 5009 DBbet [BR] ASO 25 USD": {
+    "in_threshold": false,
+    "max_cap": 100
+  },
+  "CAP50! 3SNET - 5316 Leon CPA BR - 17 USD": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP50! 1993 Spinny Casino | BR | ASO Betting 22 EUR": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP50! 1992 Livewinz | BR | ASO Betting 22 EUR": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP30! 1982  BetFury | BR | ASO Betting 25 USD": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP50! 3SNET - 3669 Booi - 25 USD": {
+    "in_threshold": false,
+    "max_cap": 50
+  },
+  "CAP30ftd! TheLimitedClub - 5361 Parimatch [BR] ASO 18 USD": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "CAP20! Play Fortuna BR 25 USD": {
+    "in_threshold": false,
+    "max_cap": 20
+  },
+  "CAP30! TheLimitedClub - 5365 Gambloria [BR] ASO 16 EURO": {
+    "in_threshold": false,
+    "max_cap": 30
+  },
+  "NO Perform! Play Fortuna BR 25 USD": {
+    "in_threshold": false,
+    "max_cap": 20
+  },
+  "CAP20! Profitov -  11085 OLYMP [IN] ASO": {
+    "in_threshold": false,
+    "max_cap": 20
+  },
+  "CAP300!Profitov -10383 PrideSpins [GH] ASO General Slots+Crash": {
+    "in_threshold": false,
+    "max_cap": 300
+  },
+  "CAP30!Profitov -10894 FatPirate [ES] ASO IOS General, Crash 170 EUR": {
+    "in_threshold": false,
+    "max_cap": 30
   }
 }

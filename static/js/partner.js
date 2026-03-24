@@ -59,14 +59,92 @@ async function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('hUser').textContent = ME.username;
-  await Promise.all([loadOffers(), loadRequests()]);
+  await Promise.all([loadMyOffers(), loadRequests(), loadBaseOffers()]);
 }
 
 // ── TABS ─────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
-  if (tab === 'requests') loadRequests();
+  if (tab === 'requests')  loadRequests();
+  if (tab === 'my_offers') loadMyOffers();
+}
+
+// ── МОИ ОФФЕРЫ ────────────────────────────────────
+let _myOffers = [];
+let _myOffersFilter = 'active';
+
+async function loadMyOffers(forceRefresh = false) {
+  const el = document.getElementById('myOffersList');
+  if (!el) return;
+  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
+
+  if (forceRefresh) {
+    await api('POST', '/api/partner/refresh_offers_cache');
+  }
+
+  const j = await api('GET', '/api/partner/my_offers');
+  if (!j.ok) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка загрузки')}</div>`;
+    return;
+  }
+
+  _myOffers = j.offers || [];
+  renderMyOffers();
+}
+
+function setMyOffersFilter(f, btn) {
+  _myOffersFilter = f;
+  document.querySelectorAll('.mo-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMyOffers();
+}
+
+function renderMyOffers() {
+  const el = document.getElementById('myOffersList');
+  if (!el) return;
+
+  const filtered = _myOffers.filter(o =>
+    _myOffersFilter === 'all'     ? true :
+    _myOffersFilter === 'active'  ? o.status === 'active' :
+    _myOffersFilter === 'stopped' ? o.status === 'stopped' : true
+  );
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет офферов в этой категории</div>';
+    return;
+  }
+
+  // Группируем по стране
+  const byCountry = {};
+  for (const o of filtered) {
+    const country = o.country || '—';
+    if (!byCountry[country]) byCountry[country] = [];
+    byCountry[country].push(o);
+  }
+
+  el.innerHTML = Object.entries(byCountry).sort(([a],[b]) => a.localeCompare(b)).map(([country, offs]) => `
+    <div class="geo-section">
+      <div class="geo-label">🌍 ${h(country)}</div>
+      ${offs.map(o => {
+        const cap    = o.max_cap;
+        const payout = o.payout ? `${o.payout} ${o.currency}` : '';
+        const capTxt = cap ? `Кап: ${cap}` : '';
+        const statusDot = o.status === 'active'  ? '<span style="color:#10b981;font-size:.75em">● Активен</span>'
+                        : o.status === 'stopped' ? '<span style="color:#ef4444;font-size:.75em">● Стоп</span>'
+                        : '';
+        return `<div class="offer-row">
+          <div class="offer-name">${h(o.name)}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${statusDot}
+            ${payout ? `<div class="offer-rate">${h(payout)}</div>` : ''}
+            ${capTxt  ? `<div class="offer-cap">${h(capTxt)}</div>` : ''}
+            ${o.url   ? `<a href="${h(o.url)}" target="_blank" style="font-size:.75em;color:var(--blue)">🔗 ссылка</a>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
 }
 
 // ── OFFERS ───────────────────────────────────────
@@ -122,9 +200,46 @@ function toggleRot(id) {
 }
 
 // ── REQUEST FORM ──────────────────────────────────
-function selectChip(el) {
-  el.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+function toggleChip(el) {
+  el.classList.toggle('selected');
+}
+
+// Base offer list from Binom
+let _baseOffers = [];
+
+async function loadBaseOffers() {
+  const j = await api('GET', '/api/partner/my_offers');
+  if (!j.ok) return;
+  _baseOffers = (j.offers || []).filter(o => o.status === 'active' || o.status === 'unknown');
+  renderBaseOffers(_baseOffers);
+}
+
+function renderBaseOffers(list) {
+  const sel = document.getElementById('rBaseOffer');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— не выбрано —</option>' +
+    list.map(o => `<option value="${h(String(o.id))}" data-url="${h(o.url||'')}" data-country="${h(o.country||'')}">${h(o.name)}</option>`).join('');
+}
+
+function filterBaseOffers(q) {
+  if (!q) { renderBaseOffers(_baseOffers); return; }
+  const ql = q.toLowerCase();
+  renderBaseOffers(_baseOffers.filter(o => (o.name||'').toLowerCase().includes(ql)));
+}
+
+function onBaseOfferSelect(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+  // Pre-fill URL if empty
+  const urlInp = document.getElementById('rUrl');
+  if (urlInp && !urlInp.value) {
+    urlInp.value = opt.dataset.url || '';
+  }
+  // Pre-fill GEO if empty
+  const geoInp = document.getElementById('rGeo');
+  if (geoInp && !geoInp.value) {
+    geoInp.value = opt.dataset.country || '';
+  }
 }
 
 function getCapValue() {
@@ -170,12 +285,13 @@ async function submitRequest() {
   const errEl    = document.getElementById('rErr');
   const btn      = document.getElementById('rBtn');
 
-  // Approach
-  const approachEl = document.querySelector('#rApproachGroup .chip.selected');
-  const approach   = approachEl ? approachEl.dataset.val : '';
+  // Approach (multi-select)
+  const approachEls = document.querySelectorAll('#rApproachGroup .chip.selected');
+  const approaches  = [...approachEls].map(el => el.dataset.val);
+  const approach    = approaches.join(', ');
 
   errEl.textContent = '';
-  if (!approach) { errEl.textContent = 'Выберите подход (Crash / Casino / Betting)'; return; }
+  if (!approach) { errEl.textContent = 'Выберите хотя бы один подход'; return; }
   if (!cap)      { errEl.textContent = 'Укажите кап (введите число)'; return; }
   if (!name)     { errEl.textContent = 'Укажите название оффера'; return; }
   if (!geo)      { errEl.textContent = 'Укажите GEO'; return; }
@@ -211,6 +327,9 @@ function clearForm() {
   document.getElementById('rCapPreview').textContent = '';
   document.getElementById('rCurrency').value = 'USD';
   document.querySelectorAll('#rApproachGroup .chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('rBaseOffer').value = '';
+  document.getElementById('rBaseOfferSearch').value = '';
+  renderBaseOffers(_baseOffers);
   document.getElementById('rErr').textContent = '';
 }
 

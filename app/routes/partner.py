@@ -1,7 +1,10 @@
 """
 routes_partner.py — партнёрская система + affiliate networks из Binom.
 """
+import os
+import json
 import secrets
+from datetime import datetime
 from functools import wraps
 from flask import Blueprint, jsonify, make_response, request, Response
 from app.utils.partner_db import (
@@ -14,8 +17,90 @@ from app.services.binom import binom_get, binom_get_pairs, binom_post, binom_put
 from app.utils.config import ADMIN_LOGIN, ADMIN_PASSWORD
 import hashlib as _hashlib
 
+# ── Offer tracking ────────────────────────────────────────────────────────────
+_TRACKING_FILE = os.path.join(os.path.dirname(__file__), "../../data/offer_tracking.json")
+
+def _load_tracking() -> dict:
+    try:
+        return json.loads(open(_TRACKING_FILE).read())
+    except Exception:
+        return {}
+
+def _save_tracking(data: dict):
+    open(_TRACKING_FILE, "w").write(json.dumps(data, ensure_ascii=False, indent=2))
+
+def _track_offer(offer_id: str, name: str, rotation_id: str, geo: str,
+                 sheet_name: str = "", max_cap: int = None, partner_name: str = ""):
+    """Записывает оффер в трекинг при создании."""
+    import pytz as _pytz2
+    tracking = _load_tracking()
+    now_msk  = datetime.now(_pytz2.timezone("Europe/Moscow"))
+    entry = {
+        "name":         name,
+        "start_date":   now_msk.strftime("%Y-%m-%d"),
+        "rotation_id":  str(rotation_id),
+        "geo":          geo,
+        "sheet_name":   sheet_name,
+        "partner_name": partner_name,
+        "created_at":   now_msk.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    if max_cap:
+        entry["max_cap"] = max_cap
+    tracking[str(offer_id)] = entry
+    _save_tracking(tracking)
+
+
 bp = Blueprint("partner", __name__)
 init_db()
+
+# ── Кеш весов офферов (offer_name → max_weight) ──────────────────────────────
+import time as _time
+_offer_weights_cache: dict = {}   # {offer_name_lower: max_weight}
+_offer_weights_ts: float   = 0
+_OFFER_WEIGHTS_TTL         = 600  # 10 минут
+
+# Только эти ротации проверяем для статуса офферов партнёра
+PARTNER_ROTATION_IDS = ["121", "118", "61", "117", "120", "124"]
+
+
+def _get_offer_weights() -> dict:
+    """Возвращает {offer_name_lower: max_weight} из ротаций PARTNER_ROTATION_IDS. Кешируется на 10 мин."""
+    global _offer_weights_cache, _offer_weights_ts
+    if _time.time() - _offer_weights_ts < _OFFER_WEIGHTS_TTL:
+        return _offer_weights_cache
+
+    weights: dict = {}
+    try:
+        for rot_id in PARTNER_ROTATION_IDS:
+            r2 = binom_get(f"/public/api/v1/rotation/{rot_id}")
+            if not r2.ok:
+                continue
+            rotation_data = _safe_json(r2)
+            if isinstance(rotation_data, dict) and isinstance(rotation_data.get("data"), dict):
+                obj = rotation_data["data"]
+            else:
+                obj = rotation_data
+            rules = obj.get("rules") or []
+            for rule in (rules if isinstance(rules, list) else []):
+                if not isinstance(rule, dict):
+                    continue
+                for path in (rule.get("paths") or []):
+                    if not isinstance(path, dict):
+                        continue
+                    for offer in (path.get("offers") or []):
+                        if not isinstance(offer, dict):
+                            continue
+                        name   = (offer.get("name") or "").strip().lower()
+                        weight = int(offer.get("weight") or 0)
+                        if name:
+                            weights[name] = max(weights.get(name, 0), weight)
+    except Exception as e:
+        import logging
+        logging.getLogger("partner").error(f"offer_weights error: {e}")
+
+    _offer_weights_cache = weights
+    _offer_weights_ts    = _time.time()
+    return weights
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -307,6 +392,99 @@ def api_admin_set_pending(req_id):
 
 # ── Partner ───────────────────────────────────────────────────────────────────
 
+@bp.post("/api/partner/refresh_offers_cache")
+@require_auth("partner")
+def api_partner_refresh_cache():
+    global _offer_weights_ts
+    _offer_weights_ts = 0  # сброс кеша
+    return jsonify({"ok": True})
+
+
+@bp.get("/api/partner/my_offers")
+@require_auth("partner")
+def api_partner_my_offers():
+    """Офферы из Binom для сети партнёра."""
+    user   = request.current_user
+    net_id = user.get("binom_network_id")
+    if not net_id:
+        return jsonify({"ok": True, "offers": [], "note": "Нет привязанной сети"})
+
+    r = binom_get("/public/api/v1/offer/alternative/all")
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}"}), 502)
+
+    data = _safe_json(r)
+    all_offers = data if isinstance(data, list) else (data.get("data") or [])
+
+    offers = []
+    for o in all_offers:
+        if str(o.get("affiliateNetworkId") or "") != str(net_id):
+            continue
+        caps = o.get("conversionCaps") or {}
+        # conversionCaps может быть dict или list
+        if isinstance(caps, list):
+            cap_info = caps[0] if caps else {}
+        elif isinstance(caps, dict):
+            cap_info = caps
+        else:
+            cap_info = {}
+        offers.append({
+            "id":       o.get("id"),
+            "name":     o.get("name") or "",
+            "country":  o.get("countryCode") or "",
+            "url":      o.get("url") or "",
+            "max_cap":  cap_info.get("maxConversions") if cap_info else None,
+            "payout":   (o.get("payout") or {}).get("money", {}).get("amount"),
+            "currency": (o.get("payout") or {}).get("money", {}).get("currency", "USD"),
+        })
+
+    # Добавляем статус active/stopped из весов ротаций
+    weights = _get_offer_weights()
+    from app.services.sheets import _names_match
+    for o in offers:
+        name = o["name"]
+        name_lo = name.lower()
+
+        # Сначала точное совпадение
+        w = weights.get(name_lo, None)
+
+        # Если не нашли — нечёткий матч
+        if w is None:
+            for rot_name_lo, rot_w in weights.items():
+                if _names_match(name, rot_name_lo) or _names_match(rot_name_lo, name):
+                    w = rot_w
+                    break
+
+        if w is None:
+            o["status"] = "unknown"
+        elif w == 0:
+            o["status"] = "stopped"
+        else:
+            o["status"] = "active"
+            o["weight"] = w
+
+    offers.sort(key=lambda o: (o["status"] != "active", o["name"]))
+
+    # Получаем постбек URL сети партнёра
+    network_postback = ""
+    try:
+        r_net = binom_get(f"/public/api/v1/affiliate_network/{net_id}")
+        if r_net.ok:
+            net_data = _safe_json(r_net)
+            if isinstance(net_data, dict):
+                net_obj = (net_data.get("affiliateNetwork")
+                           or net_data.get("data")
+                           or net_data)
+                network_postback = (net_obj.get("postback_url")
+                                    or net_obj.get("postbackUrl")
+                                    or net_obj.get("postback") or "")
+    except Exception:
+        pass
+
+    return jsonify({"ok": True, "offers": offers, "network_id": net_id,
+                    "network_postback": network_postback})
+
+
 @bp.get("/api/partner/requests")
 @require_auth("partner")
 def api_partner_requests():
@@ -320,14 +498,228 @@ def api_partner_submit():
     geo     = str(body.get("geo", "")).strip()
     if not name or not geo:
         return make_response(jsonify({"ok": False, "error": "offer_name and geo required"}), 400)
+    comment  = str(body.get("comment", ""))
+    postback = str(body.get("postback_url", "")).strip()
+    if postback:
+        comment = ("Postback: " + postback + chr(10) + comment).strip()
     rid = create_request(request.current_user["id"], name,
                           str(body.get("offer_url", "")), geo,
-                          str(body.get("rate", "")), str(body.get("comment", "")))
+                          str(body.get("rate", "")), comment)
     return jsonify({"ok": True, "id": rid})
 
 # ── Binom: Create offer ────────────────────────────────────────────────────────
 
+@bp.post("/api/binom/offers/add_to_rotation")
+@require_auth("admin")
+def api_add_offer_to_rotation():
+    """Добавляет существующий оффер в ротацию по GEO."""
+    body       = request.get_json(silent=True) or {}
+    print(f"[add_to_rotation] body={body}", flush=True)
+    offer_id   = body.get("offer_id")
+    rotation_id = str(body.get("rotation_id", "")).strip()
+    geo        = str(body.get("geo", "")).strip()
+    weight     = int(float(body.get("weight") or 50))
+    offer_name = str(body.get("offer_name", "")).strip()
+
+    if not offer_id or not rotation_id or not geo:
+        return make_response(jsonify({"ok": False, "error": "offer_id, rotation_id, geo required"}), 400)
+
+    import re as _re
+    geo_lower = geo.lower()
+    geo_code_m = _re.search(r'([A-Z]{2})', geo)
+    geo_code   = geo_code_m.group(1).lower() if geo_code_m else None
+
+    r_rot = binom_get(f"/public/api/v1/rotation/{rotation_id}")
+    if not r_rot.ok:
+        return make_response(jsonify({"ok": False, "error": f"Cannot fetch rotation {rotation_id}"}), 502)
+
+    rot_data = _safe_json(r_rot)
+    print(f"[add_to_rotation] GET rotation keys: {list(rot_data.keys()) if isinstance(rot_data, dict) else type(rot_data)}", flush=True)
+    if isinstance(rot_data, dict) and isinstance(rot_data.get("data"), dict):
+        rot_obj = rot_data["data"]
+        print(f"[add_to_rotation] rot_obj keys: {list(rot_obj.keys())}", flush=True)
+    else:
+        rot_obj = rot_data
+
+    rules = rot_obj.get("rules") or []
+    target_rule = None
+    for rule in (rules if isinstance(rules, list) else []):
+        if not isinstance(rule, dict): continue
+        rname = str(rule.get("name") or "").strip().lower()
+        if (rname == geo_lower
+                or (geo_code and geo_code == rname)
+                or (geo_code and geo_code in rname)
+                or geo_lower in rname or rname in geo_lower):
+            target_rule = rule
+            break
+
+    if not target_rule:
+        available = [str(r.get("name","")) for r in (rules if isinstance(rules, list) else [])[:15]]
+        return jsonify({"ok": False, "rotation_error": f"GEO '{geo}' not found in #{rotation_id}. Available: {available}"})
+
+    paths = target_rule.get("paths") or []
+    target_path = next((p for p in paths if isinstance(p, dict) and p.get("enabled") is not False), None)
+    if not target_path:
+        return jsonify({"ok": False, "rotation_error": f"No active path in GEO '{geo}' rotation #{rotation_id}"})
+
+    existing    = target_path.get("offers") or []
+    campaign_id = next((int(o.get("campaignId")) for o in existing if o.get("campaignId") is not None), None)
+    existing.append({
+        "offerId":    int(offer_id) if str(offer_id).isdigit() else offer_id,
+        "campaignId": campaign_id,
+        "name":       offer_name,
+        "weight":     weight,
+        "enabled":    True,
+        "directUrl":  "",
+    })
+    # Также фиксируем directUrl у всех существующих офферов в пути
+    for o in existing[:-1]:
+        if isinstance(o, dict) and o.get("directUrl") is None:
+            o["directUrl"] = ""
+    target_path["offers"] = existing
+
+    print(f"[add_to_rotation] PUT body keys: {list(rot_obj.keys()) if isinstance(rot_obj, dict) else type(rot_obj)}", flush=True)
+    r_put = binom_put(f"/public/api/v1/rotation/{rotation_id}", rot_obj)
+    print(f"[add_to_rotation] PUT status={r_put.status_code} body={r_put.text[:500]}", flush=True)
+    if not r_put.ok:
+        return jsonify({"ok": False, "rotation_error": f"PUT failed #{rotation_id}: {r_put.status_code} — {r_put.text[:200]}"})
+
+    # Записываем в трекинг
+    max_cap_val  = body.get("max_cap")
+    partner_name = body.get("partner_name", "")
+    _track_offer(str(offer_id), offer_name, rotation_id, geo,
+                 max_cap=int(max_cap_val) if max_cap_val else None,
+                 partner_name=partner_name)
+    print(f"[add_to_rotation] offer {offer_id} → rotation #{rotation_id} GEO={geo}", flush=True)
+    return jsonify({"ok": True, "rotation_id": rotation_id, "geo": geo})
+
+
 # ── Google Sheets sync ────────────────────────────────────────────────────────
+
+# ── Offer tracking API ────────────────────────────────────────────────────────
+
+@bp.get("/api/tracking/offers")
+@require_auth("admin")
+def api_tracking_list():
+    """Список отслеживаемых офферов."""
+    resp = make_response(jsonify({"ok": True, "offers": _load_tracking()}))
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@bp.post("/api/tracking/offers/<offer_id>")
+@require_auth("admin")
+def api_tracking_add(offer_id):
+    """Обновить поля оффера в трекинге (частичное обновление)."""
+    body     = request.get_json(silent=True) or {}
+    tracking = _load_tracking()
+    key      = str(offer_id)
+    existing = tracking.get(key, {})
+    # Обновляем только переданные поля
+    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name"):
+        if field in body:
+            existing[field] = body[field]
+    if not existing.get("created_at"):
+        existing["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tracking[key] = existing
+    _save_tracking(tracking)
+    return jsonify({"ok": True})
+
+
+@bp.post("/api/tracking/manual")
+@require_auth("admin")
+def api_tracking_manual():
+    """Ручное добавление оффера в трекинг."""
+    body        = request.get_json(silent=True) or {}
+    offer_id    = str(body.get("offer_id", "")).strip()
+    name        = str(body.get("name", "")).strip()
+    start_date  = str(body.get("start_date", "")).strip()
+    rotation_id = str(body.get("rotation_id", "")).strip()
+    geo         = str(body.get("geo", "")).strip()
+    max_cap     = body.get("max_cap")
+    partner_name = str(body.get("partner_name", "")).strip()
+
+    if not offer_id or not name:
+        return make_response(jsonify({"ok": False, "error": "offer_id and name required"}), 400)
+
+    import pytz as _pytz2
+    if not start_date:
+        start_date = datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d")
+
+    tracking = _load_tracking()
+    tracking[offer_id] = {
+        "name":         name,
+        "start_date":   start_date,
+        "rotation_id":  rotation_id,
+        "geo":          geo,
+        "partner_name": partner_name,
+        "max_cap":      int(max_cap) if max_cap else None,
+        "created_at":   datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S"),
+        "manual":       True,
+    }
+    _save_tracking(tracking)
+    return jsonify({"ok": True})
+
+
+@bp.post("/api/tracking/offers/<offer_id>/status")
+@require_auth("admin")
+def api_tracking_set_status(offer_id):
+    """Изменить статус оффера: active / stopped / no_perform."""
+    body    = request.get_json(silent=True) or {}
+    status  = str(body.get("status", "active"))
+    if status not in ("active", "stopped", "no_perform"):
+        return make_response(jsonify({"ok": False, "error": "Invalid status"}), 400)
+    tracking = _load_tracking()
+    if str(offer_id) not in tracking:
+        return make_response(jsonify({"ok": False, "error": "Not found"}), 404)
+    tracking[str(offer_id)]["status"] = status
+    _save_tracking(tracking)
+    return jsonify({"ok": True})
+
+
+@bp.delete("/api/tracking/offers/<offer_id>")
+@require_auth("admin")
+def api_tracking_delete(offer_id):
+    """Удалить оффер из трекинга."""
+    tracking = _load_tracking()
+    tracking.pop(str(offer_id), None)
+    _save_tracking(tracking)
+    return jsonify({"ok": True})
+
+
+_FD_CACHE_FILE = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+
+@bp.get("/api/tracking/fd")
+@require_auth("admin")
+def api_tracking_fd():
+    """Возвращает FD из кеша (обновляется фоном каждые 10 мин)."""
+    try:
+        cache = json.loads(open(_FD_CACHE_FILE).read())
+    except Exception:
+        cache = {}
+    return jsonify({"ok": True, "fd": cache})
+
+
+@bp.post("/api/tracking/fd/refresh")
+@require_auth("admin")
+def api_tracking_fd_refresh():
+    """Принудительно запускает обновление FD кеша."""
+    try:
+        from app.services.scheduler import _do_tracking_fd
+        import threading
+        threading.Thread(target=_do_tracking_fd, daemon=True).start()
+        return jsonify({"ok": True, "note": "Обновление запущено в фоне"})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@bp.get("/api/sheets/history")
+@require_auth("admin")
+def api_sheets_history():
+    days = int(request.args.get("days", 30))
+    from app.services.sheets import get_history
+    return jsonify({"ok": True, "history": get_history(days)})
+
 
 @bp.get("/api/sheets/debug")
 @require_auth("admin")
@@ -444,6 +836,7 @@ def api_sheets_fill_ids():
     body       = request.get_json(silent=True) or {}
     sheet_name = body.get("sheet_name", "Betting")
     dry_run    = bool(body.get("dry_run", True))
+    force      = bool(body.get("force", False))  # перезаписать даже существующие ID
 
     try:
         from app.services.sheets import read_sheet, update_cell, _names_match, list_sheets
@@ -456,7 +849,7 @@ def api_sheets_fill_ids():
         binom_offers = offers_raw if isinstance(offers_raw, list) else (offers_raw.get("data") or [])
         binom_map = {o["name"]: str(o["id"]) for o in binom_offers if o.get("name") and o.get("id")}
 
-        def _do_fill_ids(sname, dryrun, binom_map=binom_map):
+        def _do_fill_ids(sname, dryrun, binom_map=binom_map, force=force):
             rows = read_sheet(sname)
             if not rows:
                 return {"error": "Лист пуст"}
@@ -472,7 +865,7 @@ def api_sheets_fill_ids():
                 cell_name = str(row[name_col]).strip()
                 if not cell_name or cell_name.lower() in ("offer","name","binom id",""): continue
                 existing = str(row[0]).strip() if row else ""
-                if existing and existing.isdigit():
+                if existing and existing.isdigit() and not force:
                     skipped_list.append(cell_name); continue
                 bid = binom_map.get(cell_name)
                 if not bid:
@@ -492,10 +885,10 @@ def api_sheets_fill_ids():
             sheets  = list_sheets()
             all_res = {}
             for s in sheets:
-                all_res[s] = _do_fill_ids(s, dry_run)
+                all_res[s] = _do_fill_ids(s, dry_run, force=force)
             return jsonify({"ok": True, "sheets": all_res})
 
-        result = _do_fill_ids(sheet_name, dry_run)
+        result = _do_fill_ids(sheet_name, dry_run, force=force)
         return jsonify({"ok": True, "dry_run": dry_run, **result})
 
     except Exception as e:
@@ -535,6 +928,22 @@ def api_binom_countries():
             countries.append({"code": str(code).upper(), "name": name})
     countries.sort(key=lambda c: c["name"])
     return jsonify({"ok": True, "countries": countries})
+
+
+@bp.get("/api/binom/offer_fields")
+@require_auth("admin")
+def api_binom_offer_fields():
+    """Debug: показывает все поля первого оффера из Binom."""
+    r = binom_get("/public/api/v1/offer/alternative/all")
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}"}), 502)
+    data = _safe_json(r)
+    rows = data if isinstance(data, list) else (data.get("data") or data.get("items") or [])
+    if not rows:
+        return jsonify({"ok": False, "error": "No offers"})
+    # Возвращаем все ключи первых 3 офферов
+    sample = [dict(o) for o in rows[:3] if isinstance(o, dict)]
+    return jsonify({"ok": True, "sample": sample, "all_keys": list(rows[0].keys()) if rows else []})
 
 
 @bp.get("/api/binom/offers_list")
@@ -668,12 +1077,23 @@ def api_binom_create_offer():
     if body.get("conversion_cap"):
         reset_sec  = body.get("reset_cap_seconds")
         reset_from = body.get("reset_cap_from")
+        alt_offer_id = body.get("alternative_offer_id")
         cap_body = {
-            "maxCap":            int(body["max_cap"]) if body.get("max_cap") else 10,
-            "resetCapFrequency": int(reset_sec) if reset_sec else 86400,
+            "maxCap":           int(body["max_cap"]) if body.get("max_cap") else 10,
+            "resetFrequency":   int(reset_sec) if reset_sec else 86400,
+
+            "timezone":         "Europe/Moscow",
+            "priority":         "in_path",
+            "alternativeOfferId": int(alt_offer_id) if alt_offer_id else 1,
         }
         if reset_from and reset_sec:
-            cap_body["resetCapFrom"] = str(reset_from)
+            # Binom принимает формат "Y-m-d H:i:s"
+            rf = str(reset_from).strip().replace("T", " ")
+            if len(rf) == 16:  # "2027-03-18 14:36" → добавляем секунды
+                rf += ":00"
+            # Убираем таймзону если есть
+            rf = rf.split("+")[0].split("Z")[0].strip()
+            cap_body["startingFrom"] = rf
         print(f"[create_offer] Cap POST /offer/cap/conversion/{new_id}: {_json.dumps(cap_body)}", flush=True)
         rc_cap = binom_post(f"/public/api/v1/offer/cap/conversion/{new_id}", cap_body)
         print(f"[create_offer] Cap status={rc_cap.status_code} body={rc_cap.text[:300]}", flush=True)
@@ -687,20 +1107,43 @@ def api_binom_create_offer():
     geo         = str(body.get("geo") or "").strip()
     weight      = int(float(body.get("weight") or 50))
 
+    print(f"[create_offer] Rotation step: rotation_id={rotation_id!r} geo={geo!r} new_id={new_id!r}", flush=True)
     if rotation_id and geo and new_id:
         r_rot = binom_get(f"/public/api/v1/rotation/{rotation_id}")
+        print(f"[create_offer] Rotation GET status={r_rot.status_code}", flush=True)
         if r_rot.ok:
             rot_data = _safe_json(r_rot)
-            rot_obj  = rot_data.get("data") or rot_data if isinstance(rot_data, dict) else rot_data
-            rules    = rot_obj if isinstance(rot_obj, list) else (rot_obj.get("rules") or [])
+            # Структура: {data: {rules: [...]}} или просто {rules: [...]}
+            if isinstance(rot_data, dict) and isinstance(rot_data.get("data"), dict):
+                rot_obj = rot_data["data"]
+            elif isinstance(rot_data, dict):
+                rot_obj = rot_data
+            else:
+                rot_obj = rot_data
+            rules = rot_obj.get("rules") or []
+            print(f"[create_offer] Rotation rules count={len(rules)} geo={geo!r}", flush=True)
             geo_lower = geo.lower()
+            # Извлекаем двухбуквенный код из GEO (напр. "Austria AT" → "AT")
+            import re as _re
+            geo_code = (_re.search(r'\b([A-Z]{2})\b', geo) or _re.search(r'([A-Z]{2})$', geo))
+            geo_code = geo_code.group(1).lower() if geo_code else None
             target_rule = None
             for rule in (rules if isinstance(rules, list) else []):
                 if not isinstance(rule, dict): continue
                 rname = str(rule.get("name") or "").strip()
-                if rname.lower() == geo_lower or geo_lower in rname.lower() or rname.lower() in geo_lower:
+                rname_lo = rname.lower()
+                # Матч по коду страны, полному названию или части
+                if (rname_lo == geo_lower
+                    or (geo_code and geo_code == rname_lo)
+                    or (geo_code and geo_code in rname_lo)
+                    or geo_lower in rname_lo
+                    or rname_lo in geo_lower):
                     target_rule = rule
+                    print(f"[create_offer] Matched GEO rule: {rname!r}", flush=True)
                     break
+            if not target_rule:
+                print(f"[create_offer] GEO not matched: {geo!r} geo_code={geo_code!r}", flush=True)
+                print(f"[create_offer] Available rules: {[r.get('name') for r in rules[:10]]}", flush=True)
             if target_rule:
                 paths = target_rule.get("paths") or []
                 target_path = next((p for p in paths if isinstance(p, dict) and p.get("enabled") is not False), None)
@@ -719,8 +1162,11 @@ def api_binom_create_offer():
                     })
                     target_path["offers"] = existing
                     r_put_rot = binom_put(f"/public/api/v1/rotation/{rotation_id}", rot_obj)
-                    result["rotation_added"] = r_put_rot.ok
+                    result["rotation_added"]  = r_put_rot.ok
                     result["rotation_status"] = r_put_rot.status_code
+                    if r_put_rot.ok:
+                        _track_offer(new_id, name, rotation_id, geo)
+                        print(f"[create_offer] Tracked offer {new_id} from {rotation_id}/{geo}", flush=True)
                 else:
                     result["rotation_added"] = False
                     result["rotation_error"] = "No active path in GEO"

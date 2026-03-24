@@ -138,6 +138,16 @@ except Exception as _sch_err:
     logging.getLogger("scheduler").warning(f"Scheduler not started: {_sch_err}")
 
 
+# ---------- Telegram polling ----------
+
+try:
+    from app.services.tg import start_polling
+    start_polling()
+except Exception as _tg_err:
+    import logging
+    logging.getLogger("tg_alerts").warning(f"TG polling not started: {_tg_err}")
+
+
 # ---------- Run ----------
 
 if __name__ == "__main__":

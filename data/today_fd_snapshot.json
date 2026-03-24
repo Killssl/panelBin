@@ -1,0 +1,157 @@
+{
+  "Crash:id:1362": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 10
+  },
+  "Crash:id:1640": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 10
+  },
+  "Crash:id:939": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 69
+  },
+  "Crash:id:1322": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 3
+  },
+  "Crash:id:1497": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 62
+  },
+  "Crash:id:895": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 3
+  },
+  "Crash:id:1171": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 36
+  },
+  "Crash:id:941": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 13
+  },
+  "Crash:id:1644": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 2
+  },
+  "Crash:id:1443": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 474
+  },
+  "Crash:id:1535": {
+    "date": "2026-03-17",
+    "fd": 2,
+    "written": 84
+  },
+  "Crash:id:1469": {
+    "date": "2026-03-17",
+    "fd": 2,
+    "written": 286
+  },
+  "Crash:id:1499": {
+    "date": "2026-03-17",
+    "fd": 3,
+    "written": 65
+  },
+  "Crash:id:662": {
+    "date": "2026-03-17",
+    "fd": 19,
+    "written": 426
+  },
+  "Betting:id:1171": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 36
+  },
+  "Betting:id:1497": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 62
+  },
+  "Betting:id:1500": {
+    "date": "2026-03-17",
+    "fd": 55,
+    "written": 220
+  },
+  "Betting:id:1661": {
+    "date": "2026-03-17",
+    "fd": 8,
+    "written": 10
+  },
+  "Betting:id:1657": {
+    "date": "2026-03-17",
+    "fd": 26,
+    "written": 59
+  },
+  "Betting:id:662": {
+    "date": "2026-03-17",
+    "fd": 19,
+    "written": 426
+  },
+  "Betting:id:1443": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 474
+  },
+  "Betting:id:939": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 69
+  },
+  "Casino:id:941": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 13
+  },
+  "Casino:id:1535": {
+    "date": "2026-03-17",
+    "fd": 2,
+    "written": 84
+  },
+  "Casino:id:1469": {
+    "date": "2026-03-17",
+    "fd": 2,
+    "written": 286
+  },
+  "Casino:id:1500": {
+    "date": "2026-03-17",
+    "fd": 55,
+    "written": 220
+  },
+  "Casino:id:1649": {
+    "date": "2026-03-17",
+    "fd": 3,
+    "written": 13
+  },
+  "Casino:id:662": {
+    "date": "2026-03-17",
+    "fd": 19,
+    "written": 426
+  },
+  "Casino:id:1645": {
+    "date": "2026-03-17",
+    "fd": 2,
+    "written": 475
+  },
+  "Casino:id:1443": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 474
+  },
+  "Casino:id:939": {
+    "date": "2026-03-17",
+    "fd": 1,
+    "written": 69
+  }
+}
