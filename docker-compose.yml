@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    container_name: panelbin_app
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./data:/app/data
