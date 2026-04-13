@@ -1591,6 +1591,19 @@ function trkSortArrow(col) {
   return _trackingSort.dir === -1 ? '▼' : '▲';
 }
 
+async function admRefreshTrackingFD() {
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+  const j = await admApi('POST', '/api/tracking/fd/refresh');
+  if (btn) { btn.disabled = false; btn.textContent = 'Обновить FD'; }
+  if (j.ok) {
+    const msg = document.getElementById('admNetSaveMsg'); if(msg){msg.textContent='FD обновляется...';msg.style.display='inline';setTimeout(()=>msg.style.display='none',5000);}
+    setTimeout(() => admLoadTracking(), 15000);
+  } else {
+    alert(j.error || 'Ошибка');
+  }
+}
+
 async function admLoadTracking() {
   const el = document.getElementById('admTrackingTable');
   if (!el) return;
@@ -1602,7 +1615,9 @@ async function admLoadTracking() {
   if (!j.ok) { el.innerHTML = '<div class="adm-empty">Ошибка загрузки</div>'; return; }
 
   const offers = Object.entries(j.offers || {});
-  const fdMap  = jfd.fd || {};
+  // Нормализуем ключи fdMap в строки — Binom может возвращать числовые id
+  const rawFd  = jfd.fd || {};
+  const fdMap  = Object.fromEntries(Object.entries(rawFd).map(([k,v]) => [String(k), v]));
 
   // Filter
   const filtered = _trackingFilter === 'all' ? offers
@@ -1654,7 +1669,7 @@ async function admLoadTracking() {
   }
 
   const cards = sorted.map(([id, o]) => {
-    const fdInfo  = fdMap[id] || {};
+    const fdInfo  = fdMap[String(id)] || fdMap[id] || {};
     const fd      = fdInfo.fd;
     const maxCap  = o.max_cap;
     const pct     = (maxCap && fd != null) ? Math.min(100, Math.round(fd / maxCap * 100)) : null;
