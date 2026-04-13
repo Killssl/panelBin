@@ -46,7 +46,7 @@ def _do_sync():
     from app.services.sheets import sync_from_cap_report
 
     msk      = pytz.timezone("Europe/Moscow")
-    date_str = datetime.now(msk).strftime("%Y-%m-%d")  # СЕГОДНЯ
+    date_str = datetime.now(msk).strftime("%Y-%m-%d")
 
     log.info(f"[scheduler] Auto-sync caps for {date_str} → {cfg['sheet_name']}")
 
@@ -56,7 +56,6 @@ def _do_sync():
 
         sheet_name = cfg["sheet_name"]
 
-        # Если "all" — синкаем все листы
         if sheet_name.lower() == "all":
             from app.services.sheets import list_sheets
             sheets = list_sheets()
@@ -102,7 +101,7 @@ def _do_tracking_fd():
 
     from app.utils.cache import get_all_campaigns
     from app.utils.dpu import extract_rows
-    from app.services.binom import binom_get_pairs, _safe_json
+    from app.services.binom import binom_get_pairs, _safe_json, binom_get
 
     msk   = pytz.timezone("Europe/Moscow")
     today = datetime.now(msk).strftime("%Y-%m-%d")
@@ -176,8 +175,7 @@ def _do_tracking_fd():
     from app.services.binom import _safe_json as _sj
     TRACKED_ROTATIONS = ["121", "118", "61", "117", "120", "124"]
     try:
-        # Получаем веса всех офферов из ротаций
-        offer_weights = {}  # offer_id → max_weight
+        offer_weights = {}
         for rot_id in TRACKED_ROTATIONS:
             r = binom_get(f"/public/api/v1/rotation/{rot_id}")
             if not r.ok:
@@ -192,14 +190,13 @@ def _do_tracking_fd():
                         if oid:
                             offer_weights[oid] = max(offer_weights.get(oid, 0), w)
 
-        # Обновляем статус в tracking
         tracking_changed = False
         for offer_id, info in list(tracking.items()):
             if info.get("status") in ("no_perform",):
-                continue  # не трогаем ручные статусы
+                continue
             w = offer_weights.get(str(offer_id), -1)
             if w == -1:
-                continue  # не найден в ротациях — не меняем
+                continue
             new_status = "stopped" if w == 0 else "active"
             if info.get("status") != new_status:
                 tracking[offer_id]["status"] = new_status
@@ -212,28 +209,106 @@ def _do_tracking_fd():
     except Exception as e:
         log.error(f"[tracking] Weight check error: {e}")
 
-    # Проверяем пороги и шлём TG алерты
+    # ── Авто-стоп + TG алерты ─────────────────────────────────────────────
     try:
-        alerts = []
+        from app.services.tg import check_cap_alerts, send_message
+        from app.services.binom import _safe_json as _sj2
+        from app.services.sheets import _names_match
+
+        alerts         = []
+        tracking_dirty = False
+        STOP_ROTATIONS = ["121", "118", "61", "117", "120", "124"]
+
+        # Перечитываем tracking — он мог измениться выше
+        try:
+            tracking = json.loads(open(tracking_file).read())
+        except Exception:
+            pass
+
         for offer_id, info in tracking.items():
-            max_cap = info.get("max_cap")
-            if not max_cap:
+            max_cap       = info.get("max_cap")
+            auto_stop_pct = info.get("auto_stop_pct")
+            fd            = cache.get(offer_id, {}).get("fd")
+            offer_name    = info.get("name", "")
+
+            if not max_cap or fd is None:
                 continue
-            fd = cache.get(offer_id, {}).get("fd")
-            if fd is None:
-                continue
+
+            # TG алерт (порог 10% остатка)
             alerts.append({
-                "sheet_name":   info.get("name", ""),
+                "sheet_name":   offer_name,
                 "filled_cap":   fd,
                 "max_cap":      max_cap,
                 "sheet":        "Трекинг",
                 "network_name": info.get("partner_name", ""),
             })
+
+            # Авто-стоп — пропускаем если:
+            # нет настройки, уже стопнут авто, статус ручной
+            if not auto_stop_pct:
+                continue
+            if info.get("auto_stopped"):
+                continue
+            if info.get("status") in ("stopped", "no_perform"):
+                continue
+
+            # auto_stop_pct хранит абсолютное значение FD для стопа
+            if fd < int(auto_stop_pct):
+                continue
+
+            # Останавливаем — ставим вес=0 во всех ротациях
+            stopped_rots = []
+            for rot_id in STOP_ROTATIONS:
+                try:
+                    r_rot = binom_get(f"/public/api/v1/rotation/{rot_id}")
+                    if not r_rot.ok:
+                        continue
+                    rot_data = _sj2(r_rot)
+                    rot_obj  = rot_data.get("data", rot_data) if isinstance(rot_data, dict) else rot_data
+
+                    changed = False
+                    for rule in (rot_obj.get("rules") or []):
+                        for path in (rule.get("paths") or []):
+                            for offer in (path.get("offers") or []):
+                                oname = offer.get("name") or ""
+                                oid   = str(offer.get("offerId") or "")
+                                if oid == str(offer_id) or _names_match(offer_name, oname):
+                                    if int(offer.get("weight") or 0) > 0:
+                                        offer["weight"] = 0
+                                        changed = True
+
+                    if changed:
+                        from app.services.binom import binom_put
+                        r_put = binom_put(f"/public/api/v1/rotation/{rot_id}", rot_obj)
+                        if r_put.ok:
+                            stopped_rots.append(rot_id)
+                except Exception as re:
+                    log.error(f"[tracking] auto-stop rot {rot_id}: {re}")
+
+            if stopped_rots:
+                pct_filled = round(fd / max_cap * 100)
+                tracking[offer_id]["status"]      = "stopped"
+                tracking[offer_id]["auto_stopped"] = datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S")
+                tracking_dirty = True
+                log.info(f"[tracking] AUTO-STOP {offer_name} fd={fd}/{max_cap} ({pct_filled}%) rots={stopped_rots}")
+
+                send_message(
+                    f"🛑 <b>Авто-стоп оффера</b>\n\n"
+                    f"📋 <b>{offer_name}</b>\n"
+                    f"🎯 Кап: <b>{fd} / {max_cap}</b> ({pct_filled}%)\n"
+                    f"⚡ Порог авто-стопа: {auto_stop_pct} FD\n"
+                    f"🔄 Остановлено в ротациях: {', '.join('#'+r for r in stopped_rots)}\n"
+                    f"⏱ {datetime.now(msk).strftime('%H:%M МСК')}"
+                )
+
         if alerts:
-            from app.services.tg import check_cap_alerts
             check_cap_alerts(alerts)
+
+        if tracking_dirty:
+            open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
+
     except Exception as e:
-        log.error(f"[tracking] TG alerts error: {e}")
+        log.error(f"[tracking] TG/auto-stop error: {e}", exc_info=True)
 
 
 def _do_snapshot():
@@ -243,22 +318,18 @@ def _do_snapshot():
         return
 
     import pytz
-    from app.services.sheets import list_sheets, read_sheet, _today_msk, _save_today_fd
+    from app.services.sheets import list_sheets, _save_today_fd
 
-    msk  = pytz.timezone("Europe/Moscow")
+    msk   = pytz.timezone("Europe/Moscow")
     today = datetime.now(msk).strftime("%Y-%m-%d")
     log.info(f"[scheduler] 23:55 snapshot for {today}")
 
     try:
+        cfg        = get_schedule()
         sheet_name = cfg["sheet_name"]
-        sheets = list_sheets() if sheet_name.lower() == "all" else [sheet_name]
+        sheets     = list_sheets() if sheet_name.lower() == "all" else [sheet_name]
 
-        # Загружаем текущий today_fd снапшот и сбрасываем его для нового дня
-        # При следующем синке (уже завтра) last_today_fd будет 0 для всех офферов
         tomorrow = (datetime.now(msk) + timedelta(days=1)).strftime("%Y-%m-%d")
-
-        # Просто очищаем снапшот — при первом синке завтра last_today_fd = 0
-        # и формула: current_val - 0 + new_fd = current_val + new_fd (правильно)
         _save_today_fd({})
         log.info(f"[scheduler] Snapshot cleared for new day {tomorrow}")
 
@@ -288,7 +359,6 @@ def _reschedule(cfg: dict):
         )
         log.info(f"[scheduler] Job scheduled every {interval_min} minutes")
 
-        # Снапшот в 23:55 МСК — сбрасываем today_fd для нового дня
         _scheduler.add_job(
             _do_snapshot,
             trigger  = "cron",
@@ -300,8 +370,6 @@ def _reschedule(cfg: dict):
             replace_existing = True,
         )
         log.info("[scheduler] Snapshot job scheduled at 23:55 MSK")
-
-
 
 
 def init_scheduler(app=None):
@@ -318,7 +386,6 @@ def init_scheduler(app=None):
         cfg = get_schedule()
         _reschedule(cfg)
 
-        # Трекинг FD — независимый job, всегда работает
         _scheduler.add_job(
             _do_tracking_fd,
             trigger  = "interval",

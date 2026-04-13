@@ -21,5 +21,35 @@
     "sheet": "Трекинг",
     "network": "AMILeads",
     "message_id": 63
+  },
+  "stop:CAP200!Q3 - 3113 VidaVegas - [ASO] [BR] ": {
+    "offer_name": "CAP200!Q3 - 3113 VidaVegas - [ASO] [BR] 22 EUR",
+    "sheet": "Трекинг",
+    "network": "Q3",
+    "message_id": 75
+  },
+  "stop:CAP400! VidaVegas - BR (ASO)": {
+    "offer_name": "CAP400! VidaVegas - BR (ASO)",
+    "sheet": "Трекинг",
+    "network": "Advertise",
+    "message_id": 81
+  },
+  "stop:CAP50! 3SNET - 5316 Leon CPA BR - 17 USD": {
+    "offer_name": "CAP50! 3SNET - 5316 Leon CPA BR - 17 USD",
+    "sheet": "Трекинг",
+    "network": "3SNET",
+    "message_id": 77
+  },
+  "stop:CAP30ftd! TheLimitedClub - 5361 Parimatc": {
+    "offer_name": "CAP30ftd! TheLimitedClub - 5361 Parimatch [BR] ASO 18 USD",
+    "sheet": "Трекинг",
+    "network": "TheLimitedClub",
+    "message_id": 79
+  },
+  "stop:30ftd!Q3 -2467 Melbet - [ASO]  [GH]": {
+    "offer_name": "30ftd!Q3 -2467 Melbet - [ASO]  [GH]",
+    "sheet": "Трекинг",
+    "network": "TEST",
+    "message_id": 84
   }
 }

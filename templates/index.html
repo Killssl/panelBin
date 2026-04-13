@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Binom Rotations Panel</title>
+  <title>AFF Panel</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
   <link rel="stylesheet" href="/static/css/styles.css" />
   <link rel="stylesheet" href="/static/css/admin.css" />
@@ -15,11 +15,8 @@
     <header class="topbar">
       <div class="brand">
         <div class="logo"></div>
-        <div>
-          <div class="title">Binom Rotations</div>
-        </div>
+        <div><div class="title">Binom Rotations</div></div>
       </div>
-
       <div class="actions">
         <button id="btnRefresh" class="btn">Обновить</button>
         <button class="btn" onclick="openAdmin()" style="opacity:.75;font-size:.85em">⚙️ Admin</button>
@@ -29,13 +26,8 @@
     <section class="panel">
       <div class="panel-head">
         <div class="filters">
-          <label class="field">
-            <span>Поиск</span>
-            <input id="q" type="text" placeholder="Название / ID..." autocomplete="off"/>
-          </label>
-
-          <label class="field">
-            <span>Статус</span>
+          <label class="field"><span>Поиск</span><input id="q" type="text" placeholder="Название / ID..." autocomplete="off"/></label>
+          <label class="field"><span>Статус</span>
             <select id="status">
               <option value="">Любой</option>
               <option value="active">active</option>
@@ -43,15 +35,9 @@
               <option value="deleted">deleted</option>
             </select>
           </label>
-
-          <label class="field small">
-            <span>Per page</span>
-            <input id="perPage" type="number" min="1" max="500" value="50"/>
-          </label>
-
+          <label class="field small"><span>Per page</span><input id="perPage" type="number" min="1" max="500" value="50"/></label>
           <button id="btnApply" class="btn primary">Применить</button>
         </div>
-
         <div class="meta">
           <div class="pill" id="serverTime">—</div>
           <div class="pill" id="countPill">0</div>
@@ -60,17 +46,11 @@
 
       <div class="table-wrap">
         <table class="table">
-          <thead>
-            <tr>
-              <th style="width: 90px;">ID</th>
-              <th>Rotation</th>
-              <th style="width: 120px;">Status</th>
-              <th style="width: 190px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="rows">
-            <tr><td colspan="4" class="muted">Нажми "Обновить".</td></tr>
-          </tbody>
+          <thead><tr>
+            <th style="width:90px">ID</th><th>Rotation</th>
+            <th style="width:120px">Status</th><th style="width:190px">Actions</th>
+          </tr></thead>
+          <tbody id="rows"><tr><td colspan="4" class="muted">Нажми "Обновить".</td></tr></tbody>
         </table>
       </div>
 
@@ -80,54 +60,46 @@
             <div class="details-title" id="detailsTitle">Детали</div>
             <div class="details-sub" id="detailsSub">Жми Rules — увидишь карточки активных офферов.</div>
           </div>
-          <div class="details-search" id="detailsSearchWrap" style="display:none;">
+          <div class="details-search" id="detailsSearchWrap" style="display:none">
             <input id="offerSearch" type="text" placeholder="Поиск оффера..." autocomplete="off"/>
             <span id="offerSearchCount" class="pill">—</span>
           </div>
           <div class="pill" id="detailsMeta">—</div>
         </div>
-
         <div id="cards" class="cards"></div>
         <pre id="detailsJson" style="display:none">{}</pre>
       </div>
     </section>
 
-    <footer class="footer">
-      <span class="muted">AFF</span>
-    </footer>
+    <footer class="footer"><span class="muted">AFF</span></footer>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       ADMIN OVERLAY
-  ════════════════════════════════════════════════════════════════════ -->
+  <!-- ═══════ ADMIN OVERLAY ═══════ -->
   <div id="adminOverlay">
 
     <!-- Login -->
     <div id="adminLoginScreen">
       <div class="adm-login-box">
-        <h2>⚙️ Панель администратора</h2>
-        <div class="adm-field">
-          <label>Логин</label>
-          <input class="adm-inp" id="admLoginUser" type="text" placeholder="admin">
-        </div>
-        <div class="adm-field">
-          <label>Пароль</label>
-          <input class="adm-inp" id="admLoginPass" type="password" placeholder="••••••">
-        </div>
-        <button class="adm-btn primary" style="width:100%;justify-content:center;margin-top:4px"
-                onclick="admDoLogin()">Войти</button>
+        <h2>⚙️ Admin Panel</h2>
+        <div class="adm-field"><label>Логин</label><input class="adm-inp" id="admLoginUser" type="text" placeholder="admin"></div>
+        <div class="adm-field"><label>Пароль</label><input class="adm-inp" id="admLoginPass" type="password" placeholder="••••••"></div>
+        <button class="adm-btn primary" style="width:100%;justify-content:center;margin-top:4px" onclick="admDoLogin()">Войти</button>
         <div class="adm-err" id="admLoginErr"></div>
-        <div style="margin-top:16px;text-align:center">
-          <button class="adm-btn sm" onclick="closeAdmin()">← На главную</button>
-        </div>
+        <div style="margin-top:14px;text-align:center"><button class="adm-btn sm" onclick="closeAdmin()">← На главную</button></div>
       </div>
     </div>
 
     <!-- App -->
     <div id="adminApp">
+
+      <!-- Sidebar -->
       <div class="adm-sidebar">
-        <div class="adm-logo">Admin Panel<span>Управление</span></div>
+        <div class="adm-logo">
+          <div class="adm-logo-dot"></div>
+          AFF Panel
+        </div>
         <div class="adm-nav">
+          <div class="adm-nav-section">Основное</div>
           <div class="adm-nav-item active" onclick="admNav('networks')" id="adm-nav-networks">
             <span class="ico">🌐</span> Сети
           </div>
@@ -135,26 +107,36 @@
             <span class="ico">📋</span> Заявки
             <span id="admPendingBadge" class="adm-nav-badge" style="display:none"></span>
           </div>
-          <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
-            <span class="ico">👥</span> Пользователи
-          </div>
+          <div class="adm-nav-section">Аналитика</div>
           <div class="adm-nav-item" onclick="admNav('tracking')" id="adm-nav-tracking">
             <span class="ico">📅</span> Трекинг
+          </div>
+          <div class="adm-nav-item" onclick="admNav('rates')" id="adm-nav-rates">
+            <span class="ico">💰</span> Ставки
+          </div>
+          <div class="adm-nav-section">Настройки</div>
+          <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
+            <span class="ico">👥</span> Пользователи
           </div>
         </div>
         <div class="adm-sidebar-bottom">
           <div class="adm-user-chip">
+            <div class="adm-avatar" id="admAvatarLetters">AD</div>
             <span id="admSidebarUser">—</span>
-            <button class="adm-btn sm danger" onclick="admLogout()" style="padding:3px 8px">Выйти</button>
+            <button class="adm-theme-btn" onclick="admToggleTheme()" title="Сменить тему" id="admThemeBtn">🌙</button>
           </div>
-          <button class="adm-btn sm" onclick="closeAdmin()"
-                  style="width:100%;justify-content:center">← На главную</button>
+          <div class="adm-sidebar-actions">
+            <button class="adm-btn sm danger" onclick="admLogout()">Выйти</button>
+            <button class="adm-btn sm" onclick="closeAdmin()">← Главная</button>
+          </div>
         </div>
       </div>
 
+      <!-- Main -->
       <div class="adm-main">
         <div class="adm-topbar">
           <span class="adm-topbar-title" id="admTopbarTitle">Сети</span>
+          <div class="adm-topbar-actions" id="admTopbarActions"></div>
         </div>
         <div class="adm-content">
 
@@ -204,15 +186,25 @@
 
           <!-- Tracking -->
           <div class="adm-panel" id="adm-panel-tracking">
-            <div class="adm-toolbar">
-              <span style="color:#94a3b8;font-size:.85em">Офферы добавленные через панель — FD считается с даты старта</span>
-              <button class="adm-btn sm" onclick="admLoadTracking()" style="margin-left:auto" title="Обновить из кеша">🔄</button>
-              <button class="adm-btn sm primary" onclick="admRefreshTrackingFD()" title="Запросить свежие данные из Binom">⚡ Обновить FD</button>
+            <div class="trk-topbar">
+              <div class="trk-topbar-left">
+                <button class="trk-btn trk-btn-ghost" onclick="admLoadTracking()">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-5.3M20 15a9 9 0 0 1-15 5.3"/></svg>
+                  Обновить
+                </button>
+                <button class="trk-btn trk-btn-ghost" onclick="admRefreshTrackingFD()">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+                  Обновить FD
+                </button>
+              </div>
+              <button class="trk-btn trk-btn-primary" onclick="admToggleTrackingForm()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                Добавить оффер
+              </button>
             </div>
-            <div id="admTrackingFormWrap" style="margin-bottom:16px">
-              <button class="adm-btn primary" onclick="admToggleTrackingForm()">+ Добавить вручную</button>
-              <div id="admTrackingForm" style="display:none;background:#0f1724;border:1px solid #1e3a5f;border-radius:8px;padding:16px;margin-top:10px">
-                <div style="font-size:.82em;color:#94a3b8;margin-bottom:12px">Добавить существующий оффер из Binom</div>
+            <div id="admTrackingFormWrap" style="margin-bottom:20px">
+              <div id="admTrackingForm" style="display:none" class="trk-add-form">
+                <div class="trk-form-title">Добавить оффер в трекинг</div>
                 <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
                   <div class="adm-field"><label>Binom ID оффера *</label>
                     <input class="adm-inp" id="trkOfferId" type="text" placeholder="1234">
@@ -231,23 +223,59 @@
                   <div class="adm-field"><label>Кап</label>
                     <input class="adm-inp" id="trkMaxCap" type="number" placeholder="30">
                   </div>
-                  <div class="adm-field"><label>Ротация ID</label>
-                    <input class="adm-inp" id="trkRotId" type="text" placeholder="121">
+                  <div class="adm-field"><label>Ротация</label>
+                    <select class="adm-inp" id="trkRotId">
+                      <option value="">— не выбрано —</option>
+                      <option value="121">Crash (#121)</option>
+                      <option value="118">Betting (#118)</option>
+                      <option value="124">Casino (#124)</option>
+                      <option value="61">Slots (#61)</option>
+                      <option value="117">Mixed (#117)</option>
+                    </select>
                   </div>
                   <div class="adm-field"><label>GEO</label>
                     <input class="adm-inp" id="trkGeo" type="text" placeholder="TR">
                   </div>
                 </div>
-                <div class="adm-err" id="trkErr" style="margin-bottom:8px"></div>
+                <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+                  <div class="adm-field"><label>Ставка *</label>
+                    <input class="adm-inp" id="trkRate" type="number" step="0.01" placeholder="25">
+                  </div>
+                  <div class="adm-field"><label>Валюта</label>
+                    <select class="adm-inp" id="trkCurrency">
+                      <option value="USD">USD $</option>
+                      <option value="EUR">EUR €</option>
+                      <option value="BRL">BRL R$</option>
+                      <option value="GBP">GBP £</option>
+                      <option value="TRY">TRY ₺</option>
+                      <option value="UAH">UAH ₴</option>
+                      <option value="PLN">PLN zł</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="adm-err" id="trkErr" style="margin-bottom:12px"></div>
                 <div style="display:flex;gap:8px">
-                  <button class="adm-btn primary" onclick="admSubmitTrackingManual()">Добавить</button>
-                  <button class="adm-btn" onclick="admToggleTrackingForm()">Отмена</button>
+                  <button class="trk-btn trk-btn-primary" onclick="admSubmitTrackingManual()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                    Добавить
+                  </button>
+                  <button class="trk-btn trk-btn-ghost" onclick="admToggleTrackingForm()">Отмена</button>
                 </div>
               </div>
             </div>
             <div id="admTrackingTable">
               <div class="adm-empty">Загрузка...</div>
             </div>
+          </div>
+
+          <!-- Rates -->
+          <div class="adm-panel" id="adm-panel-rates">
+            <div class="adm-toolbar">
+              <input id="ratesSearch" class="adm-inp" type="text" placeholder="Поиск по GEO..."
+                     style="max-width:220px" oninput="admFilterRates(this.value)">
+              <button class="adm-btn sm" onclick="admLoadRates()" style="margin-left:auto">🔄</button>
+            </div>
+            <div id="admRatesContent"><div class="adm-empty">Загрузка...</div></div>
           </div>
 
           <!-- Users -->
@@ -270,6 +298,8 @@
       </div>
     </div>
   </div>
+
+
 
   <!-- Network Drawer -->
   <div class="adm-drawer" id="admDrawer">
@@ -520,6 +550,8 @@
       </div>
     </div>
   </div>
+
+
 
   <script src="/static/js/app.js"></script>
   <script src="/static/js/admin.js"></script>

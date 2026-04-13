@@ -184,14 +184,16 @@ def check_cap_alerts(updated: list):
         offer_key = name
         prev = state.get(offer_key, {})
         prev_in_threshold = prev.get("in_threshold", False)
-        prev_max_cap      = prev.get("max_cap", 0)
+        prev_max_cap = prev.get("max_cap", 0)
+        prev_filled = prev.get("filled", -1)
 
-        new_state[offer_key] = {"in_threshold": in_threshold, "max_cap": max_cap}
+        new_state[offer_key] = {"in_threshold": in_threshold, "max_cap": max_cap, "filled": filled}
 
         if not in_threshold:
             continue
 
-        if prev_in_threshold and prev_max_cap == max_cap:
+        # Не дублируем только если то же самое значение filled
+        if prev_in_threshold and prev_max_cap == max_cap and prev_filled == filled:
             continue
 
         network_line = f"🏢 Партнёрка: <b>{network}</b>\n" if network else ""

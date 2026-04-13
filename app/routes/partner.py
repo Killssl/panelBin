@@ -30,7 +30,8 @@ def _save_tracking(data: dict):
     open(_TRACKING_FILE, "w").write(json.dumps(data, ensure_ascii=False, indent=2))
 
 def _track_offer(offer_id: str, name: str, rotation_id: str, geo: str,
-                 sheet_name: str = "", max_cap: int = None, partner_name: str = ""):
+                 sheet_name: str = "", max_cap: int = None, partner_name: str = "",
+                 rate: float = None, currency: str = "USD"):
     """Записывает оффер в трекинг при создании."""
     import pytz as _pytz2
     tracking = _load_tracking()
@@ -46,6 +47,9 @@ def _track_offer(offer_id: str, name: str, rotation_id: str, geo: str,
     }
     if max_cap:
         entry["max_cap"] = max_cap
+    if rate:
+        entry["rate"]     = rate
+        entry["currency"] = currency
     tracking[str(offer_id)] = entry
     _save_tracking(tracking)
 
@@ -356,6 +360,19 @@ def api_admin_delete_partner(uid):
 def api_admin_reset_token(uid):
     return jsonify({"ok": True, "token": reset_token(uid)})
 
+@bp.post("/api/admin/partners/<int:uid>/change_password")
+@require_auth("admin")
+def api_admin_change_password(uid):
+    body = request.get_json(silent=True) or {}
+    password = str(body.get("password", "")).strip()
+    if not password:
+        return make_response(jsonify({"ok": False, "error": "password required"}), 400)
+    pw_hash = _hashlib.sha256(password.encode()).hexdigest()
+    ok = update_user(uid, password_hash=pw_hash)
+    if not ok:
+        return make_response(jsonify({"ok": False, "error": "User not found"}), 404)
+    return jsonify({"ok": True})
+
 @bp.post("/api/admin/partners/<int:uid>/regen_uid")
 @require_auth("admin")
 def api_admin_regen_uid(uid):
@@ -485,6 +502,141 @@ def api_partner_my_offers():
                     "network_postback": network_postback})
 
 
+@bp.get("/api/partner/traffic")
+@require_auth("partner")
+def api_partner_traffic():
+    """Трафик партнёра за неделю — уники по офферам и GEO."""
+    from app.utils.dpu import extract_rows
+    from app.services.binom import binom_get_pairs
+    import pytz as _pytz
+    from datetime import timedelta
+
+    user   = request.current_user
+    net_id = user.get("binom_network_id")
+    if not net_id:
+        return jsonify({"ok": True, "cards": [], "note": "Нет привязанной сети"})
+
+    msk   = _pytz.timezone("Europe/Moscow")
+    today = datetime.now(msk)
+    date_from = (today - timedelta(days=6)).strftime("%Y-%m-%d")
+    date_to   = today.strftime("%Y-%m-%d")
+
+    # Запрашиваем уники по офферам из Binom
+    pairs = [
+        ("date[from]",   date_from),
+        ("date[to]",     date_to),
+        ("group1",       "offer"),
+        ("group2",       "country"),
+        ("affiliateNetworkId[]", str(net_id)),
+    ]
+
+    try:
+        r = binom_get_pairs("/public/api/v1/report/campaign/stats", pairs)
+        if not r.ok:
+            # Fallback: try alternative endpoint
+            pairs2 = [
+                ("dateFrom",    date_from),
+                ("dateTo",      date_to),
+                ("groupings[]", "offer"),
+                ("groupings[]", "country"),
+                ("affiliateNetworkIds[]", str(net_id)),
+            ]
+            r = binom_get_pairs("/public/api/v1/report/campaign", pairs2)
+        if not r.ok:
+            return make_response(jsonify({
+                "ok": False,
+                "error": f"Binom {r.status_code}: {r.text[:300]}"
+            }), 502)
+
+        raw  = _safe_json(r)
+        rows = extract_rows(raw) if callable(extract_rows) else (raw if isinstance(raw, list) else (raw.get("data") or raw.get("rows") or []))
+
+        # Логируем структуру первых строк для диагностики
+        import logging
+        log = logging.getLogger("partner.traffic")
+        log.info(f"[traffic] net_id={net_id} rows={len(rows)} sample={rows[:2] if rows else []}")
+
+        # Группируем: offer → {geo: {uniq, clicks, fd}}
+        offers = {}
+        for row in rows:
+            lvl = str(row.get("level") or "")
+            # Пробуем разные форматы группировки
+            if lvl == "2":
+                offer_name = str(row.get("parent_name") or row.get("parent") or "").strip()
+                geo        = str(row.get("name") or row.get("country") or "").strip().upper()
+            elif lvl in ("", "1") or "country" in row:
+                offer_name = str(row.get("offer_name") or row.get("offer") or row.get("name") or "").strip()
+                geo        = str(row.get("country") or row.get("country_code") or "").strip().upper()
+            else:
+                continue
+
+            uniq   = int(float(row.get("unique_clicks") or row.get("uniq") or 0))
+            clicks = int(float(row.get("clicks") or 0))
+            fd     = int(float(row.get("conversions") or row.get("ftd") or row.get("fd") or 0))
+
+            if not offer_name or not geo or uniq == 0:
+                continue
+            if offer_name not in offers:
+                offers[offer_name] = {"geos": {}, "total_uniq": 0}
+            if geo not in offers[offer_name]["geos"]:
+                offers[offer_name]["geos"][geo] = {"uniq": 0, "clicks": 0, "fd": 0}
+            offers[offer_name]["geos"][geo]["uniq"]   += uniq
+            offers[offer_name]["geos"][geo]["clicks"]  += clicks
+            offers[offer_name]["geos"][geo]["fd"]      += fd
+            offers[offer_name]["total_uniq"] += uniq
+
+        # Сортируем офферы по total_uniq
+        cards = []
+        for name, data in sorted(offers.items(), key=lambda x: -x[1]["total_uniq"]):
+            geos_sorted = sorted(data["geos"].items(), key=lambda x: -x[1]["uniq"])
+            cards.append({
+                "name":       name,
+                "total_uniq": data["total_uniq"],
+                "geos":       [{"code": g, "uniq": d["uniq"], "fd": d["fd"]} for g, d in geos_sorted],
+            })
+
+        return jsonify({
+            "ok":        True,
+            "cards":     cards,
+            "date_from": date_from,
+            "date_to":   date_to,
+        })
+    except Exception as e:
+        import traceback
+        return make_response(jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500)
+
+
+@bp.get("/api/partner/traffic/debug")
+@require_auth("partner")
+def api_partner_traffic_debug():
+    """Отладка — сырой ответ Binom для трафика."""
+    user   = request.current_user
+    net_id = user.get("binom_network_id")
+    import pytz as _pytz
+    from datetime import timedelta
+    msk   = _pytz.timezone("Europe/Moscow")
+    today = datetime.now(msk)
+    date_from = (today - timedelta(days=6)).strftime("%Y-%m-%d")
+    date_to   = today.strftime("%Y-%m-%d")
+
+    results = {}
+    for ep, pairs in [
+        ("/public/api/v1/report/campaign", [
+            ("dateFrom", date_from), ("dateTo", date_to),
+            ("groupings[]", "offer"), ("groupings[]", "country"),
+            ("affiliateNetworkIds[]", str(net_id)),
+        ]),
+        ("/public/api/v1/report/campaign/stats", [
+            ("date[from]", date_from), ("date[to]", date_to),
+            ("group1", "offer"), ("group2", "country"),
+            ("affiliateNetworkId[]", str(net_id)),
+        ]),
+    ]:
+        r = binom_get_pairs(ep, pairs)
+        results[ep] = {"status": r.status_code, "body": r.text[:1000]}
+    return jsonify({"ok": True, "net_id": net_id, "results": results})
+
+
 @bp.get("/api/partner/requests")
 @require_auth("partner")
 def api_partner_requests():
@@ -587,9 +739,13 @@ def api_add_offer_to_rotation():
     # Записываем в трекинг
     max_cap_val  = body.get("max_cap")
     partner_name = body.get("partner_name", "")
+    rate_val     = body.get("rate")
+    currency_val = str(body.get("currency", "USD"))
     _track_offer(str(offer_id), offer_name, rotation_id, geo,
                  max_cap=int(max_cap_val) if max_cap_val else None,
-                 partner_name=partner_name)
+                 partner_name=partner_name,
+                 rate=float(rate_val) if rate_val else None,
+                 currency=currency_val)
     print(f"[add_to_rotation] offer {offer_id} → rotation #{rotation_id} GEO={geo}", flush=True)
     return jsonify({"ok": True, "rotation_id": rotation_id, "geo": geo})
 
@@ -616,7 +772,7 @@ def api_tracking_add(offer_id):
     key      = str(offer_id)
     existing = tracking.get(key, {})
     # Обновляем только переданные поля
-    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name"):
+    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name", "rate", "currency", "auto_stop_pct", "auto_stopped"):
         if field in body:
             existing[field] = body[field]
     if not existing.get("created_at"):
@@ -636,8 +792,10 @@ def api_tracking_manual():
     start_date  = str(body.get("start_date", "")).strip()
     rotation_id = str(body.get("rotation_id", "")).strip()
     geo         = str(body.get("geo", "")).strip()
-    max_cap     = body.get("max_cap")
+    max_cap      = body.get("max_cap")
     partner_name = str(body.get("partner_name", "")).strip()
+    rate_val     = body.get("rate")
+    currency_val = str(body.get("currency", "USD")).strip()
 
     if not offer_id or not name:
         return make_response(jsonify({"ok": False, "error": "offer_id and name required"}), 400)
@@ -654,6 +812,8 @@ def api_tracking_manual():
         "geo":          geo,
         "partner_name": partner_name,
         "max_cap":      int(max_cap) if max_cap else None,
+        "rate":         float(rate_val) if rate_val else None,
+        "currency":     currency_val or "USD",
         "created_at":   datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S"),
         "manual":       True,
     }
@@ -711,6 +871,38 @@ def api_tracking_fd_refresh():
         return jsonify({"ok": True, "note": "Обновление запущено в фоне"})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+
+# ── Rates ────────────────────────────────────────────────────────────────────
+
+_RATES_FILE = os.path.join(os.path.dirname(__file__), "../../data/rates.json")
+
+def _load_rates() -> dict:
+    try:
+        return json.loads(open(_RATES_FILE).read())
+    except Exception:
+        return {}
+
+def _save_rates(data: dict):
+    open(_RATES_FILE, "w").write(json.dumps(data, ensure_ascii=False, indent=2))
+
+
+@bp.get("/api/rates")
+@require_auth("admin")
+def api_rates_list():
+    resp = make_response(jsonify({"ok": True, "rates": _load_rates()}))
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
+@bp.post("/api/rates")
+@require_auth("admin")
+def api_rates_save():
+    """Сохраняет весь объект ставок."""
+    body = request.get_json(silent=True) or {}
+    rates = body.get("rates", {})
+    _save_rates(rates)
+    return jsonify({"ok": True})
 
 
 @bp.get("/api/sheets/history")

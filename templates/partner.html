@@ -7,7 +7,191 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/partner.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
 
+<style>
+/* ─── Cards grid ─── */
+.weekly-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.wcard {
+  background: var(--surface, #0f1c2e);
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.wcard:hover { border-color: rgba(99,102,241,.4); }
+
+.wcard-header {
+  padding: 12px 16px 10px;
+  background: rgba(99,102,241,.07);
+  border-bottom: 1px solid #1e3a5f;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wcard-title {
+  font-size: 1.03rem;
+  font-weight: 700;
+  color: #c7d2fe;
+  line-height: 1.3;
+}
+
+.wcard-badge {
+  font-size: 0.88rem;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.wcard-rows {
+  padding: 8px 0 4px;
+}
+
+.wrow {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  transition: background .1s;
+}
+.wrow:hover { background: rgba(255,255,255,.03); }
+
+.wrow-top .wrow-country { color: #e2e8f0; font-weight: 600; }
+.wrow-top .wrow-uniq    { color: #34d47a; }
+
+.wrow-rank {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,.2);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wrow-country {
+  font-size: 0.97rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wrow-bar-wrap {
+  width: 80px;
+  height: 4px;
+  background: rgba(255,255,255,.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.wrow-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 2px;
+  transition: width .3s;
+}
+.wrow-top .wrow-bar {
+  background: linear-gradient(90deg, #059669, #34d47a);
+}
+
+.wrow-uniq {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 44px;
+}
+
+/* ─── Copy button in weekly card ─── */
+.wcard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wcard-header-left {
+  flex: 1;
+  min-width: 0;
+}
+.wcopy-btn {
+  flex-shrink: 0;
+  font-size: 0.88rem;
+  padding: 3px 9px;
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 5px;
+  background: rgba(99,102,241,.08);
+  color: #a5b4fc;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  margin-top: 2px;
+}
+.wcopy-btn:hover {
+  background: rgba(99,102,241,.2);
+  border-color: #818cf8;
+  color: #fff;
+}
+.wcopy-btn.wcopy-done {
+  background: rgba(34,197,94,.12);
+  border-color: rgba(34,197,94,.4);
+  color: #4ade80;
+}
+
+/* ─── "Готовы" tag ─── */
+.wrow {
+  grid-template-columns: 22px 1fr auto auto auto !important;
+}
+.wrow-tag {
+  font-size: 0.83rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(234,179,8,.2);
+  color: rgba(234,179,8,.35);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  user-select: none;
+}
+.wrow-tag.active {
+  border-color: rgba(234,179,8,.55);
+  color: var(--accent2);
+  background: rgba(234,179,8,.08);
+}
+.wrow-tag:hover {
+  border-color: rgba(234,179,8,.8);
+  color: #fde68a;
+}
+
+.wk-meta {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 0.93rem;
+  color: var(--text2, #94a3b8);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.wk-meta b { color: #e2e8f0; font-weight: 600; }
+.wk-meta-sep { margin: 0 10px; opacity: .3; }
+.wk-fd-badge {
+  font-size: 0.78em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(62,207,142,.12);
+  color: #3ecf8e;
+  white-space: nowrap;
+  font-weight: 600;
+}
+</style>
 </head>
 <body>
 
@@ -40,6 +224,7 @@
 
   <div class="tabs">
     <div class="tab active" data-tab="my_offers" onclick="switchTab('my_offers')">🎯 Мои офферы</div>
+    <div class="tab" data-tab="traffic" onclick="switchTab('traffic')">📈 Трафик</div>
     <div class="tab" data-tab="new" onclick="switchTab('new')">＋ Новая заявка</div>
     <div class="tab" data-tab="requests" onclick="switchTab('requests')">
       📩 Мои заявки <span id="pendingBadge" style="display:none;margin-left:4px;background:var(--yellow);color:#000;border-radius:10px;padding:1px 6px;font-size:.7em"></span>
@@ -75,6 +260,11 @@
     <div class="page" id="page-offers">
       <div class="section-title">Доступные офферы</div>
       <div id="offersList"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- TRAFFIC PAGE -->
+    <div class="page" id="page-traffic">
+      <div id="trafficContent"><div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div></div>
     </div>
 
     <!-- NEW REQUEST PAGE -->
@@ -167,8 +357,14 @@
 
           <!-- URL -->
           <div class="field span2">
-            <label>URL оффера</label>
+            <label>URL оффера <span style="color:var(--text2);font-size:.8em">(ваша партнёрская ссылка)</span></label>
             <input class="inp" id="rUrl" type="text" placeholder="https://...">
+          </div>
+
+          <!-- Postback -->
+          <div class="field span2">
+            <label>Postback URL <span style="color:var(--text2);font-size:.8em">(подставляется из вашей сети)</span></label>
+            <input class="inp" id="rPostback" type="text" placeholder="https://...">
           </div>
 
           <!-- Комментарий -->

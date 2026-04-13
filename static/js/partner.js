@@ -60,6 +60,7 @@ async function showApp() {
   document.getElementById('app').classList.add('visible');
   document.getElementById('hUser').textContent = ME.username;
   await Promise.all([loadMyOffers(), loadRequests(), loadBaseOffers()]);
+  loadTraffic();
 }
 
 // ── TABS ─────────────────────────────────────────
@@ -68,6 +69,7 @@ function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
   if (tab === 'requests')  loadRequests();
   if (tab === 'my_offers') loadMyOffers();
+  if (tab === 'traffic')   loadTraffic();
 }
 
 // ── МОИ ОФФЕРЫ ────────────────────────────────────
@@ -206,12 +208,19 @@ function toggleChip(el) {
 
 // Base offer list from Binom
 let _baseOffers = [];
+let _networkPostback = '';
 
 async function loadBaseOffers() {
   const j = await api('GET', '/api/partner/my_offers');
   if (!j.ok) return;
   _baseOffers = (j.offers || []).filter(o => o.status === 'active' || o.status === 'unknown');
+  _networkPostback = j.network_postback || '';
   renderBaseOffers(_baseOffers);
+  // Подставляем постбек в форму если поле пустое
+  const pbInp = document.getElementById('rPostback');
+  if (pbInp && !pbInp.value && _networkPostback) {
+    pbInp.value = _networkPostback;
+  }
 }
 
 function renderBaseOffers(list) {
@@ -239,6 +248,11 @@ function onBaseOfferSelect(sel) {
   const geoInp = document.getElementById('rGeo');
   if (geoInp && !geoInp.value) {
     geoInp.value = opt.dataset.country || '';
+  }
+  // Pre-fill postback from network
+  const pbInp = document.getElementById('rPostback');
+  if (pbInp && !pbInp.value && _networkPostback) {
+    pbInp.value = _networkPostback;
   }
 }
 
@@ -281,6 +295,7 @@ async function submitRequest() {
   const currency = document.getElementById('rCurrency').value;
   const cap      = getCapValue();
   const url      = document.getElementById('rUrl').value.trim();
+  const postback = document.getElementById('rPostback')?.value.trim() || '';
   const comment  = document.getElementById('rComment').value.trim();
   const errEl    = document.getElementById('rErr');
   const btn      = document.getElementById('rBtn');
@@ -306,7 +321,8 @@ ${comment}` : '');
   btn.disabled = true;
   btn.textContent = 'Отправляю...';
   const j = await api('POST', '/api/partner/requests', {
-    offer_name: fullName, geo, rate, offer_url: url, comment: fullComment
+    offer_name: fullName, geo, rate, offer_url: url,
+    postback_url: postback || undefined, comment: fullComment
   });
   btn.disabled = false;
   btn.textContent = 'Отправить заявку';
@@ -328,6 +344,7 @@ function clearForm() {
   document.getElementById('rCurrency').value = 'USD';
   document.querySelectorAll('#rApproachGroup .chip').forEach(c => c.classList.remove('selected'));
   document.getElementById('rBaseOffer').value = '';
+  const pbEl = document.getElementById('rPostback'); if (pbEl) pbEl.value = _networkPostback || '';
   document.getElementById('rBaseOfferSearch').value = '';
   renderBaseOffers(_baseOffers);
   document.getElementById('rErr').textContent = '';
@@ -373,6 +390,88 @@ async function loadRequests() {
       <div class="req-date">${dateStr}</div>
     </div>`;
   }).join('') + '</div>';
+}
+
+// ── TRAFFIC ──────────────────────────────────────
+
+// Country codes → flag emoji
+function geoFlag(code) {
+  if (!code || code.length !== 2) return '';
+  return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+}
+
+// Country code → name
+const GEO_NAMES = {
+  BR:'Brazil',TR:'Turkey',FR:'France',IN:'India',PL:'Poland',
+  DE:'Germany',ES:'Spain',IT:'Italy',NL:'Netherlands',GB:'United Kingdom',
+  AR:'Argentina',MX:'Mexico',CL:'Chile',CO:'Colombia',PE:'Peru',
+  UA:'Ukraine',KZ:'Kazakhstan',RU:'Russia',AE:'UAE',SA:'Saudi Arabia',
+  GH:'Ghana',NG:'Nigeria',ZA:'South Africa',MZ:'Mozambique',
+  PT:'Portugal',BE:'Belgium',CH:'Switzerland',AT:'Austria',CZ:'Czech Republic',
+  RO:'Romania',HU:'Hungary',LV:'Latvia',LT:'Lithuania',EE:'Estonia',
+  MY:'Malaysia',TH:'Thailand',PH:'Philippines',ID:'Indonesia',SG:'Singapore',
+  AU:'Australia',NZ:'New Zealand',CA:'Canada',US:'United States',
+};
+
+async function loadTraffic() {
+  const el = document.getElementById('trafficContent');
+  if (!el) return;
+  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка трафика...</div>';
+
+  const j = await api('GET', '/api/partner/traffic');
+  if (!j.ok) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка загрузки')}</div>`;
+    return;
+  }
+
+  const cards = j.cards || [];
+  if (!cards.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет данных за неделю</div>';
+    return;
+  }
+
+  const totalUniq = cards.reduce((s, c) => s + c.total_uniq, 0);
+
+  el.innerHTML = `
+    <div class="wk-meta">
+      <span>${h(j.date_from)} — ${h(j.date_to)}</span>
+      <span class="wmeta-sep">·</span>
+      <b>${totalUniq.toLocaleString()}</b> уников
+      <span class="wmeta-sep">·</span>
+      ${cards.length} офферов
+    </div>
+    <div class="weekly-cards">
+      ${cards.map(card => {
+        const maxUniq = card.geos[0]?.uniq || 1;
+        return `<div class="wcard">
+          <div class="wcard-header">
+            <div class="wcard-header-left">
+              <div class="wcard-title">${h(card.name)}</div>
+              <div class="wcard-badge">${card.total_uniq.toLocaleString()} uniq</div>
+            </div>
+          </div>
+          <div class="wcard-rows">
+            ${card.geos.map((g, i) => {
+              const pct  = Math.round(g.uniq / maxUniq * 100);
+              const flag = geoFlag(g.code);
+              const name = GEO_NAMES[g.code] || g.code;
+              const isTop = i === 0;
+              return `<div class="wrow${isTop ? ' wrow-top' : ''}">
+                <div class="wrow-rank">${i+1}</div>
+                <div class="wrow-country">
+                  <span class="wrow-flag">${flag}</span>
+                  <span class="wrow-geo-name">${h(name)}</span>
+                  <span class="wrow-geo-code">${h(g.code)}</span>
+                </div>
+                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${pct}%"></div></div>
+                <div class="wrow-uniq">${g.uniq.toLocaleString()}</div>
+                ${g.fd > 0 ? `<span class="wk-fd-badge">${g.fd} FD</span>` : '<span></span>'}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 // ── UTILS ─────────────────────────────────────────

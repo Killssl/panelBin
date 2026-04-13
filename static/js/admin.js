@@ -93,11 +93,11 @@ function admInitRotationsList() {
   if (!el) return;
   el.innerHTML = ADM_ROTATIONS.map(r => `
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;
-                  background:#0f1724;border:1px solid #1e3a5f;border-radius:6px">
+                  background:var(--bg3);border:0.5px solid var(--border);border-radius:6px">
       <input type="checkbox" class="adm-rot-check" data-rot-id="${r.id}"
              style="accent-color:#6366f1;width:14px;height:14px">
-      <span style="color:#e2e8f0;font-size:.85em">${h(r.name)}</span>
-      <span style="color:#475569;font-size:.75em">#${r.id}</span>
+      <span style="color:var(--text);font-size:.85em">${h(r.name)}</span>
+      <span style="color:var(--text3);font-size:.75em">#${r.id}</span>
     </label>
   `).join('');
 }
@@ -154,8 +154,32 @@ function admShowApp(username) {
   document.getElementById('adminLoginScreen').style.display = 'none';
   document.getElementById('adminApp').classList.add('visible');
   document.getElementById('admSidebarUser').textContent = username || '—';
+  // Set avatar initials
+  const av = document.getElementById('admAvatarLetters');
+  if (av && username) av.textContent = username.slice(0,2).toUpperCase();
+  // Restore saved theme
+  const savedTheme = localStorage.getItem('admTheme');
+  if (savedTheme === 'dark') _admApplyTheme(true);
   admLoadNetworks();
   admLoadPendingCount();
+}
+
+function admToggleTheme() {
+  const isDark = document.getElementById('adminOverlay').classList.contains('dark-theme');
+  _admApplyTheme(!isDark);
+}
+
+function _admApplyTheme(dark) {
+  const overlay = document.getElementById('adminOverlay');
+  if (dark) {
+    overlay.classList.add('dark-theme');
+    document.getElementById('admThemeBtn').textContent = '☀️';
+    localStorage.setItem('admTheme', 'dark');
+  } else {
+    overlay.classList.remove('dark-theme');
+    document.getElementById('admThemeBtn').textContent = '🌙';
+    localStorage.setItem('admTheme', 'light');
+  }
 }
 
 ['admLoginUser', 'admLoginPass'].forEach(id => {
@@ -166,7 +190,7 @@ function admShowApp(username) {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов' };
+const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов', rates: 'Ставки' };
 
 function admNav(name) {
   document.querySelectorAll('.adm-nav-item').forEach(n => n.classList.remove('active'));
@@ -179,6 +203,7 @@ function admNav(name) {
   if (name === 'requests') admLoadRequests();
   if (name === 'users')    admLoadUsers();
   if (name === 'tracking') { admLoadTracking(); admStartTrackingAutoRefresh(); }
+  if (name === 'rates') admLoadRates();
   else admStopTrackingAutoRefresh();
 }
 
@@ -191,7 +216,7 @@ async function admLoadNetworks() {
   const j = await admApi('GET', '/api/admin/networks');
 
   if (!j.ok) {
-    tbody.innerHTML = `<tr><td colspan="6" class="adm-empty" style="color:#ef4444">
+    tbody.innerHTML = `<tr><td colspan="6" class="adm-empty" style="color:var(--red)">
       Ошибка: ${h(j.error || 'не удалось получить список сетей из Binom')}
     </td></tr>`;
     return;
@@ -298,7 +323,7 @@ async function admOpenDrawer(netId) {
 
   const j = await admApi('GET', `/api/admin/networks/${netId}`);
   if (!j.ok) {
-    bodyEl.innerHTML = `<div class="adm-empty" style="color:#ef4444">Ошибка: ${h(j.error)}</div>`;
+    bodyEl.innerHTML = `<div class="adm-empty" style="color:var(--red)">Ошибка: ${h(j.error)}</div>`;
     return;
   }
 
@@ -375,7 +400,7 @@ async function admOpenDrawer(netId) {
       for (const f of fields) {
         const val = f._val ?? '';
         html += `<div class="adm-field">
-          <label>${h(f.label)}${f.required ? ' <span style="color:#ef4444">*</span>' : ''}</label>`;
+          <label>${h(f.label)}${f.required ? ' <span style="color:var(--red)">*</span>' : ''}</label>`;
 
         if (f.type === 'textarea') {
           html += `<textarea class="adm-inp adm-net-field" data-key="${h(f.key)}" rows="3">${h(String(val))}</textarea>`;
@@ -442,7 +467,7 @@ async function admOpenDrawer(netId) {
       <div class="adm-partner-acc-info">
         <div class="adm-partner-acc-row">
           <span class="adm-net-info-key">Логин</span>
-          <b style="color:#e2e8f0">${h(acc.username || '—')}</b>
+          <b style="color:var(--text)">${h(acc.username || '—')}</b>
         </div>
         <div class="adm-partner-acc-row">
           <span class="adm-net-info-key">UID входа</span>
@@ -451,6 +476,7 @@ async function admOpenDrawer(netId) {
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
         <button class="adm-btn sm" onclick="admRegenUID('${h(String(netId))}')">🎲 Новый UID</button>
+        <button class="adm-btn sm" onclick="admChangePassword('${h(String(netId))}','${h(acc.username||'')}')">🔑 Сменить пароль</button>
         <button class="adm-btn sm danger" onclick="admDeleteAccount('${h(String(netId))}')">✕ Удалить аккаунт</button>
       </div>
     ` : `
@@ -461,7 +487,7 @@ async function admOpenDrawer(netId) {
           <input class="adm-inp" id="dAccUser" type="text" placeholder="partner_name">
         </div>
         <div class="adm-field">
-          <label>Пароль <span style="color:#475569">(авто)</span></label>
+          <label>Пароль <span style="color:var(--text3)">(авто)</span></label>
           <input class="adm-inp" id="dAccPass" type="text" placeholder="авто">
         </div>
       </div>
@@ -645,8 +671,8 @@ function admOpenApprove(id) {
 
     const info = document.getElementById('admApproveInfo');
     info.innerHTML = [
-      `<b style="color:#e2e8f0;font-size:1.05em">${h(req.offer_name)}</b>`,
-      `GEO: <b style="color:#60a5fa">${h(req.geo)}</b>`,
+      `<b style="color:var(--text);font-size:1.05em">${h(req.offer_name)}</b>`,
+      `GEO: <b style="color:var(--accent)">${h(req.geo)}</b>`,
       req.rate     ? `Ставка: <b style="color:#3ecf8e">${h(req.rate)}</b>` : null,
       `Партнёр: <b>${h(req.partner_name)}</b>`,
       req.binom_network_id ? `Сеть: <b style="color:#818cf8">#${h(req.binom_network_id)}</b>` : null,
@@ -751,15 +777,15 @@ function admRenderCountryDrop(q) {
   // Limit to 80 items
   list = list.slice(0, 80);
   if (!list.length) {
-    drop.innerHTML = `<div style="padding:8px 12px;color:#475569;font-size:.8em">Не найдено — введите код вручную</div>`;
+    drop.innerHTML = `<div style="padding:8px 12px;color:var(--text3);font-size:.8em">Не найдено — введите код вручную</div>`;
     return;
   }
   drop.innerHTML = list.map(c =>
     `<div onclick="admSelectCountry('${h(c.code)}','${h(c.name)}')"
-          style="padding:7px 12px;cursor:pointer;font-size:.82em;display:flex;gap:10px;align-items:center;border-bottom:1px solid #1e2d45"
+          style="padding:7px 12px;cursor:pointer;font-size:.82em;display:flex;gap:10px;align-items:center;border-bottom:0.5px solid var(--border)"
           onmouseover="this.style.background='#1e2d45'" onmouseout="this.style.background=''">
-       <span style="color:#60a5fa;font-weight:600;min-width:28px">${h(c.code)}</span>
-       <span style="color:#94a3b8">${h(c.name)}</span>
+       <span style="color:var(--accent);font-weight:600;min-width:28px">${h(c.code)}</span>
+       <span style="color:var(--text2)">${h(c.name)}</span>
      </div>`
   ).join('');
 }
@@ -951,8 +977,10 @@ async function admSubmitApprove() {
     const rj = await admApi('POST', '/api/binom/offers/add_to_rotation', {
       offer_id: offerId, rotation_id: rotId, geo, weight,
       offer_name: name,
-      max_cap: (convCap && maxCap) ? maxCap : undefined,
+      max_cap:      (convCap && maxCap) ? maxCap : undefined,
       partner_name: partnerName,
+      rate:         payout || undefined,
+      currency:     currency || 'USD',
     });
     console.log('[add_to_rotation] rotId:', rotId, 'response:', rj);
     rotResults.push({ rotId, ok: rj.ok, error: rj.rotation_error || rj.error });
@@ -1063,6 +1091,57 @@ async function admCreateAccount(netId) {
   admLoadNetworks();
 }
 
+async function admChangePassword(netId, username) {
+  // Убираем старый модал если есть
+  document.getElementById('admChangePassModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'admChangePassModal';
+  modal.className = 'adm-overlay';
+  modal.style.cssText = 'z-index:9000';
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:24px;width:360px">
+      <div style="font-size:1em;font-weight:600;color:var(--text);margin-bottom:16px">🔑 Сменить пароль</div>
+      <div style="color:var(--text2);font-size:.85em;margin-bottom:12px">Партнёр: <b style="color:var(--text)">${username}</b></div>
+      <div class="adm-field">
+        <label>Новый пароль *</label>
+        <input class="adm-inp" id="newPassInp" type="text" placeholder="Введите пароль">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:4px;margin-bottom:12px">
+        <button class="adm-btn sm" onclick="document.getElementById('newPassInp').value=Math.random().toString(36).slice(2,10)">🎲 Авто</button>
+      </div>
+      <div class="adm-err" id="changePassErr" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="adm-btn" onclick="document.getElementById('admChangePassModal').remove()">Отмена</button>
+        <button class="adm-btn primary" onclick="admSubmitChangePassword('${netId}')">💾 Сохранить</button>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  (document.getElementById('adminOverlay') || document.body).appendChild(modal);
+  document.getElementById('newPassInp').focus();
+}
+
+async function admSubmitChangePassword(netId) {
+  const errEl = document.getElementById('changePassErr');
+  const pass  = document.getElementById('newPassInp').value.trim();
+  if (!pass) { errEl.textContent = 'Введите пароль'; return; }
+
+  // Получаем user id через детали сети
+  const jNet = await admApi('GET', `/api/admin/networks/${netId}`);
+  if (!jNet.ok || !jNet.account?.id) { errEl.textContent = 'Не удалось получить данные'; return; }
+
+  const userId = jNet.account.id;
+  const j = await admApi('POST', `/api/admin/partners/${userId}/change_password`, { password: pass });
+  if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
+
+  document.getElementById('admChangePassModal').remove();
+  // Показываем новый пароль
+  alert(`✅ Пароль изменён!
+
+Логин: ${jNet.account.username || ''}
+Пароль: ${pass}`);
+}
+
 async function admRegenUID(netId) {
   if (!confirm('Сгенерировать новый UID? Старый перестанет работать.')) return;
   const j = await admApi('POST', `/api/admin/networks/${netId}/regen_uid`);
@@ -1118,33 +1197,33 @@ function openSheetsSyncPanel() {
     position:fixed;top:0;right:0;width:420px;height:100vh;
     background:#0d1b2e;border-left:1px solid #1e3a5f;
     display:flex;flex-direction:column;z-index:3000;
-    font-family:inherit;font-size:14px;color:#e2e8f0;
+    font-family:inherit;font-size:14px;color:var(--text);
   `;
   panel.innerHTML = `
     <div style="padding:16px 20px;border-bottom:1px solid #1e3a5f;display:flex;justify-content:space-between;align-items:center">
       <b style="font-size:16px">📊 Google Sheets Sync</b>
-      <button onclick="document.getElementById('sheetsSyncPanel').remove()" style="background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer">✕</button>
+      <button onclick="document.getElementById('sheetsSyncPanel').remove()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
     </div>
     <div style="padding:20px;flex:1;overflow-y:auto">
 
       <!-- Статус автосинка -->
-      <div id="ssSyncStatus" style="background:#0f1724;border:1px solid #1e3a5f;border-radius:8px;padding:12px;margin-bottom:16px">
-        <div style="color:#94a3b8;margin-bottom:8px">Авто-синк Filled Cap</div>
-        <div id="ssStatusText" style="color:#60a5fa">Загрузка...</div>
+      <div id="ssSyncStatus" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px">
+        <div style="color:var(--text2);margin-bottom:8px">Авто-синк Filled Cap</div>
+        <div id="ssStatusText" style="color:var(--accent)">Загрузка...</div>
       </div>
 
       <!-- Управление авто-синком -->
       <div style="margin-bottom:16px">
-        <div style="color:#94a3b8;font-size:12px;margin-bottom:6px">Интервал (минуты)</div>
+        <div style="color:var(--text2);font-size:12px;margin-bottom:6px">Интервал (минуты)</div>
         <input id="ssInterval" type="number" value="5" min="1" max="60"
-          style="width:80px;background:#0f1724;border:1px solid #1e3a5f;border-radius:6px;padding:6px 10px;color:#e2e8f0;margin-right:8px">
+          style="width:80px;background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);margin-right:8px">
         <button class="btn primary" onclick="ssToggle(true)" style="margin-right:6px">▶ Включить</button>
         <button class="btn" onclick="ssToggle(false)">⏹ Выключить</button>
       </div>
 
       <!-- Ручной запуск -->
       <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-bottom:16px">
-        <div style="color:#94a3b8;font-size:12px;margin-bottom:8px">Ручной запуск</div>
+        <div style="color:var(--text2);font-size:12px;margin-bottom:8px">Ручной запуск</div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <button class="btn primary" onclick="ssRunNow(false)" style="flex:1">⟳ Синк сейчас</button>
           <button class="btn" onclick="ssRunNow(true)" style="flex:1">👁 Dry run</button>
@@ -1156,7 +1235,7 @@ function openSheetsSyncPanel() {
       </div>
 
       <!-- Лог последнего запуска -->
-      <div id="ssSyncLog" style="background:#0f1724;border:1px solid #1e3a5f;border-radius:8px;padding:12px;font-size:12px;font-family:monospace;min-height:100px;white-space:pre-wrap;color:#94a3b8">
+      <div id="ssSyncLog" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;font-family:monospace;min-height:100px;white-space:pre-wrap;color:var(--text2)">
         Нажми "Синк сейчас" или "Dry run"...
       </div>
 
@@ -1256,6 +1335,214 @@ async function ssFillIds(dryRun) {
   }
 }
 
+// ─── Rates ───────────────────────────────────────────────────────────────────
+
+const APPROACHES = ['Crash', 'Casino', 'Betting'];
+const CURRENCIES = ['USD', 'EUR', 'BRL', 'GBP', 'TRY', 'UAH', 'PLN'];
+let _rates = {}; // {Crash: {BR: [{rate:25, currency:'USD', note:''}]}}
+
+async function admLoadRates() {
+  const el = document.getElementById('admRatesContent');
+  if (!el) return;
+
+  // Грузим сохранённые ставки и трекинг параллельно
+  const [jr, jt] = await Promise.all([
+    admApi('GET', '/api/rates'),
+    admApi('GET', '/api/tracking/offers?_=' + Date.now()),
+  ]);
+
+  _rates = (jr.ok ? jr.rates : null) || {};
+
+  // Подмешиваем ставки из трекинга
+  const tracking = jt.ok ? (jt.offers || {}) : {};
+
+  // Маппинг rotation_id → подход
+  const rotToApproach = { '121': 'Crash', '118': 'Betting', '124': 'Casino', '61': 'Slots', '117': 'Mixed' };
+
+  for (const [id, o] of Object.entries(tracking)) {
+    if (!o.rate || !o.geo) continue;
+    const approach = rotToApproach[o.rotation_id] || o.rotation_id || 'Другое';
+    const geo      = (o.geo || '').toUpperCase();
+    if (!_rates[approach]) _rates[approach] = {};
+    if (!_rates[approach][geo]) _rates[approach][geo] = [];
+    // Не дублируем если уже есть такая же ставка
+    const exists = _rates[approach][geo].some(r => r.rate === o.rate && r.currency === (o.currency || 'USD'));
+    if (!exists) {
+      _rates[approach][geo].push({
+        rate:     o.rate,
+        currency: o.currency || 'USD',
+        note:     o.partner_name ? `Партнёр: ${o.partner_name}` : '',
+        from_tracking: true,
+      });
+    }
+  }
+
+  admRenderRates();
+}
+
+function admRenderRates() {
+  const el = document.getElementById('admRatesContent');
+  if (!el) return;
+
+  let html = '';
+  for (const approach of APPROACHES) {
+    const geos = _rates[approach] || {};
+    const geoEntries = Object.entries(geos).sort(([a],[b]) => a.localeCompare(b));
+    const totalRates = geoEntries.reduce((s,[,rows]) => s + (rows||[]).length, 0);
+
+    html += `<div class="rates-section">
+      <div class="rates-approach-title">${h(approach)}
+        <span class="rates-approach-count">${totalRates} ставок · ${geoEntries.length} GEO</span>
+      </div>
+      <div class="rates-geos">
+        ${geoEntries.length ? geoEntries.map(([geo, rows]) => {
+          const ratesHtml = (rows||[]).map((r, ri) => `
+            <div class="rates-row">
+              <span class="rates-val">${h(String(r.rate||''))}</span>
+              <span class="rates-cur">${h(r.currency||'USD')}</span>
+              ${r.note ? `<span class="rates-note">${h(r.note)}</span>` : ''}
+              ${r.from_tracking ? `<span class="rates-tag">📌 трекинг</span>` : `
+                <div class="rates-row-actions">
+                  <button class="trkc-act" onclick="admRatesEdit('${h(approach)}','${h(geo)}',${ri})" title="Редактировать">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="trkc-act trkc-act--del" onclick="admRatesDelete('${h(approach)}','${h(geo)}',${ri})" title="Удалить">
+                    <svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </button>
+                </div>`}
+            </div>`).join('');
+
+          return `<div class="rates-geo-item" id="rg-${h(approach)}-${h(geo)}">
+            <div class="rates-geo-head" onclick="admToggleGeo('rg-${h(approach)}-${h(geo)}')">
+              <span class="rates-geo-dot"></span>
+              <span class="rates-geo-name">${h(geo)}</span>
+              <span class="rates-geo-count">${(rows||[]).length} ставок</span>
+              <svg class="rates-geo-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="rates-geo-body">${ratesHtml}</div>
+          </div>`;
+        }).join('') : `<div class="adm-empty" style="padding:12px">Нет ставок</div>`}
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function admFilterRates(q) {
+  const ql = q.trim().toUpperCase();
+  document.querySelectorAll('.rates-geo-item').forEach(el => {
+    const geo = el.querySelector('.rates-geo-name')?.textContent || '';
+    const match = !ql || geo.toUpperCase().includes(ql);
+    el.style.display = match ? '' : 'none';
+    if (match && ql) el.classList.add('open'); // auto-open on search
+  });
+}
+
+function admToggleGeo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+}
+
+function admRatesAddRow() {
+  admRatesModal(null, null, null);
+}
+
+function admRatesEdit(approach, geo, idx) {
+  const r = (_rates[approach]?.[geo] || [])[idx] || {};
+  admRatesModal(approach, geo, { ...r, _idx: idx });
+}
+
+function admRatesModal(approach, geo, data) {
+  document.getElementById('admRatesModal')?.remove();
+  const isNew = data === null;
+  const modal = document.createElement('div');
+  modal.id = 'admRatesModal';
+  modal.className = 'adm-overlay';
+  modal.style.cssText = 'z-index:9000';
+  modal.innerHTML = `
+    <div style="background:var(--bg2);border:0.5px solid var(--border2);;border:0.5px solid var(--border);border-radius:12px;padding:24px;width:420px">
+      <div style="font-size:1em;font-weight:600;color:var(--text);margin-bottom:16px">
+        ${isNew ? '+ Добавить ставку' : '✏️ Редактировать ставку'}
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field">
+          <label>Подход *</label>
+          <select class="adm-inp" id="rateApproach">
+            ${APPROACHES.map(a => `<option value="${a}" ${approach===a?'selected':''}>${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="adm-field">
+          <label>GEO *</label>
+          <input class="adm-inp" id="rateGeo" type="text" placeholder="BR, FR, TR..." value="${h(geo||'')}" style="text-transform:uppercase">
+        </div>
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field">
+          <label>Ставка *</label>
+          <input class="adm-inp" id="rateValue" type="number" step="0.01" placeholder="25" value="${h(String(data?.rate||''))}">
+        </div>
+        <div class="adm-field">
+          <label>Валюта</label>
+          <select class="adm-inp" id="rateCurrency">
+            ${CURRENCIES.map(c => `<option value="${c}" ${(data?.currency||'USD')===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="adm-field">
+        <label>Заметка</label>
+        <input class="adm-inp" id="rateNote" type="text" placeholder="Например: RevShare 30%" value="${h(data?.note||'')}">
+      </div>
+      <div class="adm-err" id="rateErr" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="adm-btn" onclick="document.getElementById('admRatesModal').remove()">Отмена</button>
+        <button class="adm-btn primary" onclick="admRatesSave(${isNew ? 'null' : `'${h(approach)}','${h(geo)}',${data?._idx}`})">💾 Сохранить</button>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  (document.getElementById('adminOverlay') || document.body).appendChild(modal);
+  document.getElementById('rateGeo').focus();
+}
+
+async function admRatesSave(oldApproach, oldGeo, oldIdx) {
+  const errEl    = document.getElementById('rateErr');
+  const approach = document.getElementById('rateApproach').value;
+  const geo      = document.getElementById('rateGeo').value.trim().toUpperCase();
+  const rate     = parseFloat(document.getElementById('rateValue').value);
+  const currency = document.getElementById('rateCurrency').value;
+  const note     = document.getElementById('rateNote').value.trim();
+
+  if (!geo || isNaN(rate)) { errEl.textContent = 'Укажите GEO и ставку'; return; }
+
+  // Удаляем старую если редактирование
+  if (oldApproach !== null && oldApproach !== undefined) {
+    const arr = _rates[oldApproach]?.[oldGeo] || [];
+    arr.splice(oldIdx, 1);
+    if (!arr.length) delete _rates[oldApproach][oldGeo];
+    else _rates[oldApproach][oldGeo] = arr;
+  }
+
+  // Добавляем новую
+  if (!_rates[approach]) _rates[approach] = {};
+  if (!_rates[approach][geo]) _rates[approach][geo] = [];
+  _rates[approach][geo].push({ rate, currency, note });
+
+  const j = await admApi('POST', '/api/rates', { rates: _rates });
+  if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
+  document.getElementById('admRatesModal').remove();
+  admRenderRates();
+}
+
+async function admRatesDelete(approach, geo, idx) {
+  if (!confirm('Удалить эту ставку?')) return;
+  const arr = _rates[approach]?.[geo] || [];
+  arr.splice(idx, 1);
+  if (!arr.length) delete _rates[approach][geo];
+  else _rates[approach][geo] = arr;
+  await admApi('POST', '/api/rates', { rates: _rates });
+  admRenderRates();
+}
+
 let _trackingSort   = { col: 'pct', dir: -1 }; // -1 = desc
 let _trackingFilter = 'active'; // active | stopped | no_perform | all
 
@@ -1307,115 +1594,142 @@ function trkSortArrow(col) {
 async function admLoadTracking() {
   const el = document.getElementById('admTrackingTable');
   if (!el) return;
-  el.innerHTML = '<div class="adm-empty">Загрузка...</div>';
-  try {
-    const [j, jfd] = await Promise.all([
-      admApi('GET', '/api/tracking/offers?_=' + Date.now()),
-      admApi('GET', '/api/tracking/fd'),
-    ]);
-    if (!j.ok) { el.innerHTML = '<div class="adm-empty" style="color:#ef4444">Ошибка загрузки</div>'; return; }
-    const offers = Object.entries(j.offers || {});
-    const fdMap  = jfd.fd || {};
-    if (!offers.length) {
-      el.innerHTML = '<div class="adm-empty">Нет отслеживаемых офферов.</div>';
-      return;
+
+  const [j, jfd] = await Promise.all([
+    admApi('GET', '/api/tracking/offers?_=' + Date.now()),
+    admApi('GET', '/api/tracking/fd?_=' + Date.now()),
+  ]);
+  if (!j.ok) { el.innerHTML = '<div class="adm-empty">Ошибка загрузки</div>'; return; }
+
+  const offers = Object.entries(j.offers || {});
+  const fdMap  = jfd.fd || {};
+
+  // Filter
+  const filtered = _trackingFilter === 'all' ? offers
+    : offers.filter(([,o]) => (o.status || 'active') === _trackingFilter);
+
+  // Sort
+  const sorted = filtered.slice().sort(([ia, a], [ib, b]) => {
+    const fda = fdMap[ia]?.fd ?? -1, fdb = fdMap[ib]?.fd ?? -1;
+    const ca = a.max_cap || 0, cb = b.max_cap || 0;
+    if (_trackingSort.col === 'pct') {
+      const pa = ca ? fda/ca : -1, pb = cb ? fdb/cb : -1;
+      return _trackingSort.dir * (pa - pb);
     }
+    if (_trackingSort.col === 'fd') return _trackingSort.dir * (fda - fdb);
+    return 0;
+  });
 
-    // Сортировка
-    // Фильтр по статусу
-    const filtered = _trackingFilter === 'all'
-      ? offers
-      : offers.filter(([id, o]) => {
-          const status = o.status || 'active';
-          return status === _trackingFilter;
-        });
+  const statusDefs = {
+    active:     { color: '#10b981', label: 'Активен' },
+    stopped:    { color: '#ef4444', label: 'Стоп' },
+    no_perform: { color: '#f59e0b', label: 'Не перф' },
+    unknown:    { color: '#6b7280', label: 'Неизв.' },
+  };
 
-    const sorted = filtered.slice().sort(([ia, a], [ib, b]) => {
-      const fda = fdMap[ia]?.fd ?? -1;
-      const fdb = fdMap[ib]?.fd ?? -1;
-      const ca  = a.max_cap || 0;
-      const cb  = b.max_cap || 0;
-      if (_trackingSort.col === 'fd') return _trackingSort.dir * (fda - fdb);
-      if (_trackingSort.col === 'pct') {
-        const pa = ca ? fda / ca : -1;
-        const pb = cb ? fdb / cb : -1;
-        return _trackingSort.dir * (pa - pb);
-      }
-      return 0;
-    });
+  const filterBar = `
+    <div class="trk-filter-row">
+      <button class="trk-chip ${_trackingFilter==='active'?'trk-chip--active':''}"
+        onclick="trkSetFilter('active',this)">
+        <span class="trk-chip-dot" style="background:#10b981"></span>Активные
+      </button>
+      <button class="trk-chip ${_trackingFilter==='stopped'?'trk-chip--active':''}"
+        onclick="trkSetFilter('stopped',this)">
+        <span class="trk-chip-dot" style="background:#ef4444"></span>Стопнутые
+      </button>
+      <button class="trk-chip ${_trackingFilter==='no_perform'?'trk-chip--active':''}"
+        onclick="trkSetFilter('no_perform',this)">
+        <span class="trk-chip-dot" style="background:#f59e0b"></span>Не перформ
+      </button>
+      <button class="trk-chip ${_trackingFilter==='all'?'trk-chip--active':''}"
+        onclick="trkSetFilter('all',this)">Все</button>
+      <button class="trk-chip trk-chip--sort" onclick="trkToggleSort('pct')">
+        FD ${trkSortArrow('pct')}
+      </button>
+    </div>`;
 
-    const rows = sorted.map(([id, o]) => {
-      const fdInfo   = fdMap[id] || {};
-      const fd       = fdInfo.fd;
-      const maxCap   = o.max_cap;
-      const fdText   = fd !== null && fd !== undefined ? String(fd) : '—';
-      const capText  = maxCap ? ` / ${maxCap}` : '';
-      const pct      = (maxCap && fd != null) ? Math.min(100, Math.round(fd / maxCap * 100)) : null;
-      const barColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981';
-      const updAt    = fdInfo.updated_at ? `<div style="color:#475569;font-size:.7em">${fdInfo.updated_at.slice(11,16)}</div>` : '';
-      const fdCell   = fd != null
-        ? `<div>
-            <b style="color:${barColor}">${fdText}</b><span style="color:#94a3b8">${capText}</span>
-            ${pct != null ? `<div style="height:4px;background:#1e3a5f;border-radius:2px;margin-top:3px">
-              <div style="height:4px;background:${barColor};border-radius:2px;width:${pct}%"></div>
-            </div>` : ''}
-            ${updAt}
-           </div>`
-        : `<span style="color:#475569">—</span>`;
-      const status = o.status || 'active';
-      const statusDot = status === 'stopped'    ? '<span style="color:#ef4444;font-size:.7em"> ● стоп</span>'
-                      : status === 'no_perform' ? '<span style="color:#f59e0b;font-size:.7em"> ● не перформ</span>'
-                      : '';
-      const manualBadge = o.manual ? ' <span style="color:#60a5fa;font-size:.7em">вручную</span>' : '';
-
-      return `<tr>
-        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis">
-          <span id="trkNameDisplay_${h(id)}" style="cursor:pointer;color:#e2e8f0"
-                onclick="admEditTrackingName('${h(id)}')" title="Нажмите чтобы изменить">
-            ${h(o.name || '—')}${manualBadge}${statusDot}
-          </span>
-
-        </td>
-        <td><span style="color:#60a5fa">#${h(id)}</span></td>
-        <td class="adm-muted" style="font-size:.8em">${h(o.partner_name || '—')}</td>
-        <td><b style="color:#3ecf8e">${h(o.start_date || '—')}</b></td>
-        <td>${fdCell}</td>
-        <td class="adm-muted" style="font-size:.78em">#${h(o.rotation_id || '—')} · ${h(o.geo || '—')}</td>
-        <td>
-          <div style="display:flex;flex-direction:column;gap:3px">
-            ${status !== 'stopped'    ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#ef4444" onclick="trkSetStatus('${h(id)}','stopped')">⏹ Стоп</button>` : ''}
-            ${status !== 'no_perform' ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#f59e0b" onclick="trkSetStatus('${h(id)}','no_perform')">⚠ Не перф</button>` : ''}
-            ${status !== 'active'     ? `<button class="adm-btn sm" style="font-size:.7em;padding:2px 6px;color:#10b981" onclick="trkSetStatus('${h(id)}','active')">▶ Актив</button>` : ''}
-            <button class="adm-btn sm danger" style="font-size:.7em;padding:2px 6px" onclick="admDeleteTracking('${h(id)}')">✕</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-
-    el.innerHTML = `
-      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-        <button class="trk-filter adm-btn sm ${_trackingFilter==='active'?'active':''}"
-          onclick="trkSetFilter('active',this)" style="color:#10b981">● Активные</button>
-        <button class="trk-filter adm-btn sm ${_trackingFilter==='stopped'?'active':''}"
-          onclick="trkSetFilter('stopped',this)" style="color:#ef4444">● Стопнутые</button>
-        <button class="trk-filter adm-btn sm ${_trackingFilter==='no_perform'?'active':''}"
-          onclick="trkSetFilter('no_perform',this)" style="color:#f59e0b">● Не перформ</button>
-        <button class="trk-filter adm-btn sm ${_trackingFilter==='all'?'active':''}"
-          onclick="trkSetFilter('all',this)" style="color:#94a3b8">Все</button>
-      </div>
-      <div class="adm-tbl-wrap">
-        <table class="adm-tbl">
-          <thead><tr>
-            <th>Оффер</th><th>ID</th><th>Партнёр</th><th>Дата старта</th>
-            <th style="cursor:pointer;user-select:none" onclick="trkToggleSort('pct')">FD / Кап ${trkSortArrow('pct')}</th>
-            <th>Ротация / GEO</th><th></th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-  } catch(e) {
-    el.innerHTML = '<div class="adm-empty" style="color:#ef4444">Ошибка: ' + h(String(e)) + '</div>';
+  if (!sorted.length) {
+    el.innerHTML = filterBar + '<div class="adm-empty">Нет офферов в этой категории</div>';
+    return;
   }
+
+  const cards = sorted.map(([id, o]) => {
+    const fdInfo  = fdMap[id] || {};
+    const fd      = fdInfo.fd;
+    const maxCap  = o.max_cap;
+    const pct     = (maxCap && fd != null) ? Math.min(100, Math.round(fd / maxCap * 100)) : null;
+    const capColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981';
+    const status   = o.status || 'active';
+    const sd       = statusDefs[status] || statusDefs.unknown;
+    const updAt    = fdInfo.updated_at ? fdInfo.updated_at.slice(11,16) : '';
+    const rotName  = { '121':'Crash','118':'Betting','124':'Casino','61':'Slots','117':'Mixed' }[o.rotation_id] || (o.rotation_id ? '#'+o.rotation_id : '—');
+
+    return `<div class="trkc">
+      <div class="trkc-dot" style="background:${sd.color}"></div>
+      <div class="trkc-body">
+
+        <div class="trkc-row1">
+          <div class="trkc-name" onclick="admEditTrackingName('${h(id)}')" title="Редактировать">
+            ${h(o.name || '—')}
+            ${o.auto_stop_pct ? `<span class="trkc-tag trkc-tag-stop" title="Авто-стоп при ${o.auto_stop_pct} FD">⚡${o.auto_stop_pct} FD</span>` : ''}
+            ${o.auto_stopped  ? `<span class="trkc-tag trkc-tag-autostopped">🛑 авто-стоп</span>` : ''}
+          </div>
+          <div class="trkc-actions">
+            ${status !== 'stopped'    ? `<button class="trkc-act" data-color="#ef4444" onclick="trkSetStatus('${h(id)}','stopped')" title="Стоп">
+              <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1.5" fill="currentColor"/></svg>
+            </button>` : ''}
+            ${status !== 'no_perform' ? `<button class="trkc-act" data-color="#f59e0b" onclick="trkSetStatus('${h(id)}','no_perform')" title="Не перформ">
+              <svg width="11" height="11" viewBox="0 0 11 11"><path d="M5.5 1L10 9.5H1L5.5 1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="5.5" y1="4.5" x2="5.5" y2="6.5" stroke="currentColor" stroke-width="1.5"/><circle cx="5.5" cy="8" r=".7" fill="currentColor"/></svg>
+            </button>` : ''}
+            ${status !== 'active'     ? `<button class="trkc-act" data-color="#10b981" onclick="trkSetStatus('${h(id)}','active')" title="Активировать">
+              <svg width="11" height="11" viewBox="0 0 11 11"><polygon points="2,1 10,5.5 2,10" fill="currentColor"/></svg>
+            </button>` : ''}
+            <div class="trkc-act-sep"></div>
+            <button class="trkc-act trkc-act--del" onclick="admDeleteTracking('${h(id)}')" title="Удалить">
+              <svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="trkc-row2">
+          ${o.partner_name ? `<span class="trkc-pill">${h(o.partner_name)}</span>` : ''}
+          <span class="trkc-pill trkc-pill--geo">${h(o.geo || '—')}</span>
+          <span class="trkc-pill">${rotName}</span>
+          <span class="trkc-pill">с ${h(o.start_date || '—')}</span>
+        </div>
+
+        <div class="trkc-row3">
+          <div class="trkc-rate">
+            ${o.rate
+              ? `<span class="trkc-rate-val">${o.rate}</span><span class="trkc-rate-cur">${h(o.currency||'USD')}</span>`
+              : `<span class="trkc-rate-empty">—</span>`}
+          </div>
+
+          ${fd != null && maxCap ? `
+            <div class="trkc-cap">
+              <div class="trkc-cap-nums">
+                <b style="color:${capColor}">${fd}</b>
+                <span>/ ${maxCap}</span>
+                ${updAt ? `<span class="trkc-upd">${updAt}</span>` : ''}
+              </div>
+              <div class="trkc-bar"><div class="trkc-bar-fill" style="width:${pct}%;background:${capColor}"></div></div>
+            </div>
+          ` : fd != null ? `
+            <div class="trkc-cap">
+              <span style="font-size:13px;font-weight:500">${fd} FD</span>
+              ${updAt ? `<span class="trkc-upd">${updAt}</span>` : ''}
+            </div>
+          ` : ''}
+
+          <div class="trkc-status" style="--sc:${sd.color}">
+            <span class="trkc-status-dot"></span>${sd.label}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = filterBar + '<div class="trkc-list">' + cards + '</div>';
 }
 
 
@@ -1468,8 +1782,8 @@ async function admEditTrackingName(id) {
   modal.id = 'trkEditModal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center';
   modal.innerHTML = `
-    <div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:12px;padding:24px;width:480px;max-width:95vw">
-      <div style="font-size:1em;font-weight:600;color:#e2e8f0;margin-bottom:16px">✏️ Редактировать оффер</div>
+    <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:24px;width:480px;max-width:95vw">
+      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:16px">✏️ Редактировать оффер</div>
       <div class="adm-field"><label>Название</label>
         <input class="adm-inp" id="trkEditName" type="text" value="${h(o.name||'')}">
       </div>
@@ -1477,22 +1791,47 @@ async function admEditTrackingName(id) {
         <div class="adm-field"><label>Партнёр</label>
           <input class="adm-inp" id="trkEditPartner" type="text" value="${h(o.partner_name||'')}">
         </div>
-        <div class="adm-field"><label>Кап</label>
-          <input class="adm-inp" id="trkEditCap" type="number" value="${h(String(o.max_cap||''))}">
+        <div class="adm-field"><label>GEO</label>
+          <input class="adm-inp" id="trkEditGeo" type="text" value="${h(o.geo||'')}">
         </div>
       </div>
       <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
         <div class="adm-field"><label>Дата старта</label>
           <input class="adm-inp" id="trkEditDate" type="date" value="${h(o.start_date||'')}">
         </div>
-        <div class="adm-field"><label>GEO</label>
-          <input class="adm-inp" id="trkEditGeo" type="text" value="${h(o.geo||'')}">
+        <div class="adm-field"><label>Ротация</label>
+          <select class="adm-inp" id="trkEditRot">
+            <option value="">— не выбрано —</option>
+            ${[['121','Crash'],['118','Betting'],['124','Casino'],['61','Slots'],['117','Mixed']].map(([v,n]) =>
+              `<option value="${v}" ${(o.rotation_id||'')==v?'selected':''}>${n} (#${v})</option>`
+            ).join('')}
+          </select>
         </div>
       </div>
       <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
-        <div class="adm-field"><label>Ротация ID</label>
-          <input class="adm-inp" id="trkEditRot" type="text" value="${h(o.rotation_id||'')}">
+        <div class="adm-field"><label>Ставка</label>
+          <input class="adm-inp" id="trkEditRate" type="number" step="0.01" value="${h(String(o.rate||''))}">
         </div>
+        <div class="adm-field"><label>Валюта</label>
+          <select class="adm-inp" id="trkEditCurrency">
+            ${['USD','EUR','BRL','GBP','TRY','UAH','PLN'].map(c =>
+              `<option value="${c}" ${(o.currency||'USD')==c?'selected':''}>${c}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><label>Макс. кап</label>
+          <input class="adm-inp" id="trkEditCap" type="number" placeholder="30" value="${h(String(o.max_cap||''))}">
+        </div>
+        <div class="adm-field">
+          <label>Авто-стоп при FD</label>
+          <input class="adm-inp" id="trkEditAutoStop" type="number" min="1"
+            placeholder="напр. 45" value="${h(String(o.auto_stop_pct||''))}">
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">Пусто — авто-стоп отключён</div>
+        </div>
+      </div>
+      <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
         <div class="adm-field"><label>Binom ID</label>
           <input class="adm-inp" id="trkEditId" type="text" value="${h(id)}" readonly style="opacity:.5">
         </div>
@@ -1503,44 +1842,36 @@ async function admEditTrackingName(id) {
         <button class="adm-btn primary" onclick="admSaveTrackingEdit('${h(id)}')">💾 Сохранить</button>
       </div>
     </div>`;
-
-  // Закрытие по backdrop
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-  document.body.appendChild(modal);
-  document.getElementById('trkEditName').focus();
+  (document.getElementById('adminOverlay') || document.body).appendChild(modal);
+  document.getElementById('trkEditName')?.focus();
 }
 
 async function admSaveTrackingEdit(id) {
-  const errEl = document.getElementById('trkEditErr');
-  const name  = document.getElementById('trkEditName').value.trim();
-  if (!name) { errEl.textContent = 'Название обязательно'; return; }
+  const errEl    = document.getElementById('trkEditErr');
+  const name     = document.getElementById('trkEditName').value.trim();
+  const cap      = document.getElementById('trkEditCap')?.value.trim();
+  const editRate = document.getElementById('trkEditRate')?.value.trim();
+  const autoStop = document.getElementById('trkEditAutoStop')?.value.trim();
 
-  const cap = document.getElementById('trkEditCap').value.trim();
-  console.log('[trkEdit] saving id:', id, 'name:', name, 'cap:', cap);
+  if (!name) { errEl.textContent = 'Укажите название'; return; }
+
   const upd = await admApi('POST', `/api/tracking/offers/${id}`, {
     name,
-    partner_name: document.getElementById('trkEditPartner').value.trim(),
-    max_cap:      cap ? parseInt(cap) : null,
-    start_date:   document.getElementById('trkEditDate').value.trim(),
-    geo:          document.getElementById('trkEditGeo').value.trim(),
-    rotation_id:  document.getElementById('trkEditRot').value.trim(),
+    partner_name:  document.getElementById('trkEditPartner').value.trim(),
+    max_cap:       cap ? parseInt(cap) : null,
+    start_date:    document.getElementById('trkEditDate').value.trim(),
+    geo:           document.getElementById('trkEditGeo').value.trim(),
+    rotation_id:   document.getElementById('trkEditRot').value.trim(),
+    rate:          editRate ? parseFloat(editRate) : null,
+    currency:      document.getElementById('trkEditCurrency')?.value || 'USD',
+    auto_stop_pct: autoStop ? parseInt(autoStop) : null,
+    auto_stopped:  autoStop ? null : undefined,
   });
 
-  console.log('[trkEdit] response:', upd);
   if (!upd.ok) { errEl.textContent = upd.error || 'Ошибка'; return; }
-  document.getElementById('trkEditModal').remove();
-  admLoadTracking(); // сразу показываем новые текстовые данные
-  // Обновляем FD кеш и перерисовываем с полоской
-  admApi('POST', '/api/tracking/fd/refresh').then(() => {
-    setTimeout(() => admLoadTracking(), 1500);
-  });
-}
-
-async function admRefreshTrackingFD() {
-  const j = await admApi('POST', '/api/tracking/fd/refresh');
-  if (j.ok) {
-    setTimeout(() => admLoadTracking(), 3000); // даём 3 сек на обновление
-  }
+  document.getElementById('trkEditModal')?.remove();
+  admLoadTracking();
 }
 
 function admToggleTrackingForm() {
@@ -1572,6 +1903,10 @@ async function admSubmitTrackingManual() {
     return;
   }
 
+  const rate = document.getElementById('trkRate')?.value.trim();
+  const currency = document.getElementById('trkCurrency')?.value || 'USD';
+  if (!rate) { errEl.textContent = 'Укажите ставку'; return; }
+
   const j = await admApi('POST', '/api/tracking/manual', {
     offer_id:     offerId,
     name,
@@ -1580,6 +1915,8 @@ async function admSubmitTrackingManual() {
     max_cap:      maxCap ? parseInt(maxCap) : undefined,
     rotation_id:  rotId,
     geo,
+    rate:         parseFloat(rate),
+    currency,
   });
 
   if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
