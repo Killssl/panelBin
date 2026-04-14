@@ -115,6 +115,9 @@
             <span class="ico">💰</span> Ставки
           </div>
           <div class="adm-nav-section">Настройки</div>
+          <div class="adm-nav-item" onclick="admNav('stop')" id="adm-nav-stop">
+            <span class="ico">⏹</span> Стоп оффера
+          </div>
           <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
             <span class="ico">👥</span> Пользователи
           </div>
@@ -253,6 +256,11 @@
                     </select>
                   </div>
                 </div>
+                <div class="adm-field">
+                  <label>Группа ID <span style="color:var(--text3);font-size:.85em">(через : если несколько лендосов)</span></label>
+                  <input class="adm-inp" id="trkGroupIds" type="text" placeholder="1040:1071">
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">FD будет суммироваться по всем ID с одной даты</div>
+                </div>
                 <div class="adm-err" id="trkErr" style="margin-bottom:12px"></div>
                 <div style="display:flex;gap:8px">
                   <button class="trk-btn trk-btn-primary" onclick="admSubmitTrackingManual()">
@@ -276,6 +284,49 @@
               <button class="adm-btn sm" onclick="admLoadRates()" style="margin-left:auto">🔄</button>
             </div>
             <div id="admRatesContent"><div class="adm-empty">Загрузка...</div></div>
+          </div>
+
+          <!-- Stop offer -->
+          <div class="adm-panel" id="adm-panel-stop">
+            <div class="adm-stop-form">
+              <div class="adm-stop-title">Остановить оффер</div>
+              <div class="adm-stop-desc">Введите Binom ID оффера — вес будет выставлен в 0 во всех ротациях</div>
+
+              <div class="adm-form-row" style="grid-template-columns:1fr 1fr;margin-top:20px">
+                <div class="adm-field">
+                  <label>Binom ID оффера *</label>
+                  <input class="adm-inp" id="stopOfferId" type="text" placeholder="12345" oninput="admStopSearchOffer(this.value)">
+                </div>
+                <div class="adm-field">
+                  <label>Причина</label>
+                  <select class="adm-inp" id="stopReason">
+                    <option value="no_perform">No Perform</option>
+                    <option value="cap_filled">Кап заполнен</option>
+                    <option value="partner_request">Запрос партнёра</option>
+                    <option value="manual">Вручную</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="stopOfferPreview" class="adm-stop-preview" style="display:none">
+                <div class="adm-stop-preview-name" id="stopOfferName">—</div>
+                <div class="adm-stop-preview-meta" id="stopOfferMeta"></div>
+              </div>
+
+              <div class="adm-field" style="margin-top:14px">
+                <label>Комментарий (необязательно)</label>
+                <input class="adm-inp" id="stopComment" type="text" placeholder="Доп. информация для пуша...">
+              </div>
+
+              <div class="adm-err" id="stopErr" style="margin:10px 0"></div>
+
+              <button class="trk-btn trk-btn-primary" id="stopBtn" onclick="admStopOffer()" style="margin-top:4px">
+                <svg width="14" height="14" viewBox="0 0 10 10" fill="currentColor"><rect width="10" height="10" rx="1.5"/></svg>
+                Остановить оффер
+              </button>
+            </div>
+
+            <div id="stopResultLog" style="margin-top:24px"></div>
           </div>
 
           <!-- Users -->

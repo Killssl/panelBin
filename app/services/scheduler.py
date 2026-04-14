@@ -116,30 +116,29 @@ def _do_tracking_fd():
     except Exception:
         cache = {}
 
-    for offer_id, info in tracking.items():
-        start_date = info.get("start_date", today)
-        name       = info.get("name", "")
-        try:
-            pairs = [
-                ("datePreset",  "custom_time"),
-                ("dateFrom",    f"{start_date} 00:00:00"),
-                ("dateTo",      f"{today} 23:59:59"),
-                ("timezone",    "Europe/Moscow"),
-                ("groupings[]", "offer"),
-                ("sortColumn",  "clicks"),
-                ("sortType",    "desc"),
-                ("limit",       "10000"),
-                ("offset",      "0"),
-            ] + [("ids[]", cid) for cid in campaign_ids]
+    def _fetch_fd_for_id(oid, oname, start, fd_key_hint=None):
+        """Возвращает (fd_total, fd_key) для одного offer_id."""
+        pairs = [
+            ("datePreset",  "custom_time"),
+            ("dateFrom",    f"{start} 00:00:00"),
+            ("dateTo",      f"{today} 23:59:59"),
+            ("timezone",    "Europe/Moscow"),
+            ("groupings[]", "offer"),
+            ("sortColumn",  "clicks"),
+            ("sortType",    "desc"),
+            ("limit",       "10000"),
+            ("offset",      "0"),
+        ] + [("ids[]", cid) for cid in campaign_ids]
 
-            r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
-            if not r.ok:
-                continue
+        r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
+        if not r.ok:
+            return 0, fd_key_hint
 
-            raw  = _safe_json(r)
-            rows = extract_rows(raw)
+        raw  = _safe_json(r)
+        rows = extract_rows(raw)
 
-            fd_key = None
+        fd_key = fd_key_hint
+        if not fd_key:
             for row in rows:
                 for k in row.keys():
                     if "fd" in k.lower():
@@ -148,21 +147,59 @@ def _do_tracking_fd():
                 if fd_key:
                     break
 
-            fd_total = 0
-            for row in rows:
-                if str(row.get("level") or "") != "1":
-                    continue
-                eid   = str(row.get("entity_id") or "").strip()
-                rname = str(row.get("name") or "").strip()
-                fd    = int(row.get(fd_key) or 0) if fd_key else 0
-                if eid == str(offer_id) or rname == name:
-                    fd_total = max(fd_total, fd)
+        fd_total = 0
+        for row in rows:
+            if str(row.get("level") or "") != "1":
+                continue
+            eid   = str(row.get("entity_id") or "").strip()
+            rname = str(row.get("name") or "").strip()
+            fd    = int(row.get(fd_key) or 0) if fd_key else 0
+            if eid == str(oid) or rname == oname:
+                fd_total = max(fd_total, fd)
+        return fd_total, fd_key
 
-            cache[offer_id] = {
+    for offer_id, info in tracking.items():
+        start_date = info.get("start_date", today)
+        name       = info.get("name", "")
+        group_ids  = info.get("group_ids", "")
+        try:
+            # Основной оффер
+            fd_total, fd_key = _fetch_fd_for_id(offer_id, name, start_date)
+
+            # Группа — суммируем FD связанных офферов
+            if group_ids:
+                extra_ids = [g.strip() for g in group_ids.replace(",", ":").split(":") if g.strip()]
+                for extra_id in extra_ids:
+                    if extra_id == str(offer_id):
+                        continue
+                    extra_fd, fd_key = _fetch_fd_for_id(extra_id, "", start_date, fd_key)
+                    fd_total += extra_fd
+                    log.info(f"[tracking] group: offer {extra_id} fd={extra_fd} added to {offer_id}")
+
+            cap_entry = {
                 "fd":         fd_total,
                 "start_date": start_date,
                 "updated_at": datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S"),
             }
+
+            # Подгружаем капы из Binom
+            try:
+                r_cap = binom_get(f"/public/api/v1/offer/{offer_id}")
+                if r_cap.ok:
+                    od = _safe_json(r_cap)
+                    if isinstance(od, dict):
+                        caps = (od.get("conversionCaps")
+                                or (od.get("data") or {}).get("conversionCaps")
+                                or (od.get("offer") or {}).get("conversionCaps"))
+                        if isinstance(caps, list) and caps:
+                            caps = caps[0]
+                        if isinstance(caps, dict):
+                            cap_entry["binom_max_cap"]     = caps.get("maxConversions") or caps.get("maxCap")
+                            cap_entry["binom_current_cap"] = caps.get("currentConversions") or caps.get("current")
+            except Exception as ce:
+                log.debug(f"[tracking] cap fetch error for {offer_id}: {ce}")
+
+            cache[offer_id] = cap_entry
             log.info(f"[tracking] offer {offer_id} fd={fd_total} since {start_date}")
 
         except Exception as e:
@@ -235,6 +272,11 @@ def _do_tracking_fd():
                 continue
 
             # TG алерт (порог 10% остатка)
+            # Не шлём алерты для стопнутых/не-перформ офферов
+            offer_status = info.get("status", "active")
+            if offer_status in ("stopped", "no_perform"):
+                continue
+
             alerts.append({
                 "sheet_name":   offer_name,
                 "filled_cap":   fd,

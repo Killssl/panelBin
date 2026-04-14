@@ -661,3 +661,89 @@ textarea.adm-inp { resize: vertical; }
 .trkc-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
 .trkc-tag-stop { background: var(--amber-bg); color: var(--amber-txt); border: 0.5px solid var(--amber); }
 .trkc-tag-autostopped { background: var(--red-bg); color: var(--red-txt); border: 0.5px solid var(--red); }
+
+/* ── Stop offer panel ── */
+.adm-stop-form {
+  max-width: 560px;
+}
+.adm-stop-title {
+  font-size: 16px; font-weight: 500;
+  color: var(--text); margin-bottom: 6px;
+}
+.adm-stop-desc {
+  font-size: 13px; color: var(--text3); margin-bottom: 4px;
+}
+.adm-stop-preview {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.adm-stop-preview-name {
+  font-size: 14px; font-weight: 500; color: var(--text);
+}
+.adm-stop-preview-meta {
+  font-size: 12px; color: var(--text3); margin-top: 4px;
+}
+.adm-stop-result {
+  border-radius: 8px; padding: 16px;
+  border: 0.5px solid var(--border);
+}
+.adm-stop-result--ok   { background: var(--green-bg); border-color: var(--green); }
+.adm-stop-result--warn { background: var(--amber-bg); border-color: var(--amber); }
+.adm-stop-result-title {
+  font-size: 14px; font-weight: 500;
+  color: var(--text); margin-bottom: 6px;
+}
+.adm-stop-result-name {
+  font-size: 13px; color: var(--text2); margin-bottom: 8px;
+}
+.adm-stop-result-rots { display: flex; gap: 6px; flex-wrap: wrap; }
+.adm-stop-rot-tag {
+  font-size: 12px; padding: 2px 8px; border-radius: 4px;
+  background: var(--bg2); border: 0.5px solid var(--border2);
+  color: var(--text2);
+}
+
+/* ── Stop offer panel ── */
+.adm-stop-wrap {
+  max-width: 560px;
+}
+.adm-stop-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.adm-stop-desc {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.trkc-cap-max {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--text3);
+  transition: color .15s, border-color .15s;
+}
+.trkc-cap-max:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.trkc-binom-cap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.trkc-tag-group {
+  background: var(--blue-bg);
+  color: var(--blue-txt);
+  border: 0.5px solid var(--blue);
+}

@@ -661,6 +661,7 @@ def api_partner_submit():
 
 # ── Binom: Create offer ────────────────────────────────────────────────────────
 
+
 @bp.post("/api/binom/offers/add_to_rotation")
 @require_auth("admin")
 def api_add_offer_to_rotation():
@@ -772,7 +773,7 @@ def api_tracking_add(offer_id):
     key      = str(offer_id)
     existing = tracking.get(key, {})
     # Обновляем только переданные поля
-    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name", "rate", "currency", "auto_stop_pct", "auto_stopped"):
+    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name", "rate", "currency", "auto_stop_pct", "auto_stopped", "group_ids"):
         if field in body:
             existing[field] = body[field]
     if not existing.get("created_at"):
@@ -805,6 +806,7 @@ def api_tracking_manual():
         start_date = datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d")
 
     tracking = _load_tracking()
+    group_ids_val = str(body.get("group_ids", "")).strip()
     tracking[offer_id] = {
         "name":         name,
         "start_date":   start_date,
@@ -814,6 +816,7 @@ def api_tracking_manual():
         "max_cap":      int(max_cap) if max_cap else None,
         "rate":         float(rate_val) if rate_val else None,
         "currency":     currency_val or "USD",
+        "group_ids":    group_ids_val or None,
         "created_at":   datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S"),
         "manual":       True,
     }
@@ -848,6 +851,41 @@ def api_tracking_delete(offer_id):
 
 
 _FD_CACHE_FILE = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+
+@bp.post("/api/tracking/offers/<offer_id>/update_cap")
+@require_auth("admin")
+def api_tracking_update_cap(offer_id):
+    """Обновляет Max Cap оффера в Binom."""
+    body    = request.get_json(silent=True) or {}
+    max_cap = body.get("max_cap")
+    if not max_cap:
+        return make_response(jsonify({"ok": False, "error": "max_cap required"}), 400)
+
+    # Обновляем кап в Binom
+    r = binom_post(f"/public/api/v1/offer/cap/conversion/{offer_id}", {
+        "maxCap": int(max_cap),
+    })
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}: {r.text[:200]}"}), 502)
+
+    # Обновляем max_cap в трекинге
+    tracking = _load_tracking()
+    if str(offer_id) in tracking:
+        tracking[str(offer_id)]["max_cap"] = int(max_cap)
+        _save_tracking(tracking)
+
+    # Сбрасываем кеш чтобы следующий запрос перечитал
+    fd_cache_file = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+    try:
+        cache = json.loads(open(fd_cache_file).read())
+        if str(offer_id) in cache:
+            cache[str(offer_id)]["binom_max_cap"] = int(max_cap)
+            open(fd_cache_file, "w").write(json.dumps(cache, ensure_ascii=False, indent=2))
+    except Exception:
+        pass
+
+    return jsonify({"ok": True, "max_cap": int(max_cap)})
+
 
 @bp.get("/api/tracking/fd")
 @require_auth("admin")
@@ -1086,6 +1124,149 @@ def api_sheets_fill_ids():
     except Exception as e:
         import traceback
         return make_response(jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500)
+
+
+@bp.post("/api/admin/stop_offer")
+@require_auth("admin")
+def api_admin_stop_offer():
+    """Останавливает оффер во всех ротациях по Binom ID."""
+    body       = request.get_json(silent=True) or {}
+    offer_id   = str(body.get("offer_id", "")).strip()
+    reason     = str(body.get("reason", "manual")).strip()
+    comment    = str(body.get("comment", "")).strip()
+    offer_name = str(body.get("offer_name", f"Оффер #{offer_id}")).strip()
+
+    if not offer_id:
+        return make_response(jsonify({"ok": False, "error": "offer_id required"}), 400)
+
+    # Подтягиваем имя оффера из Binom по ID
+    binom_offer_name = None
+    try:
+        r_offer = binom_get(f"/public/api/v1/offer/{offer_id}")
+        if r_offer.ok:
+            od = _safe_json(r_offer)
+            if isinstance(od, dict):
+                binom_offer_name = (od.get("name")
+                                    or (od.get("data") or {}).get("name")
+                                    or (od.get("offer") or {}).get("name"))
+    except Exception:
+        pass
+    # Используем имя из Binom если нашли, иначе из тела запроса, иначе ID
+    if binom_offer_name:
+        offer_name = binom_offer_name
+    elif not offer_name:
+        offer_name = f"#{offer_id}"
+
+    ROTATIONS = ["121", "118", "61", "117", "120", "124"]
+    stopped_rots  = []
+    already_zero  = []
+    errors        = []
+
+    from app.services.sheets import _names_match
+
+    for rot_id in ROTATIONS:
+        try:
+            r = binom_get(f"/public/api/v1/rotation/{rot_id}")
+            if not r.ok:
+                continue
+            rot_data = _safe_json(r)
+            rot_obj  = rot_data.get("data", rot_data) if isinstance(rot_data, dict) else rot_data
+
+            changed     = False
+            was_already = True
+
+            for rule in (rot_obj.get("rules") or []):
+                for path in (rule.get("paths") or []):
+                    for offer in (path.get("offers") or []):
+                        oid   = str(offer.get("offerId") or "")
+                        oname = offer.get("name") or ""
+                        if oid == offer_id or _names_match(offer_name, oname):
+                            if int(offer.get("weight") or 0) > 0:
+                                offer["weight"] = 0
+                                changed = True
+                                was_already = False
+                            elif int(offer.get("weight") or 0) == 0:
+                                pass  # уже 0
+
+            if changed:
+                r_put = binom_put(f"/public/api/v1/rotation/{rot_id}", rot_obj)
+                if r_put.ok:
+                    stopped_rots.append(rot_id)
+                else:
+                    errors.append(f"#{rot_id}: {r_put.status_code}")
+            elif not was_already:
+                already_zero.append(f"#{rot_id}")
+        except Exception as e:
+            errors.append(f"#{rot_id}: {e}")
+
+    # Переименовываем оффер в Binom — добавляем префикс
+    reason_prefix = {
+        "no_perform":      "NO PERF!",
+        "cap_filled":      "STOP!",
+        "partner_request": "STOP!",
+        "manual":          "STOP!",
+        "fraud":           "FRAUD!",
+    }.get(reason, "STOP!")
+
+    if stopped_rots and offer_id and binom_offer_name:
+        # Переименовываем только если знаем реальное имя из Binom
+        prefixes = ["NO PERF!", "STOP!", "FRAUD!"]
+        if not any(binom_offer_name.startswith(p) for p in prefixes):
+            new_name = f"{reason_prefix} {binom_offer_name}"
+            try:
+                r_rename = binom_put(f"/public/api/v1/offer/{offer_id}/rename", {"name": new_name})
+                if r_rename.ok:
+                    offer_name = new_name
+            except Exception:
+                pass
+
+    # Обновляем статус в трекинге
+    if stopped_rots or already_zero:
+        tracking = _load_tracking()
+        if offer_id in tracking:
+            tracking[offer_id]["status"]       = "stopped" if reason != "no_perform" else "no_perform"
+            tracking[offer_id]["stop_reason"]  = reason
+            tracking[offer_id]["stop_comment"] = comment
+            if stopped_rots:
+                tracking[offer_id]["name"] = offer_name  # обновляем имя с префиксом
+            _save_tracking(tracking)
+
+    # TG пуш
+    reason_labels = {
+        "no_perform":      "No Perform",
+        "cap_filled":      "Кап заполнен",
+        "partner_request": "Запрос партнёра",
+        "manual":          "Вручную",
+    }
+    if stopped_rots:
+        try:
+            from app.services.tg import send_message
+            import pytz
+            from datetime import datetime
+            msk = pytz.timezone("Europe/Moscow")
+            now = datetime.now(msk).strftime("%H:%M МСК")
+            rots_line = ', '.join('#'+r for r in stopped_rots)
+            comment_line = f"\n💬 {comment}" if comment else ""
+            msg = (
+                f"⏹ <b>Оффер остановлен через панель</b>\n\n"
+                f"📋 <b>{offer_name}</b>\n"
+                f"🔢 Binom ID: {offer_id}\n"
+                f"📌 Причина: <b>{reason_labels.get(reason, reason)}</b>\n"
+                f"🔄 Ротации: {rots_line}"
+                f"{comment_line}\n"
+                f"⏱ {now}"
+            )
+            send_message(msg)
+        except Exception as e:
+            import logging
+            logging.getLogger("partner").error(f"TG stop push error: {e}")
+
+    return jsonify({
+        "ok":          True,
+        "stopped_rots": stopped_rots,
+        "already_zero": already_zero,
+        "errors":       errors,
+    })
 
 
 @bp.get("/api/binom/affiliate_networks")

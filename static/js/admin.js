@@ -190,7 +190,7 @@ function _admApplyTheme(dark) {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов', rates: 'Ставки' };
+const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов', rates: 'Ставки', stop: 'Стоп оффера' };
 
 function admNav(name) {
   document.querySelectorAll('.adm-nav-item').forEach(n => n.classList.remove('active'));
@@ -202,7 +202,7 @@ function admNav(name) {
   if (name === 'networks') admLoadNetworks();
   if (name === 'requests') admLoadRequests();
   if (name === 'users')    admLoadUsers();
-  if (name === 'tracking') { admLoadTracking(); admStartTrackingAutoRefresh(); }
+  if (name === 'tracking') { admLoadTracking(); admStartTrackingAutoRefresh(); admStartFdCountdown(); }
   if (name === 'rates') admLoadRates();
   else admStopTrackingAutoRefresh();
 }
@@ -1335,6 +1335,10 @@ async function ssFillIds(dryRun) {
   }
 }
 
+// ─── Stop offer ───────────────────────────────────────────────────────────────
+
+let _stopOfferData = null;
+
 // ─── Rates ───────────────────────────────────────────────────────────────────
 
 const APPROACHES = ['Crash', 'Casino', 'Betting'];
@@ -1543,6 +1547,38 @@ async function admRatesDelete(approach, geo, idx) {
   admRenderRates();
 }
 
+// ── Stop offer ───────────────────────────────────────────────────────────────
+
+
+
+
+
+
+// ── FD Countdown ─────────────────────────────────────────────────────────────
+let _fdCountdownTimer  = null;
+let _fdCountdownSecs   = 600; // 10 min
+
+function admStartFdCountdown() {
+  if (_fdCountdownTimer) clearInterval(_fdCountdownTimer);
+  _fdCountdownSecs = 600;
+  _admUpdateFdBtn();
+  _fdCountdownTimer = setInterval(() => {
+    _fdCountdownSecs--;
+    if (_fdCountdownSecs < 0) _fdCountdownSecs = 600;
+    _admUpdateFdBtn();
+  }, 1000);
+}
+
+function _admUpdateFdBtn() {
+  const btn = document.getElementById('trkFdBtn');
+  if (!btn) return;
+  const s = _fdCountdownSecs;
+  const mm = String(Math.floor(s / 60)).padStart(2, '0');
+  const ss = String(s % 60).padStart(2, '0');
+  const isNear = s <= 30;
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> FD · <span style="font-family:monospace;letter-spacing:.02em;color:${isNear ? 'var(--green)' : 'inherit'}">${mm}:${ss}</span>`;
+}
+
 let _trackingSort   = { col: 'pct', dir: -1 }; // -1 = desc
 let _trackingFilter = 'active'; // active | stopped | no_perform | all
 
@@ -1592,6 +1628,8 @@ function trkSortArrow(col) {
 }
 
 async function admRefreshTrackingFD() {
+  _fdCountdownSecs = 600;
+  _admUpdateFdBtn();
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
   const j = await admApi('POST', '/api/tracking/fd/refresh');
@@ -1687,6 +1725,7 @@ async function admLoadTracking() {
           <div class="trkc-name" onclick="admEditTrackingName('${h(id)}')" title="Редактировать">
             ${h(o.name || '—')}
             ${o.auto_stop_pct ? `<span class="trkc-tag trkc-tag-stop" title="Авто-стоп при ${o.auto_stop_pct} FD">⚡${o.auto_stop_pct} FD</span>` : ''}
+          ${o.group_ids ? `<span class="trkc-tag trkc-tag-group" title="Группа: ${h(o.group_ids)}">⛓ группа</span>` : ''}
             ${o.auto_stopped  ? `<span class="trkc-tag trkc-tag-autostopped">🛑 авто-стоп</span>` : ''}
           </div>
           <div class="trkc-actions">
@@ -1720,21 +1759,23 @@ async function admLoadTracking() {
               : `<span class="trkc-rate-empty">—</span>`}
           </div>
 
-          ${fd != null && maxCap ? `
-            <div class="trkc-cap">
-              <div class="trkc-cap-nums">
-                <b style="color:${capColor}">${fd}</b>
-                <span>/ ${maxCap}</span>
-                ${updAt ? `<span class="trkc-upd">${updAt}</span>` : ''}
-              </div>
-              <div class="trkc-bar"><div class="trkc-bar-fill" style="width:${pct}%;background:${capColor}"></div></div>
-            </div>
-          ` : fd != null ? `
-            <div class="trkc-cap">
-              <span style="font-size:13px;font-weight:500">${fd} FD</span>
+          <div class="trkc-cap">
+            <div class="trkc-cap-nums">
+              ${fd != null ? `<b style="color:${capColor}">${fd}</b>` : ''}
+              ${fd != null && maxCap ? `<span style="color:var(--text3)">/ ${maxCap}</span>` : ''}
               ${updAt ? `<span class="trkc-upd">${updAt}</span>` : ''}
             </div>
-          ` : ''}
+            ${fd != null && maxCap ? `
+              <div class="trkc-bar"><div class="trkc-bar-fill" style="width:${pct}%;background:${capColor}"></div></div>
+            ` : ''}
+            ${fdInfo.binom_current_cap != null ? `
+              <div class="trkc-binom-cap">
+                <span style="color:var(--text3);font-size:10px">Binom:</span>
+                <span style="font-weight:500">${fdInfo.binom_current_cap}</span>
+                ${fdInfo.binom_max_cap ? `<span style="color:var(--text3)">/ <span class="trkc-cap-max" onclick="admEditCap('${h(id)}',${fdInfo.binom_max_cap})" title="Изменить кап">${fdInfo.binom_max_cap}</span></span>` : ''}
+              </div>
+            ` : ''}
+          </div>
 
           <div class="trkc-status" style="--sc:${sd.color}">
             <span class="trkc-status-dot"></span>${sd.label}
@@ -1847,6 +1888,9 @@ async function admEditTrackingName(id) {
         </div>
       </div>
       <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+        <div class="adm-field"><label>Группа ID <span style="font-size:.8em;color:var(--text3)">(через :)</span></label>
+          <input class="adm-inp" id="trkEditGroupIds" type="text" placeholder="1040:1071" value="${h(o.group_ids||'')}">
+        </div>
         <div class="adm-field"><label>Binom ID</label>
           <input class="adm-inp" id="trkEditId" type="text" value="${h(id)}" readonly style="opacity:.5">
         </div>
@@ -1882,11 +1926,24 @@ async function admSaveTrackingEdit(id) {
     currency:      document.getElementById('trkEditCurrency')?.value || 'USD',
     auto_stop_pct: autoStop ? parseInt(autoStop) : null,
     auto_stopped:  autoStop ? null : undefined,
+    group_ids:     document.getElementById('trkEditGroupIds')?.value.trim() || null,
   });
 
   if (!upd.ok) { errEl.textContent = upd.error || 'Ошибка'; return; }
   document.getElementById('trkEditModal')?.remove();
   admLoadTracking();
+}
+
+async function admEditCap(offerId, currentMax) {
+  const newCap = prompt(`Новый Max Cap для оффера #${offerId}:`, currentMax);
+  if (!newCap || isNaN(newCap) || parseInt(newCap) < 1) return;
+  const j = await admApi('POST', `/api/tracking/offers/${offerId}/update_cap`, { max_cap: parseInt(newCap) });
+  if (j.ok) {
+    showToast(`Кап обновлён → ${newCap}`, true);
+    admLoadTracking();
+  } else {
+    showToast(j.error || 'Ошибка обновления капа', false);
+  }
 }
 
 function admToggleTrackingForm() {
@@ -1922,6 +1979,8 @@ async function admSubmitTrackingManual() {
   const currency = document.getElementById('trkCurrency')?.value || 'USD';
   if (!rate) { errEl.textContent = 'Укажите ставку'; return; }
 
+  const groupIds = document.getElementById('trkGroupIds')?.value.trim();
+
   const j = await admApi('POST', '/api/tracking/manual', {
     offer_id:     offerId,
     name,
@@ -1932,6 +1991,7 @@ async function admSubmitTrackingManual() {
     geo,
     rate:         parseFloat(rate),
     currency,
+    group_ids:    groupIds || undefined,
   });
 
   if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
@@ -1958,4 +2018,79 @@ async function admDeleteTracking(offerId) {
 function ssLog(text) {
   const el = document.getElementById('ssSyncLog');
   if (el) el.textContent = text;
+}
+
+let _stopReason = 'no_perform';
+
+function admSelectStopReason(btn) {
+  document.querySelectorAll('#stopReasonGroup .trk-chip').forEach(b => b.classList.remove('trk-chip--active'));
+  btn.classList.add('trk-chip--active');
+  _stopReason = btn.dataset.val;
+}
+
+function admStopSearchOffer(val) { /* поиск по мере ввода — опционально */ }
+
+async function admStopOffer() {
+  const errEl    = document.getElementById('stopErr');
+  const resultEl = document.getElementById('stopResultLog');
+  const btn      = document.getElementById('stopBtn');
+
+  const offerId = (document.getElementById('stopOfferId')?.value || '').trim();
+  const reason  = document.getElementById('stopReason')?.value || 'no_perform';
+  const comment = (document.getElementById('stopComment')?.value || '').trim();
+
+  if (errEl) errEl.textContent = '';
+  if (resultEl) resultEl.innerHTML = '';
+
+  if (!offerId) {
+    if (errEl) errEl.textContent = 'Укажите Binom ID оффера';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 10 10" fill="currentColor"><rect width="10" height="10" rx="1.5"/></svg> Ищу...`;
+
+  const j = await admApi('POST', '/api/admin/stop_offer', {
+    offer_id: offerId,
+    reason,
+    comment:  comment || undefined,
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 10 10" fill="currentColor"><rect width="10" height="10" rx="1.5"/></svg> Остановить оффер`;
+
+  if (!j.ok) {
+    if (errEl) errEl.textContent = j.error || 'Ошибка';
+    return;
+  }
+
+  if (!resultEl) return;
+
+  const reasonLabels = {
+    no_perform: 'No Perform', cap_filled: 'Кап заполнен',
+    partner_request: 'Запрос партнёра', manual: 'Вручную',
+  };
+  const rLabel = reasonLabels[reason] || reason;
+
+  resultEl.innerHTML = `
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px">
+        ${j.stopped_count > 0 ? '✅ Оффер остановлен' : 'ℹ️ Результат'}
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:6px">
+        📋 <b style="color:var(--text)">${h(j.offer_name || offerId)}</b>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">
+        Причина: <span style="color:var(--amber)">${rLabel}</span>${comment ? ' · ' + h(comment) : ''}
+      </div>
+      ${(j.stopped_rots||[]).length ? `
+        <div style="font-size:12px;color:var(--green);margin-bottom:4px">Остановлено:</div>
+        ${(j.stopped_rots||[]).map(r => `<div style="font-size:12px;color:var(--text2);padding:2px 0 2px 12px">⏹ ${h(r)}</div>`).join('')}
+      ` : ''}
+      ${(j.already_stopped||[]).length ? `
+        <div style="font-size:12px;color:var(--text3);margin-top:8px">Уже было 0: ${(j.already_stopped||[]).map(r=>h(r)).join(', ')}</div>
+      ` : ''}
+      ${j.not_found ? `<div style="font-size:12px;color:var(--red);margin-top:8px">⚠ Не найден ни в одной ротации</div>` : ''}
+      ${j.tg_sent ? `<div style="font-size:12px;color:var(--accent-txt);margin-top:8px">📨 Пуш отправлен</div>` : ''}
+    </div>`;
 }
