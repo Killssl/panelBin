@@ -1587,18 +1587,10 @@ let _trackingLastUpdated  = null;
 
 function admStartTrackingAutoRefresh() {
   admStopTrackingAutoRefresh();
-  // Проверяем updated_at кеша каждые 30 сек — если изменился, перерисовываем
-  _trackingRefreshTimer = setInterval(async () => {
-    try {
-      const j = await admApi('GET', '/api/tracking/fd?_=' + Date.now());
-      const vals = Object.values(j.fd || {});
-      const latest = vals.map(v => v.updated_at || '').sort().pop() || '';
-      if (latest && latest !== _trackingLastUpdated) {
-        _trackingLastUpdated = latest;
-        admLoadTracking();
-      }
-    } catch(e) {}
-  }, 30000);
+  // Перезагружаем трекинг каждые 10 минут — синхронно с scheduler
+  _trackingRefreshTimer = setInterval(() => {
+    admLoadTracking();
+  }, 600000);
 }
 
 function admStopTrackingAutoRefresh() {
