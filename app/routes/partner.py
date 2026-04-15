@@ -637,6 +637,91 @@ def api_partner_traffic_debug():
     return jsonify({"ok": True, "net_id": net_id, "results": results})
 
 
+@bp.get("/api/partner/tracking_fd")
+@require_auth("partner")
+def api_partner_tracking_fd():
+    """FD из кеша для офферов партнёра."""
+    try:
+        base = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data"))
+        fd_cache_file = os.path.join(base, "tracking_fd_cache.json")
+        tracking_file = os.path.join(base, "offer_tracking.json")
+        cache    = json.loads(open(fd_cache_file).read()) if os.path.exists(fd_cache_file) else {}
+        tracking = json.loads(open(tracking_file).read()) if os.path.exists(tracking_file) else {}
+    except Exception as e:
+        return jsonify({"ok": True, "fd": {}, "tracking": {}, "note": str(e)})
+
+    return jsonify({"ok": True, "fd": cache, "tracking": {
+        oid: {
+            "name":    info.get("name"),
+            "max_cap": info.get("max_cap"),
+        }
+        for oid, info in tracking.items()
+    }})
+
+
+@bp.post("/api/partner/offers/<offer_id>/update_cap")
+@require_auth("partner")
+def api_partner_update_cap(offer_id):
+    """Партнёр меняет кап своего оффера → обновляется в Binom и трекинге."""
+    body    = request.get_json(silent=True) or {}
+    max_cap = body.get("max_cap")
+    if not max_cap or int(max_cap) < 1:
+        return make_response(jsonify({"ok": False, "error": "max_cap required"}), 400)
+
+    # Обновляем в Binom
+    r = binom_post(f"/public/api/v1/offer/cap/conversion/{offer_id}", {
+        "maxCap": int(max_cap),
+    })
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}"}), 502)
+
+    # Обновляем в трекинге
+    import os as _os3
+    tracking_file = _os3.path.join(_os3.path.dirname(__file__), "../../data/offer_tracking.json")
+    try:
+        tracking = json.loads(open(tracking_file).read())
+        if str(offer_id) in tracking:
+            tracking[str(offer_id)]["max_cap"] = int(max_cap)
+            open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
+    except Exception:
+        pass
+
+    return jsonify({"ok": True, "max_cap": int(max_cap)})
+
+
+@bp.post("/api/partner/offers/<offer_id>/stop_request")
+@require_auth("partner")
+def api_partner_stop_request(offer_id):
+    """Партнёр запрашивает стоп оффера — пуш админу в TG."""
+    body       = request.get_json(silent=True) or {}
+    reason     = str(body.get("reason", "")).strip()
+    comment    = str(body.get("comment", "")).strip()
+    offer_name = str(body.get("offer_name", f"#{offer_id}")).strip()
+    user       = request.current_user
+
+    if not reason:
+        return make_response(jsonify({"ok": False, "error": "Укажите причину"}), 400)
+
+    try:
+        from app.services.tg import send_message
+        partner_name = user.get("username", "—")
+        msg_lines = [
+            "📩 <b>Запрос на стоп оффера</b>",
+            "",
+            "👤 Партнёр: <b>" + partner_name + "</b>",
+            "📋 Оффер: <b>" + offer_name + "</b> (#" + str(offer_id) + ")",
+            "🔎 Причина: <b>" + reason + "</b>",
+        ]
+        if comment:
+            msg_lines.append("💬 " + comment)
+        send_message(chr(10).join(msg_lines))
+    except Exception as e:
+        import logging
+        logging.getLogger("partner").error(f"stop_request TG: {e}")
+
+    return jsonify({"ok": True})
+
+
 @bp.get("/api/partner/requests")
 @require_auth("partner")
 def api_partner_requests():

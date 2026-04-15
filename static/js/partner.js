@@ -1,6 +1,8 @@
 const API = window.APP_PREFIX || '';
 let TOKEN = localStorage.getItem('partnerToken') || '';
 let ME    = null;
+let _partnerFd  = {};
+let _partnerTrk = {};
 
 // ── API ──────────────────────────────────────────
 async function api(method, path, body) {
@@ -58,7 +60,8 @@ async function checkAuth() {
 async function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
-  document.getElementById('hUser').textContent = ME.username;
+  const hUser = document.getElementById('hUser');
+  if (hUser) hUser.innerHTML = ME.username;
   await Promise.all([loadMyOffers(), loadRequests(), loadBaseOffers()]);
   loadTraffic();
 }
@@ -85,13 +88,18 @@ async function loadMyOffers(forceRefresh = false) {
     await api('POST', '/api/partner/refresh_offers_cache');
   }
 
-  const j = await api('GET', '/api/partner/my_offers');
+  const [j, jfd] = await Promise.all([
+    api('GET', '/api/partner/my_offers'),
+    api('GET', '/api/partner/tracking_fd'),
+  ]);
   if (!j.ok) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка загрузки')}</div>`;
     return;
   }
 
-  _myOffers = j.offers || [];
+  _myOffers  = j.offers || [];
+  _partnerFd = jfd.fd || {};
+  _partnerTrk = jfd.tracking || {};
   renderMyOffers();
 }
 
@@ -127,21 +135,47 @@ function renderMyOffers() {
 
   el.innerHTML = Object.entries(byCountry).sort(([a],[b]) => a.localeCompare(b)).map(([country, offs]) => `
     <div class="geo-section">
-      <div class="geo-label">🌍 ${h(country)}</div>
+      <div class="geo-label">${country}</div>
       ${offs.map(o => {
-        const cap    = o.max_cap;
-        const payout = o.payout ? `${o.payout} ${o.currency}` : '';
-        const capTxt = cap ? `Кап: ${cap}` : '';
-        const statusDot = o.status === 'active'  ? '<span style="color:#10b981;font-size:.75em">● Активен</span>'
-                        : o.status === 'stopped' ? '<span style="color:#ef4444;font-size:.75em">● Стоп</span>'
-                        : '';
-        return `<div class="offer-row">
-          <div class="offer-name">${h(o.name)}</div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            ${statusDot}
-            ${payout ? `<div class="offer-rate">${h(payout)}</div>` : ''}
-            ${capTxt  ? `<div class="offer-cap">${h(capTxt)}</div>` : ''}
-            ${o.url   ? `<a href="${h(o.url)}" target="_blank" style="font-size:.75em;color:var(--blue)">🔗 ссылка</a>` : ''}
+        const payout   = o.payout ? `${o.payout} ${o.currency}` : '';
+        const statusCls = o.status === 'active' ? 'active' : 'stopped';
+        const statusTxt = o.status === 'active' ? '● Активен' : '● Стоп';
+        const dotColor  = o.status === 'active' ? '#22c55e' : '#ef4444';
+
+        // Ищем по ID оффера — ключ в трекинге это Binom offer ID
+        const trkId  = String(o.id);
+        const fdInfo = _partnerFd[trkId] || {};
+        const trkInfo = _partnerTrk[trkId] || {};
+        const fd      = fdInfo.fd ?? null;
+        const maxCap  = trkInfo.max_cap || o.max_cap;
+        const pct      = (fd != null && maxCap) ? Math.min(100, Math.round(fd / maxCap * 100)) : null;
+        const barColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#22c55e';
+        const updAt    = fdInfo.updated_at ? fdInfo.updated_at.slice(11,16) : '';
+
+        return `<div class="offer-card">
+          <div class="offer-status-dot" style="background:${dotColor}"></div>
+          <div class="offer-info">
+            <div class="offer-name">${h(o.name)}</div>
+            <div class="offer-meta">
+              <span class="offer-status-tag ${statusCls}">${statusTxt}</span>
+              ${payout ? `<span class="offer-meta-item" style="color:#f59e0b">${h(payout)}</span>` : ''}
+            </div>
+          </div>
+          <div class="offer-right">
+            ${fd != null && maxCap ? `
+              <div class="offer-cap-wrap">
+                <div class="offer-cap-nums">
+                  <span class="offer-cap-fd" style="color:${barColor}">${fd}</span>
+                  <span style="color:var(--text3)">/</span>
+                  <span class="offer-cap-max" onclick="partnerEditCap('${h(String(o.id))}','${h(o.name)}',${maxCap})">${maxCap}</span>
+                  ${updAt ? `<span class="offer-cap-upd">${updAt}</span>` : ''}
+                </div>
+                <div class="offer-cap-bar"><div class="offer-cap-fill" style="width:${pct}%;background:${barColor}"></div></div>
+              </div>
+            ` : maxCap ? `<span style="font-size:.78rem;color:var(--text3)">Кап: ${maxCap}</span>` : ''}
+            <button class="offer-stop-btn" onclick="partnerStopRequest('${h(String(o.id))}','${h(o.name)}')" title="Запрос на стоп">
+              <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="1.5" fill="currentColor"/></svg>
+            </button>
           </div>
         </div>`;
       }).join('')}
@@ -472,6 +506,74 @@ async function loadTraffic() {
         </div>`;
       }).join('')}
     </div>`;
+}
+
+// ── Partner offer actions ────────────────────────────
+
+async function partnerEditCap(offerId, offerName, currentCap) {
+  const newCap = prompt(`Новый кап для "${offerName}":`, currentCap);
+  if (!newCap || isNaN(newCap) || parseInt(newCap) < 1) return;
+  const j = await api('POST', `/api/partner/offers/${offerId}/update_cap`, { max_cap: parseInt(newCap) });
+  if (j.ok) {
+    showToast('Кап обновлён!', true);
+    loadMyOffers(true);
+  } else {
+    showToast(j.error || 'Ошибка', false);
+  }
+}
+
+function partnerStopRequest(offerId, offerName) {
+  // Модал с причиной
+  const existing = document.getElementById('partnerStopModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'partnerStopModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:#0f1c2e;border:0.5px solid #1e3a5f;border-radius:12px;padding:24px;width:380px;max-width:100%">
+      <div style="font-size:14px;font-weight:500;color:#e2e8f0;margin-bottom:6px">⏹ Запрос на стоп</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px">${h(offerName)}</div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:6px">Причина *</label>
+        <select id="stopReqReason" style="width:100%;padding:8px 12px;background:#0a1120;border:0.5px solid #1e3a5f;border-radius:6px;color:#e2e8f0;font-size:13px">
+          <option value="">— выберите —</option>
+          <option value="Не перформит">Не перформит</option>
+          <option value="Плохое качество трафика">Плохое качество трафика</option>
+          <option value="Нет конверсий">Нет конверсий</option>
+          <option value="Технические проблемы">Технические проблемы</option>
+          <option value="Другое">Другое</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:6px">Комментарий</label>
+        <input id="stopReqComment" type="text" placeholder="Подробности..." style="width:100%;padding:8px 12px;background:#0a1120;border:0.5px solid #1e3a5f;border-radius:6px;color:#e2e8f0;font-size:13px">
+      </div>
+      <div id="stopReqErr" style="font-size:12px;color:#ef4444;min-height:16px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="document.getElementById('partnerStopModal').remove()" style="padding:7px 14px;border-radius:6px;border:0.5px solid #1e3a5f;background:transparent;color:#64748b;cursor:pointer;font-size:13px">Отмена</button>
+        <button onclick="partnerSendStopRequest('${h(offerId)}','${h(offerName)}')" style="padding:7px 14px;border-radius:6px;border:none;background:#ef4444;color:#fff;cursor:pointer;font-size:13px">Отправить запрос</button>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+async function partnerSendStopRequest(offerId, offerName) {
+  const reason  = document.getElementById('stopReqReason').value;
+  const comment = document.getElementById('stopReqComment').value.trim();
+  const errEl   = document.getElementById('stopReqErr');
+  if (!reason) { errEl.textContent = 'Выберите причину'; return; }
+
+  const j = await api('POST', `/api/partner/offers/${offerId}/stop_request`, {
+    reason, comment, offer_name: offerName,
+  });
+  if (j.ok) {
+    document.getElementById('partnerStopModal').remove();
+    showToast('Запрос отправлен администратору', true);
+  } else {
+    errEl.textContent = j.error || 'Ошибка';
+  }
 }
 
 // ── UTILS ─────────────────────────────────────────
