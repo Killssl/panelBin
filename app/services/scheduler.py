@@ -33,6 +33,27 @@ def set_schedule(enabled: bool, interval_minutes: int = 5, sheet_name: str = "Be
     log.info(f"[scheduler] Schedule updated: {cfg}")
 
 
+def _load_tracking(tracking_file):
+    """Всегда читает свежую версию файла."""
+    try:
+        return json.loads(open(tracking_file).read())
+    except Exception:
+        return {}
+
+
+def _patch_tracking(tracking_file, offer_id, **fields):
+    """
+    Атомарно обновляет только указанные поля оффера.
+    Перечитывает файл перед записью чтобы не затереть чужие изменения.
+    """
+    tracking = _load_tracking(tracking_file)
+    if offer_id not in tracking:
+        return  # оффер удалён — не восстанавливаем
+    for k, v in fields.items():
+        tracking[offer_id][k] = v
+    open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
+
+
 def _do_sync():
     """Выполняется каждые N минут — синкает данные за СЕГОДНЯ (текущие сутки)."""
     cfg = get_schedule()
@@ -53,8 +74,7 @@ def _do_sync():
     try:
         campaigns    = get_all_campaigns() or []
         campaign_ids = [c["id"] for c in campaigns]
-
-        sheet_name = cfg["sheet_name"]
+        sheet_name   = cfg["sheet_name"]
 
         if sheet_name.lower() == "all":
             from app.services.sheets import list_sheets
@@ -67,15 +87,15 @@ def _do_sync():
         for s in sheets:
             try:
                 result = sync_from_cap_report(
-                binom_get_pairs_fn = binom_get_pairs,
-                binom_get_fn       = binom_get,
-                safe_json_fn       = _safe_json,
-                extract_rows_fn    = extract_rows,
-                campaign_ids       = campaign_ids,
-                sheet_name         = s,
-                date_str           = date_str,
-                dry_run            = False,
-            )
+                    binom_get_pairs_fn = binom_get_pairs,
+                    binom_get_fn       = binom_get,
+                    safe_json_fn       = _safe_json,
+                    extract_rows_fn    = extract_rows,
+                    campaign_ids       = campaign_ids,
+                    sheet_name         = s,
+                    date_str           = date_str,
+                    dry_run            = False,
+                )
                 log.info(f"[scheduler] {s}: updated={len(result.get('updated', []))} not_found={len(result.get('not_found', []))}")
             except Exception as sheet_err:
                 log.error(f"[scheduler] Error syncing sheet '{s}': {sheet_err}", exc_info=True)
@@ -85,18 +105,14 @@ def _do_sync():
 
 def _do_tracking_fd():
     """Обновляет FD для всех офферов из трекинга. Запускается каждые 10 минут."""
-    import json, os, pytz
-    from datetime import datetime
+    import pytz
 
-    tracking_file  = os.path.join(os.path.dirname(__file__), "../../data/offer_tracking.json")
-    fd_cache_file  = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+    tracking_file = os.path.join(os.path.dirname(__file__), "../../data/offer_tracking.json")
+    fd_cache_file = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
 
-    try:
-        tracking = json.loads(open(tracking_file).read())
-    except Exception:
-        return
-
-    if not tracking:
+    # Читаем снапшот трекинга на момент старта — только для итерации
+    tracking_snapshot = _load_tracking(tracking_file)
+    if not tracking_snapshot:
         return
 
     from app.utils.cache import get_all_campaigns
@@ -117,7 +133,6 @@ def _do_tracking_fd():
         cache = {}
 
     def _fetch_fd_for_id(oid, oname, start, fd_key_hint=None):
-        """Возвращает (fd_total, fd_key) для одного offer_id."""
         pairs = [
             ("datePreset",  "custom_time"),
             ("dateFrom",    f"{start} 00:00:00"),
@@ -158,15 +173,14 @@ def _do_tracking_fd():
                 fd_total = max(fd_total, fd)
         return fd_total, fd_key
 
-    for offer_id, info in tracking.items():
+    # ── Шаг 1: Обновляем FD кеш ──────────────────────────────────────────────
+    for offer_id, info in tracking_snapshot.items():
         start_date = info.get("start_date", today)
         name       = info.get("name", "")
         group_ids  = info.get("group_ids", "")
         try:
-            # Основной оффер
             fd_total, fd_key = _fetch_fd_for_id(offer_id, name, start_date)
 
-            # Группа — суммируем FD связанных офферов
             if group_ids:
                 extra_ids = [g.strip() for g in group_ids.replace(",", ":").split(":") if g.strip()]
                 for extra_id in extra_ids:
@@ -176,39 +190,23 @@ def _do_tracking_fd():
                     fd_total += extra_fd
                     log.info(f"[tracking] group: offer {extra_id} fd={extra_fd} added to {offer_id}")
 
-            cap_entry = {
+            cache[offer_id] = {
                 "fd":         fd_total,
                 "start_date": start_date,
                 "updated_at": datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S"),
             }
-
-            # Подгружаем капы из Binom
-            try:
-                r_cap = binom_get(f"/public/api/v1/offer/{offer_id}")
-                if r_cap.ok:
-                    od = _safe_json(r_cap)
-                    if isinstance(od, dict):
-                        caps = (od.get("conversionCaps")
-                                or (od.get("data") or {}).get("conversionCaps")
-                                or (od.get("offer") or {}).get("conversionCaps"))
-                        if isinstance(caps, list) and caps:
-                            caps = caps[0]
-                        if isinstance(caps, dict):
-                            cap_entry["binom_max_cap"]     = caps.get("maxConversions") or caps.get("maxCap")
-                            cap_entry["binom_current_cap"] = caps.get("currentConversions") or caps.get("current")
-            except Exception as ce:
-                log.debug(f"[tracking] cap fetch error for {offer_id}: {ce}")
-
-            cache[offer_id] = cap_entry
             log.info(f"[tracking] offer {offer_id} fd={fd_total} since {start_date}")
 
         except Exception as e:
             log.error(f"[tracking] Error for offer {offer_id}: {e}")
 
+    # Чистим кеш от удалённых офферов
+    fresh = _load_tracking(tracking_file)
+    cache = {k: v for k, v in cache.items() if k in fresh}
     open(fd_cache_file, "w").write(json.dumps(cache, ensure_ascii=False, indent=2))
-    log.info(f"[tracking] FD cache updated for {len(tracking)} offers")
+    log.info(f"[tracking] FD cache updated for {len(fresh)} offers")
 
-    # Проверяем веса офферов в ротациях — если везде 0, помечаем как stopped
+    # ── Шаг 2: Обновляем статусы по весам ротаций ────────────────────────────
     from app.services.binom import _safe_json as _sj
     TRACKED_ROTATIONS = ["121", "118", "61", "117", "120", "124"]
     try:
@@ -227,8 +225,9 @@ def _do_tracking_fd():
                         if oid:
                             offer_weights[oid] = max(offer_weights.get(oid, 0), w)
 
-        tracking_changed = False
-        for offer_id, info in list(tracking.items()):
+        # Перечитываем свежий файл перед обновлением статусов
+        fresh = _load_tracking(tracking_file)
+        for offer_id, info in list(fresh.items()):
             if info.get("status") in ("no_perform",):
                 continue
             w = offer_weights.get(str(offer_id), -1)
@@ -236,69 +235,55 @@ def _do_tracking_fd():
                 continue
             new_status = "stopped" if w == 0 else "active"
             if info.get("status") != new_status:
-                tracking[offer_id]["status"] = new_status
-                tracking_changed = True
+                # Патчим только этот оффер, не перезаписываем весь файл
+                _patch_tracking(tracking_file, offer_id, status=new_status)
                 log.info(f"[tracking] offer {offer_id} status → {new_status} (weight={w})")
-
-        if tracking_changed:
-            open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
 
     except Exception as e:
         log.error(f"[tracking] Weight check error: {e}")
 
-    # ── Авто-стоп + TG алерты ─────────────────────────────────────────────
+    # ── Шаг 3: Авто-стоп + TG алерты ────────────────────────────────────────
     try:
         from app.services.tg import check_cap_alerts, send_message
         from app.services.binom import _safe_json as _sj2
         from app.services.sheets import _names_match
 
         alerts         = []
-        tracking_dirty = False
         STOP_ROTATIONS = ["121", "118", "61", "117", "120", "124"]
 
-        # Перечитываем tracking — он мог измениться выше
-        try:
-            tracking = json.loads(open(tracking_file).read())
-        except Exception:
-            pass
+        # Свежий снапшот для алертов и авто-стопа
+        fresh = _load_tracking(tracking_file)
 
-        for offer_id, info in tracking.items():
+        for offer_id, info in fresh.items():
             max_cap       = info.get("max_cap")
             auto_stop_pct = info.get("auto_stop_pct")
             fd            = cache.get(offer_id, {}).get("fd")
             offer_name    = info.get("name", "")
+            offer_status  = info.get("status", "active")
 
             if not max_cap or fd is None:
                 continue
 
-            # TG алерт (порог 10% остатка)
-            # Не шлём алерты для стопнутых/не-перформ офферов
-            offer_status = info.get("status", "active")
-            if offer_status in ("stopped", "no_perform"):
-                continue
+            # Алерты только для активных
+            if offer_status not in ("stopped", "no_perform"):
+                alerts.append({
+                    "sheet_name":   offer_name,
+                    "filled_cap":   fd,
+                    "max_cap":      max_cap,
+                    "sheet":        "Трекинг",
+                    "network_name": info.get("partner_name", ""),
+                })
 
-            alerts.append({
-                "sheet_name":   offer_name,
-                "filled_cap":   fd,
-                "max_cap":      max_cap,
-                "sheet":        "Трекинг",
-                "network_name": info.get("partner_name", ""),
-            })
-
-            # Авто-стоп — пропускаем если:
-            # нет настройки, уже стопнут авто, статус ручной
+            # Авто-стоп
             if not auto_stop_pct:
                 continue
             if info.get("auto_stopped"):
                 continue
-            if info.get("status") in ("stopped", "no_perform"):
+            if offer_status in ("stopped", "no_perform"):
                 continue
-
-            # auto_stop_pct хранит абсолютное значение FD для стопа
             if fd < int(auto_stop_pct):
                 continue
 
-            # Останавливаем — ставим вес=0 во всех ротациях
             stopped_rots = []
             for rot_id in STOP_ROTATIONS:
                 try:
@@ -329,9 +314,12 @@ def _do_tracking_fd():
 
             if stopped_rots:
                 pct_filled = round(fd / max_cap * 100)
-                tracking[offer_id]["status"]      = "stopped"
-                tracking[offer_id]["auto_stopped"] = datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S")
-                tracking_dirty = True
+                # Патчим атомарно
+                _patch_tracking(
+                    tracking_file, offer_id,
+                    status="stopped",
+                    auto_stopped=datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S"),
+                )
                 log.info(f"[tracking] AUTO-STOP {offer_name} fd={fd}/{max_cap} ({pct_filled}%) rots={stopped_rots}")
 
                 send_message(
@@ -346,9 +334,6 @@ def _do_tracking_fd():
         if alerts:
             check_cap_alerts(alerts)
 
-        if tracking_dirty:
-            open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
-
     except Exception as e:
         log.error(f"[tracking] TG/auto-stop error: {e}", exc_info=True)
 
@@ -360,7 +345,7 @@ def _do_snapshot():
         return
 
     import pytz
-    from app.services.sheets import list_sheets, _save_today_fd
+    from app.services.sheets import _save_today_fd
 
     msk   = pytz.timezone("Europe/Moscow")
     today = datetime.now(msk).strftime("%Y-%m-%d")
@@ -369,7 +354,10 @@ def _do_snapshot():
     try:
         cfg        = get_schedule()
         sheet_name = cfg["sheet_name"]
-        sheets     = list_sheets() if sheet_name.lower() == "all" else [sheet_name]
+
+        if sheet_name.lower() == "all":
+            from app.services.sheets import list_sheets
+            sheets = list_sheets()
 
         tomorrow = (datetime.now(msk) + timedelta(days=1)).strftime("%Y-%m-%d")
         _save_today_fd({})
