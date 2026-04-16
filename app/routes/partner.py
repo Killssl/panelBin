@@ -505,16 +505,193 @@ def api_partner_my_offers():
 @bp.get("/api/partner/traffic")
 @require_auth("partner")
 def api_partner_traffic():
-    """Трафик партнёра за неделю — уники по офферам и GEO."""
+    """Weekly uniques для партнёра — аналог Weekly Uniques но по офферам партнёра."""
     from app.utils.dpu import extract_rows
     from app.services.binom import binom_get_pairs
+    from app.utils.cache import get_all_campaigns
     import pytz as _pytz
-    from datetime import timedelta
+    from datetime import timedelta, date as _date
 
     user   = request.current_user
     net_id = user.get("binom_network_id")
     if not net_id:
         return jsonify({"ok": True, "cards": [], "note": "Нет привязанной сети"})
+
+    msk   = _pytz.timezone("Europe/Moscow")
+    today = datetime.now(msk).date()
+
+    date_to_str   = request.args.get("date_to", "")
+    date_from_str = request.args.get("date_from", "")
+
+    try:
+        date_to   = _date.fromisoformat(date_to_str)   if date_to_str   else today - timedelta(days=1)
+        date_from = _date.fromisoformat(date_from_str) if date_from_str else date_to - timedelta(days=6)
+        if date_to >= today:   date_to   = today - timedelta(days=1)
+        if (date_to - date_from).days > 6: date_from = date_to - timedelta(days=6)
+        if date_from > date_to: date_from = date_to
+    except Exception:
+        date_to   = today - timedelta(days=1)
+        date_from = date_to - timedelta(days=6)
+
+    date_from_str = str(date_from)
+    date_to_str   = str(date_to)
+
+    campaign_ids = [c["id"] for c in (get_all_campaigns() or [])]
+    if not campaign_ids:
+        return jsonify({"ok": False, "error": "Нет кампаний"})
+
+    pairs = [
+        ("datePreset",  "custom_time"),
+        ("dateFrom",    f"{date_from_str} 00:00:00"),
+        ("dateTo",      f"{date_to_str} 23:59:59"),
+        ("timezone",    "Europe/Moscow"),
+        ("groupings[]", "rotation"),
+        ("groupings[]", "geoCountry"),
+        ("sortColumn",  "clicks"),
+        ("sortType",    "desc"),
+        ("limit",       "5000"),
+        ("offset",      "0"),
+        ("affiliateNetworkIds[]", str(net_id)),
+    ] + [("ids[]", cid) for cid in campaign_ids]
+
+    r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}: {r.text[:300]}"}), 502)
+
+    rows = extract_rows(_safe_json(r))
+
+    cards = []
+    current = None
+    for row in rows:
+        lvl  = str(row.get("level") or "")
+        name = str(row.get("name") or "").strip()
+        uniq = int(float(row.get("unique_campaign_clicks") or 0))
+
+        if lvl == "1":
+            current = {"name": name, "total_uniq": 0, "geos": []}
+            cards.append(current)
+        elif lvl == "2" and current and name:
+            current["geos"].append({"code": name, "uniq": uniq})
+            current["total_uniq"] += uniq
+
+    cards = [c for c in cards if c["geos"]]
+    for c in cards:
+        c["geos"].sort(key=lambda x: -x["uniq"])
+
+    return jsonify({"ok": True, "cards": cards, "date_from": date_from_str, "date_to": date_to_str})
+
+    msk   = _pytz.timezone("Europe/Moscow")
+    today = datetime.now(msk).date()
+
+    # Даты из параметров — макс 7 дней, не включая сегодня
+    date_to_str   = request.args.get("date_to")
+    date_from_str = request.args.get("date_from")
+
+    try:
+        from datetime import date as _date
+        if date_to_str:
+            date_to = _date.fromisoformat(date_to_str)
+        else:
+            date_to = today - timedelta(days=1)
+
+        if date_from_str:
+            date_from = _date.fromisoformat(date_from_str)
+        else:
+            date_from = date_to - timedelta(days=6)
+
+        # Не включать сегодня и не больше 7 дней
+        if date_to >= today:
+            date_to = today - timedelta(days=1)
+        if (date_to - date_from).days > 6:
+            date_from = date_to - timedelta(days=6)
+        if date_from > date_to:
+            date_from = date_to
+
+    except Exception:
+        date_to   = today - timedelta(days=1)
+        date_from = date_to - timedelta(days=6)
+
+    date_from_str = str(date_from)
+    date_to_str   = str(date_to)
+
+    from app.utils.cache import get_all_campaigns
+    campaign_ids = [c["id"] for c in (get_all_campaigns() or [])]
+
+    pairs = [
+        ("datePreset",  "custom_time"),
+        ("dateFrom",    f"{date_from_str} 00:00:00"),
+        ("dateTo",      f"{date_to_str} 23:59:59"),
+        ("timezone",    "Europe/Moscow"),
+        ("groupings[]", "offer"),
+        ("groupings[]", "geoCountry"),
+        ("sortColumn",  "clicks"),
+        ("sortType",    "desc"),
+        ("limit",       "5000"),
+        ("offset",      "0"),
+        ("affiliateNetworkIds[]", str(net_id)),
+    ] + [("ids[]", cid) for cid in campaign_ids]
+
+    try:
+        r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
+        if not r.ok:
+            return make_response(jsonify({
+                "ok": False,
+                "error": f"Binom {r.status_code}: {r.text[:300]}"
+            }), 502)
+
+        raw  = _safe_json(r)
+        rows = extract_rows(raw)
+
+        # Debug: показываем первые 3 строки
+        debug = request.args.get("debug") == "1"
+        if debug:
+            return jsonify({"ok": True, "sample": rows[:5], "total_rows": len(rows)})
+
+        offers = {}
+        for row in rows:
+            lvl = str(row.get("level") or "")
+            if lvl == "2":
+                offer_name = str(row.get("parent_name") or "").strip()
+                geo        = str(row.get("name") or "").strip().upper()
+            elif lvl == "1":
+                offer_name = str(row.get("name") or "").strip()
+                geo        = ""
+            else:
+                continue
+
+            if not offer_name:
+                continue
+
+            uniq = int(float(row.get("unique_campaign_clicks") or row.get("unique_clicks") or 0))
+            fd   = int(float(row.get("fd") or row.get("conversions") or 0))
+
+            if lvl == "2" and geo:
+                if offer_name not in offers:
+                    offers[offer_name] = {"geos": {}, "total_uniq": 0}
+                if geo not in offers[offer_name]["geos"]:
+                    offers[offer_name]["geos"][geo] = {"uniq": 0, "fd": 0}
+                offers[offer_name]["geos"][geo]["uniq"] += uniq
+                offers[offer_name]["geos"][geo]["fd"]   += fd
+                offers[offer_name]["total_uniq"] += uniq
+
+        cards = []
+        for name, data in sorted(offers.items(), key=lambda x: -x[1]["total_uniq"]):
+            geos_sorted = sorted(data["geos"].items(), key=lambda x: -x[1]["uniq"])
+            cards.append({
+                "name":       name,
+                "total_uniq": data["total_uniq"],
+                "geos":       [{"code": g, "uniq": d["uniq"], "fd": d["fd"]} for g, d in geos_sorted],
+            })
+
+        return jsonify({
+            "ok":        True,
+            "cards":     cards,
+            "date_from": date_from_str,
+            "date_to":   date_to_str,
+        })
+    except Exception as e:
+        import traceback
+        return make_response(jsonify({"ok": False, "error": str(e)}), 500)
 
     msk   = _pytz.timezone("Europe/Moscow")
     today = datetime.now(msk)
@@ -936,6 +1113,58 @@ def api_tracking_delete(offer_id):
 
 
 _FD_CACHE_FILE = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+
+@bp.get("/api/tracking/offers/<offer_id>/binom_cap")
+@require_auth("admin")
+def api_tracking_binom_cap_get(offer_id):
+    """Подтягивает Binom cap для оффера."""
+    r = binom_get(f"/public/api/v1/offer/cap/conversion/{offer_id}")
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}"}), 502)
+    return jsonify({"ok": True, "cap": _safe_json(r)})
+
+
+@bp.put("/api/tracking/offers/<offer_id>/binom_cap")
+@require_auth("admin")
+def api_tracking_binom_cap_update(offer_id):
+    """Обновляет Binom cap оффера."""
+    body = request.get_json(silent=True) or {}
+    max_cap = body.get("maxCap")
+    if not max_cap:
+        return make_response(jsonify({"ok": False, "error": "maxCap required"}), 400)
+
+    # Получаем текущие настройки капа
+    r_get = binom_get(f"/public/api/v1/offer/cap/conversion/{offer_id}")
+    if r_get.ok:
+        current = _safe_json(r_get)
+        # Обновляем только maxCap, остальное сохраняем
+        payload = {**current, "maxCap": int(max_cap)}
+        r = binom_put(f"/public/api/v1/offer/cap/conversion/{offer_id}", payload)
+    else:
+        # Капа ещё нет — создаём
+        r = binom_post(f"/public/api/v1/offer/cap/conversion/{offer_id}", {
+            "maxCap":       int(max_cap),
+            "isActive":     True,
+            "resetFrequency": 86400,
+            "timezone":     "Europe/Moscow",
+            "priority":     "in_path",
+        })
+
+    if not r.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}: {r.text[:200]}"}), 502)
+
+    # Обновляем кеш
+    fd_cache_file = os.path.join(os.path.dirname(__file__), "../../data/tracking_fd_cache.json")
+    try:
+        cache = json.loads(open(fd_cache_file).read())
+        if str(offer_id) in cache:
+            cache[str(offer_id)]["binom_max_cap"] = int(max_cap)
+            open(fd_cache_file, "w").write(json.dumps(cache, ensure_ascii=False, indent=2))
+    except Exception:
+        pass
+
+    return jsonify({"ok": True, "maxCap": int(max_cap)})
+
 
 @bp.post("/api/tracking/offers/<offer_id>/update_cap")
 @require_auth("admin")

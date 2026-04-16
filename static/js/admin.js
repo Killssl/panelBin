@@ -1760,13 +1760,47 @@ async function admLoadTracking() {
             ${fd != null && maxCap ? `
               <div class="trkc-bar"><div class="trkc-bar-fill" style="width:${pct}%;background:${capColor}"></div></div>
             ` : ''}
-            ${fdInfo.binom_current_cap != null ? `
-              <div class="trkc-binom-cap">
-                <span style="color:var(--text3);font-size:10px">Binom:</span>
-                <span style="font-weight:500">${fdInfo.binom_current_cap}</span>
-                ${fdInfo.binom_max_cap ? `<span style="color:var(--text3)">/ <span class="trkc-cap-max" onclick="admEditCap('${h(id)}',${fdInfo.binom_max_cap})" title="Изменить кап">${fdInfo.binom_max_cap}</span></span>` : ''}
-              </div>
-            ` : ''}
+            ${(() => {
+              // Если есть группа — показываем кап каждого ленда
+              const groupCaps = fdInfo.group_binom_caps || {};
+              const hasGroup  = Object.keys(groupCaps).length > 0;
+              const mainCap   = fdInfo.binom_max_cap;
+
+              if (!mainCap && !hasGroup) return '';
+
+              const renderCapRow = (bid, bcur, bmax) => {
+                const bpct = bmax ? Math.min(100, Math.round(bcur / bmax * 100)) : 0;
+                const bclr = bpct >= 90 ? '#ef4444' : bpct >= 70 ? '#f59e0b' : '#60a5fa';
+                return `<div class="trkc-binom-row">
+                  <div class="trkc-binom-row-info">
+                    ${hasGroup ? `<span style="font-size:9px;color:var(--text3);font-family:monospace">#${bid}</span>` : ''}
+                    <b style="color:${bclr}">${bcur}</b>
+                    <span style="color:var(--text3)">/ </span>
+                    <span class="trkc-binom-max" onclick="admEditBinomCap('${bid}',${bmax},this)" title="Нажмите чтобы изменить">${bmax}</span>
+                    <span style="font-size:10px;color:var(--text3)">${bpct}%</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;flex:1">
+                    <div class="trkc-bar" style="flex:1"><div class="trkc-bar-fill" style="width:${bpct}%;background:${bclr}"></div></div>
+                  </div>
+                </div>`;
+              };
+
+              let html = `<div class="trkc-binom-cap">
+                <div class="trkc-binom-label">
+                  <span style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Binom Cap${hasGroup ? ' (ленды)' : ''}</span>
+                </div>`;
+
+              // Основной оффер
+              if (mainCap) html += renderCapRow(h(id), fdInfo.binom_current_cap ?? 0, mainCap);
+
+              // Каждый ленд группы
+              Object.entries(groupCaps).forEach(([gid, gc]) => {
+                html += renderCapRow(h(gid), gc.current ?? 0, gc.max ?? 0);
+              });
+
+              html += '</div>';
+              return html;
+            })()}
           </div>
 
           <div class="trkc-status" style="--sc:${sd.color}">
@@ -1926,15 +1960,64 @@ async function admSaveTrackingEdit(id) {
   admLoadTracking();
 }
 
+function admEditBinomCap(offerId, currentMax, triggerEl) {
+  // Находим элемент который кликнули или его родитель
+  const el = triggerEl || event?.target;
+  if (!el) return;
+
+  // Создаём inline input вместо числа
+  const orig = el.outerHTML;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.value = currentMax;
+  input.min = 1;
+  input.style.cssText = `
+    width: ${Math.max(60, String(currentMax).length * 9 + 20)}px;
+    padding: 1px 5px; border-radius: 4px;
+    border: 1px solid var(--accent); background: var(--bg);
+    color: var(--text); font-size: 12px; font-family: inherit;
+    outline: none;
+  `;
+
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+
+  async function save() {
+    const val = parseInt(input.value);
+    if (!val || val < 1) { input.replaceWith(el); return; }
+    if (val === currentMax) { input.replaceWith(el); return; }
+
+    input.disabled = true;
+    input.style.opacity = '.5';
+    const j = await admApi('PUT', `/api/tracking/offers/${offerId}/binom_cap`, { maxCap: val });
+    if (j.ok) {
+      admLoadTracking();
+    } else {
+      const err = document.createElement('span');
+      err.textContent = j.error || 'Ошибка';
+      err.style.cssText = 'font-size:11px;color:var(--red);margin-left:6px';
+      input.replaceWith(el);
+      el.after(err);
+      setTimeout(() => err.remove(), 3000);
+    }
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); input.replaceWith(el); }
+  });
+}
+
 async function admEditCap(offerId, currentMax) {
   const newCap = prompt(`Новый Max Cap для оффера #${offerId}:`, currentMax);
   if (!newCap || isNaN(newCap) || parseInt(newCap) < 1) return;
   const j = await admApi('POST', `/api/tracking/offers/${offerId}/update_cap`, { max_cap: parseInt(newCap) });
   if (j.ok) {
-    showToast(`Кап обновлён → ${newCap}`, true);
     admLoadTracking();
   } else {
-    showToast(j.error || 'Ошибка обновления капа', false);
+    alert(j.error || 'Ошибка обновления капа');
   }
 }
 

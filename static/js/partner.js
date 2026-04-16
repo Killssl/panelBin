@@ -447,65 +447,101 @@ const GEO_NAMES = {
   AU:'Australia',NZ:'New Zealand',CA:'Canada',US:'United States',
 };
 
-async function loadTraffic() {
+async function loadTraffic(dateFrom, dateTo) {
   const el = document.getElementById('trafficContent');
   if (!el) return;
-  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка трафика...</div>';
+  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
 
-  const j = await api('GET', '/api/partner/traffic');
+  if (!dateFrom || !dateTo) {
+    const today = new Date();
+    const to    = new Date(today); to.setDate(today.getDate() - 1);
+    const from  = new Date(to);   from.setDate(to.getDate() - 6);
+    dateTo   = to.toISOString().slice(0,10);
+    dateFrom = from.toISOString().slice(0,10);
+  }
+
+  const j = await api('GET', `/api/partner/traffic?date_from=${dateFrom}&date_to=${dateTo}`);
   if (!j.ok) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка загрузки')}</div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка')}</div>`;
     return;
   }
 
   const cards = j.cards || [];
   if (!cards.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет данных за неделю</div>';
+    el.innerHTML = `
+      ${renderTrafficControls(j.date_from, j.date_to)}
+      <div class="empty" style="margin-top:20px"><div class="empty-icon">📭</div>Нет данных за этот период</div>`;
     return;
   }
 
-  const totalUniq = cards.reduce((s, c) => s + c.total_uniq, 0);
+  const maxUniq = Math.max(...cards.flatMap(c => c.geos.map(g => g.uniq)));
 
   el.innerHTML = `
-    <div class="wk-meta">
-      <span>${h(j.date_from)} — ${h(j.date_to)}</span>
-      <span class="wmeta-sep">·</span>
-      <b>${totalUniq.toLocaleString()}</b> уников
-      <span class="wmeta-sep">·</span>
-      ${cards.length} офферов
-    </div>
-    <div class="weekly-cards">
+    ${renderTrafficControls(j.date_from, j.date_to)}
+    <div class="weekly-cards" style="margin-top:16px">
       ${cards.map(card => {
-        const maxUniq = card.geos[0]?.uniq || 1;
+        const topUniq = card.geos[0]?.uniq || 1;
         return `<div class="wcard">
           <div class="wcard-header">
             <div class="wcard-header-left">
               <div class="wcard-title">${h(card.name)}</div>
-              <div class="wcard-badge">${card.total_uniq.toLocaleString()} uniq</div>
+              <div class="wcard-badge">${card.geos.length} GEO</div>
             </div>
           </div>
           <div class="wcard-rows">
-            ${card.geos.map((g, i) => {
-              const pct  = Math.round(g.uniq / maxUniq * 100);
-              const flag = geoFlag(g.code);
-              const name = GEO_NAMES[g.code] || g.code;
-              const isTop = i === 0;
-              return `<div class="wrow${isTop ? ' wrow-top' : ''}">
+            ${card.geos.map((g, i) => `
+              <div class="wrow ${i === 0 ? 'wrow-top' : ''}">
                 <div class="wrow-rank">${i+1}</div>
                 <div class="wrow-country">
-                  <span class="wrow-flag">${flag}</span>
-                  <span class="wrow-geo-name">${h(name)}</span>
-                  <span class="wrow-geo-code">${h(g.code)}</span>
+                  <span class="wrow-flag">${geoFlag(g.code)}</span>
+                  <span class="wrow-geo-name">${h(g.code)}</span>
                 </div>
-                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${pct}%"></div></div>
+                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${Math.round(g.uniq/topUniq*100)}%"></div></div>
                 <div class="wrow-uniq">${g.uniq.toLocaleString()}</div>
-                ${g.fd > 0 ? `<span class="wk-fd-badge">${g.fd} FD</span>` : '<span></span>'}
-              </div>`;
-            }).join('')}
+              </div>
+            `).join('')}
           </div>
         </div>`;
       }).join('')}
     </div>`;
+}
+
+function renderTrafficControls(dateFrom, dateTo) {
+  return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+    <label style="font-size:.78rem;color:var(--text2)">С</label>
+    <input type="date" id="tfDateFrom" value="${dateFrom}"
+      style="background:var(--s1);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:.82rem;font-family:inherit">
+    <label style="font-size:.78rem;color:var(--text2)">По</label>
+    <input type="date" id="tfDateTo" value="${dateTo}"
+      style="background:var(--s1);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:.82rem;font-family:inherit">
+    <button onclick="applyTrafficDates()" class="btn" style="padding:5px 12px;font-size:.78rem">Показать</button>
+  </div>`;
+}
+
+function geoFlag(code) {
+  if (!code || code.length !== 2) return '🌍';
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(0x1F1E0 - 65 + c.charCodeAt(0)));
+}
+
+function applyTrafficDates() {
+  const from = document.getElementById('tfDateFrom')?.value;
+  const to   = document.getElementById('tfDateTo')?.value;
+  if (!from || !to) return;
+
+  // Проверка: не больше 7 дней и не включая сегодня
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dFrom = new Date(from);
+  const dTo   = new Date(to);
+
+  if (dTo >= today) {
+    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+    return loadTraffic(from, yesterday.toISOString().slice(0,10));
+  }
+  if ((dTo - dFrom) / 86400000 > 6) {
+    const newFrom = new Date(dTo); newFrom.setDate(dTo.getDate()-6);
+    return loadTraffic(newFrom.toISOString().slice(0,10), to);
+  }
+  loadTraffic(from, to);
 }
 
 // ── Partner offer actions ────────────────────────────
