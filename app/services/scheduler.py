@@ -1,5 +1,5 @@
 """
-Планировщик авто-синка капов в Google Sheets.
+Планировщик: обновление FD трекинга.
 Запускается из main.py при старте Flask.
 
 pip install apscheduler pytz
@@ -9,28 +9,9 @@ import json
 import logging
 from datetime import datetime, timedelta
 
-log = logging.getLogger("sheets_scheduler")
+log = logging.getLogger("scheduler")
 
-_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "../../data/sheets_schedule.json")
 _scheduler   = None
-
-
-def _default_config():
-    return {"enabled": False, "interval_minutes": 5, "sheet_name": "Betting"}
-
-
-def get_schedule() -> dict:
-    try:
-        return json.loads(open(_CONFIG_FILE).read())
-    except Exception:
-        return _default_config()
-
-
-def set_schedule(enabled: bool, interval_minutes: int = 5, sheet_name: str = "Betting", **_):
-    cfg = {"enabled": enabled, "interval_minutes": interval_minutes, "sheet_name": sheet_name}
-    open(_CONFIG_FILE, "w").write(json.dumps(cfg, indent=2))
-    _reschedule(cfg)
-    log.info(f"[scheduler] Schedule updated: {cfg}")
 
 
 def _load_tracking(tracking_file):
@@ -52,55 +33,6 @@ def _patch_tracking(tracking_file, offer_id, **fields):
     for k, v in fields.items():
         tracking[offer_id][k] = v
     open(tracking_file, "w").write(json.dumps(tracking, ensure_ascii=False, indent=2))
-
-
-def _do_sync():
-    """Выполняется каждые N минут — синкает данные за СЕГОДНЯ (текущие сутки)."""
-    cfg = get_schedule()
-    if not cfg.get("enabled"):
-        return
-
-    import pytz
-    from app.utils.cache import get_all_campaigns
-    from app.utils.dpu import extract_rows
-    from app.services.binom import binom_get_pairs, _safe_json, binom_get
-    from app.services.sheets import sync_from_cap_report
-
-    msk      = pytz.timezone("Europe/Moscow")
-    date_str = datetime.now(msk).strftime("%Y-%m-%d")
-
-    log.info(f"[scheduler] Auto-sync caps for {date_str} → {cfg['sheet_name']}")
-
-    try:
-        campaigns    = get_all_campaigns() or []
-        campaign_ids = [c["id"] for c in campaigns]
-        sheet_name   = cfg["sheet_name"]
-
-        if sheet_name.lower() == "all":
-            from app.services.sheets import list_sheets
-            sheets = list_sheets()
-        else:
-            sheets = [sheet_name]
-
-        log.info(f"[scheduler] Sheets to sync: {sheets}")
-
-        for s in sheets:
-            try:
-                result = sync_from_cap_report(
-                    binom_get_pairs_fn = binom_get_pairs,
-                    binom_get_fn       = binom_get,
-                    safe_json_fn       = _safe_json,
-                    extract_rows_fn    = extract_rows,
-                    campaign_ids       = campaign_ids,
-                    sheet_name         = s,
-                    date_str           = date_str,
-                    dry_run            = False,
-                )
-                log.info(f"[scheduler] {s}: updated={len(result.get('updated', []))} not_found={len(result.get('not_found', []))}")
-            except Exception as sheet_err:
-                log.error(f"[scheduler] Error syncing sheet '{s}': {sheet_err}", exc_info=True)
-    except Exception as e:
-        log.error(f"[scheduler] Sync error: {e}", exc_info=True)
 
 
 def _do_tracking_fd():
@@ -436,70 +368,6 @@ def _do_tracking_fd():
         log.error(f"[tracking] TG/auto-stop error: {e}", exc_info=True)
 
 
-def _do_snapshot():
-    """В 23:55 фиксируем текущие filled_cap как базу для следующего дня."""
-    cfg = get_schedule()
-    if not cfg.get("enabled"):
-        return
-
-    import pytz
-    from app.services.sheets import _save_today_fd
-
-    msk   = pytz.timezone("Europe/Moscow")
-    today = datetime.now(msk).strftime("%Y-%m-%d")
-    log.info(f"[scheduler] 23:55 snapshot for {today}")
-
-    try:
-        cfg        = get_schedule()
-        sheet_name = cfg["sheet_name"]
-
-        if sheet_name.lower() == "all":
-            from app.services.sheets import list_sheets
-            sheets = list_sheets()
-
-        tomorrow = (datetime.now(msk) + timedelta(days=1)).strftime("%Y-%m-%d")
-        _save_today_fd({})
-        log.info(f"[scheduler] Snapshot cleared for new day {tomorrow}")
-
-    except Exception as e:
-        log.error(f"[scheduler] Snapshot error: {e}", exc_info=True)
-
-
-def _reschedule(cfg: dict):
-    global _scheduler
-    if _scheduler is None:
-        return
-    for job_id in ("sheets_sync", "sheets_snapshot"):
-        try:
-            _scheduler.remove_job(job_id)
-        except Exception:
-            pass
-
-    if cfg.get("enabled"):
-        interval_min = int(cfg.get("interval_minutes", 5))
-        _scheduler.add_job(
-            _do_sync,
-            trigger  = "interval",
-            minutes  = interval_min,
-            id       = "sheets_sync",
-            name     = f"Google Sheets cap sync every {interval_min}m",
-            replace_existing = True,
-        )
-        log.info(f"[scheduler] Job scheduled every {interval_min} minutes")
-
-        _scheduler.add_job(
-            _do_snapshot,
-            trigger  = "cron",
-            hour     = 23,
-            minute   = 55,
-            timezone = "Europe/Moscow",
-            id       = "sheets_snapshot",
-            name     = "Daily 23:55 snapshot reset",
-            replace_existing = True,
-        )
-        log.info("[scheduler] Snapshot job scheduled at 23:55 MSK")
-
-
 def init_scheduler(app=None):
     """Вызывать из main.py после создания Flask app."""
     global _scheduler
@@ -510,9 +378,6 @@ def init_scheduler(app=None):
         _scheduler = BackgroundScheduler(timezone=pytz.timezone("Europe/Moscow"))
         _scheduler.start()
         log.info("[scheduler] APScheduler started")
-
-        cfg = get_schedule()
-        _reschedule(cfg)
 
         _scheduler.add_job(
             _do_tracking_fd,

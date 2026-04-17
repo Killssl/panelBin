@@ -108,6 +108,12 @@
             <span id="admPendingBadge" class="adm-nav-badge" style="display:none"></span>
           </div>
           <div class="adm-nav-section">Аналитика</div>
+          <div class="adm-nav-item" onclick="admNav('rotations')" id="adm-nav-rotations">
+            <span class="ico">🔄</span> Ротации
+          </div>
+          <div class="adm-nav-item" onclick="admNav('weekly')" id="adm-nav-weekly">
+            <span class="ico">📊</span> Weekly Uniques
+          </div>
           <div class="adm-nav-item" onclick="admNav('tracking')" id="adm-nav-tracking">
             <span class="ico">📅</span> Трекинг
           </div>
@@ -187,6 +193,69 @@
             </div>
           </div>
 
+          <!-- Rotations -->
+          <div class="adm-panel" id="adm-panel-rotations">
+            <div class="rb-shell">
+
+              <!-- Col 1: Rotations -->
+              <div class="rb-col rb-col--rotations">
+                <div class="rb-col-head">
+                  <span>Ротации</span>
+                  <span id="admRotMeta" class="rb-col-count">—</span>
+                </div>
+                <div class="rb-search">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input id="admRotQ" class="rb-search-inp" type="text" placeholder="Поиск..."
+                    onkeydown="if(event.key==='Enter')admLoadRotationsPanel()">
+                  <button class="rb-refresh" onclick="admLoadRotationsPanel()" title="Обновить">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-5.3M20 15a9 9 0 0 1-15 5.3"/></svg>
+                  </button>
+                </div>
+                <div class="rb-status-tabs">
+                  <button class="rb-stab active" data-val="" onclick="admRotSetStatus(this)">Все</button>
+                  <button class="rb-stab" data-val="active" onclick="admRotSetStatus(this)">Активные</button>
+                  <button class="rb-stab" data-val="paused" onclick="admRotSetStatus(this)">Пауза</button>
+                </div>
+                <div id="admRotList" class="rb-list">
+                  <div class="adm-empty"><div class="spinner"></div></div>
+                </div>
+                <div id="admRotMultiBar" class="rb-multi-bar" style="display:none">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                  <button id="admRotMultiAnalyticsBtn" class="rb-multi-btn" onclick="admRotMultiAnalytics()">Мульти-аналитика</button>
+                  <button class="rb-multi-clear" onclick="admRotClearSelection()">✕</button>
+                </div>
+              </div>
+
+              <!-- Col 2: GEO list -->
+              <div class="rb-col rb-col--geo">
+                <div class="rb-col-head">
+                  <span id="admRotGeoTitle">GEO</span>
+                  <span id="admRotGeoCount" class="rb-col-count">—</span>
+                </div>
+                <div id="admRotGeoList" class="rb-list">
+                  <div class="rb-empty-hint">← выберите ротацию</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Weekly Uniques -->
+          <div class="adm-panel" id="adm-panel-weekly">
+            <div class="adm-toolbar" style="flex-wrap:wrap;gap:8px">
+              <label style="font-size:.82rem;color:var(--text2)">С <input type="date" id="admWDateFrom" class="adm-inp" style="width:140px;margin-left:4px"></label>
+              <label style="font-size:.82rem;color:var(--text2)">По <input type="date" id="admWDateTo" class="adm-inp" style="width:140px;margin-left:4px"></label>
+              <label style="font-size:.82rem;color:var(--text2)">Мин. уников <input type="number" id="admWMinUniq" value="10" min="1" class="adm-inp" style="width:80px;margin-left:4px"></label>
+              <label style="font-size:.82rem;color:var(--text2);display:flex;align-items:center;gap:4px">
+                <input type="checkbox" id="admWExclude1x"> Без 1x
+              </label>
+              <button class="adm-btn primary" onclick="admRunWeekly()">Запустить</button>
+            </div>
+            <div id="admWeeklyResult" style="margin-top:16px">
+              <div class="adm-empty">Выберите даты и нажмите Запустить</div>
+            </div>
+          </div>
+
           <!-- Tracking -->
           <div class="adm-panel" id="adm-panel-tracking">
             <div class="trk-topbar">
@@ -256,10 +325,15 @@
                     </select>
                   </div>
                 </div>
-                <div class="adm-field">
-                  <label>Группа ID <span style="color:var(--text3);font-size:.85em">(через : если несколько лендосов)</span></label>
-                  <input class="adm-inp" id="trkGroupIds" type="text" placeholder="1040:1071">
-                  <div style="font-size:11px;color:var(--text3);margin-top:4px">FD будет суммироваться по всем ID с одной даты</div>
+                <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
+                  <div class="adm-field">
+                    <label>Группа ID <span style="color:var(--text3);font-size:.85em">(через :)</span></label>
+                    <input class="adm-inp" id="trkGroupIds" type="text" placeholder="1040:1071">
+                  </div>
+                  <div class="adm-field">
+                    <label>Кап на GEO <span style="color:var(--text3);font-size:.85em">(CAP20/geo)</span></label>
+                    <input class="adm-inp" id="trkGeoCap" type="number" min="1" placeholder="20">
+                  </div>
                 </div>
                 <div class="adm-err" id="trkErr" style="margin-bottom:12px"></div>
                 <div style="display:flex;gap:8px">

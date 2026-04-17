@@ -801,3 +801,631 @@ textarea.adm-inp { resize: vertical; }
   color: var(--accent);
   border-color: var(--accent);
 }
+
+/* ── Geo breakdown ── */
+.trkc-geo-expand {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; padding: 3px 8px; border-radius: 5px;
+  border: 0.5px solid var(--border2); background: var(--bg2);
+  color: var(--text2); cursor: pointer; margin-top: 6px;
+  transition: all .12s;
+}
+.trkc-geo-expand:hover { border-color: var(--accent); color: var(--accent-txt); }
+.trkc-geo-arrow { font-size: 10px; }
+
+.trkc-geo-breakdown {
+  margin-top: 8px; padding: 8px;
+  background: var(--bg3); border-radius: 6px;
+  border: 0.5px solid var(--border);
+}
+.trkc-geo-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 0; font-size: 11px;
+}
+.trkc-geo-code {
+  width: 28px; flex-shrink: 0;
+  font-weight: 500; color: var(--text2);
+  font-family: monospace;
+}
+
+/* ── Tracking search ── */
+.trk-search-wrap {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: 7px; padding: 4px 10px;
+  flex: 1; max-width: 280px; margin-left: auto;
+  transition: border-color .15s;
+}
+.trk-search-wrap:focus-within { border-color: var(--accent); }
+.trk-search-wrap svg { color: var(--text3); flex-shrink: 0; }
+.trk-search-inp {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 12px; font-family: inherit;
+  width: 100%; min-width: 0;
+}
+.trk-search-inp::placeholder { color: var(--text3); }
+.trk-search-clear {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 11px; padding: 0;
+  flex-shrink: 0; line-height: 1;
+}
+.trk-search-clear:hover { color: var(--text); }
+
+/* ═══ Rotations Panel ═══════════════════════════════════════════════════════ */
+
+.rot-panel {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  height: calc(100vh - 120px);
+  min-height: 500px;
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Left column */
+.rot-list-col {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg2);
+  border-right: 0.5px solid var(--border);
+  min-height: 0;
+}
+
+.rot-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border-bottom: 0.5px solid var(--border);
+}
+.rot-search-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 0.5px solid var(--border2);
+  border-radius: 7px;
+  padding: 6px 10px;
+  transition: border-color .15s;
+}
+.rot-search-wrap:focus-within { border-color: var(--accent); }
+.rot-search-wrap svg { color: var(--text3); flex-shrink: 0; }
+.rot-search-inp {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 12px; font-family: inherit; width: 100%;
+}
+.rot-search-inp::placeholder { color: var(--text3); }
+.rot-refresh-btn {
+  width: 30px; height: 30px; border-radius: 7px;
+  border: 0.5px solid var(--border); background: var(--bg);
+  color: var(--text3); cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.rot-refresh-btn:hover { border-color: var(--border2); color: var(--text); }
+
+.rot-status-tabs {
+  display: flex; gap: 0;
+  padding: 8px 12px;
+  border-bottom: 0.5px solid var(--border);
+}
+.rot-stab {
+  flex: 1; padding: 4px 0; font-size: 11px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; transition: all .12s;
+  font-family: inherit;
+}
+.rot-stab:first-child { border-radius: 5px 0 0 5px; }
+.rot-stab:last-child  { border-radius: 0 5px 5px 0; }
+.rot-stab + .rot-stab { border-left: none; }
+.rot-stab.active {
+  background: rgba(79,142,247,.15);
+  border-color: rgba(79,142,247,.4);
+  color: var(--accent2);
+}
+
+.rot-meta-line {
+  font-size: 11px; color: var(--text3);
+  padding: 5px 12px;
+}
+
+.rot-cards-list {
+  flex: 1; overflow-y: auto;
+  padding: 6px;
+}
+.rot-cards-list::-webkit-scrollbar { width: 4px; }
+.rot-cards-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Rotation card */
+.rot-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 8px;
+  cursor: pointer; transition: background .1s;
+  margin-bottom: 2px; position: relative;
+  border: 0.5px solid transparent;
+}
+.rot-card:hover { background: var(--bg3); }
+.rot-card.active {
+  background: rgba(79,142,247,.1);
+  border-color: rgba(79,142,247,.3);
+}
+.rot-card.selected {
+  background: rgba(79,142,247,.08);
+}
+
+.rot-card-indicator {
+  width: 3px; height: 32px; border-radius: 2px; flex-shrink: 0;
+}
+.rot-card-indicator.ok   { background: #10b981; }
+.rot-card-indicator.warn { background: #f59e0b; }
+.rot-card-indicator.bad  { background: #ef4444; }
+.rot-card-indicator.dim  { background: var(--text3); }
+
+.rot-card-info { flex: 1; min-width: 0; }
+.rot-card-name {
+  font-size: 12px; font-weight: 500; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rot-card-id { font-size: 10px; color: var(--text3); margin-top: 1px; font-family: monospace; }
+
+.rot-card-actions {
+  display: flex; gap: 4px; opacity: 0; transition: opacity .12s;
+}
+.rot-card:hover .rot-card-actions { opacity: 1; }
+.rot-card-btn {
+  width: 24px; height: 24px; border-radius: 5px;
+  border: 0.5px solid var(--border2); background: var(--bg2);
+  color: var(--text3); cursor: pointer; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.rot-card-btn:hover { color: var(--text); border-color: var(--accent); }
+
+.rot-card-cb { accent-color: var(--accent); cursor: pointer; }
+
+/* Multi-analytics bar */
+.rot-multi-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  border-top: 0.5px solid var(--border);
+  background: rgba(79,142,247,.08);
+}
+.rot-multi-bar svg { color: var(--accent); flex-shrink: 0; }
+.rot-multi-btn {
+  flex: 1; padding: 6px 0; border-radius: 6px;
+  border: 0.5px solid rgba(79,142,247,.4);
+  background: rgba(79,142,247,.15);
+  color: var(--accent2); font-size: 12px; font-family: inherit;
+  cursor: pointer; transition: all .12s; text-align: center;
+}
+.rot-multi-btn:hover { background: rgba(79,142,247,.25); }
+.rot-multi-clear {
+  width: 24px; height: 24px; border-radius: 5px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.rot-multi-clear:hover { color: var(--red); border-color: var(--red); }
+
+/* Right column */
+.rot-detail-col {
+  display: flex; flex-direction: column; background: var(--bg); min-height: 0;
+}
+.rot-detail-header {
+  padding: 14px 18px 10px;
+  font-size: 13px; font-weight: 500; color: var(--text);
+  border-bottom: 0.5px solid var(--border);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rot-detail-tabs {
+  display: flex; gap: 0; padding: 8px 16px;
+  border-bottom: 0.5px solid var(--border);
+}
+.rot-dtab {
+  padding: 4px 14px; font-size: 12px; border-radius: 6px;
+  border: 0.5px solid transparent; background: transparent;
+  color: var(--text3); cursor: pointer; font-family: inherit;
+  transition: all .12s;
+}
+.rot-dtab.active {
+  background: rgba(79,142,247,.12);
+  border-color: rgba(79,142,247,.3);
+  color: var(--accent2);
+}
+.rot-detail-body {
+  flex: 1; overflow-y: auto; padding: 16px;
+}
+.rot-detail-body::-webkit-scrollbar { width: 4px; }
+.rot-detail-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.rot-detail-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; height: 100%;
+  color: var(--text3); font-size: 13px;
+}
+
+/* GEO blocks in detail */
+.rot-geo-block { margin-bottom: 16px; }
+.rot-geo-title {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 4px 0 8px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 6px;
+  display: flex; justify-content: space-between;
+}
+.rot-offer-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 0; border-bottom: 0.5px solid rgba(30,41,59,.5);
+  font-size: 12px;
+}
+.rot-offer-name {
+  flex: 1; color: var(--text); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; margin-right: 12px;
+}
+.rot-offer-weight {
+  font-family: monospace; font-size: 11px;
+  color: var(--text3); flex-shrink: 0;
+}
+
+/* Analytics table in detail */
+.rot-an-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 60px 60px 50px;
+  gap: 8px; align-items: center;
+  padding: 5px 0; border-bottom: 0.5px solid rgba(30,41,59,.5);
+  font-size: 11px;
+}
+.rot-an-head { color: var(--text3); font-weight: 500; margin-bottom: 6px; }
+.rot-an-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rot-an-num  { text-align: right; font-family: monospace; }
+
+/* ═══ Rotations B — Three-column drill-down ════════════════════════════════ */
+
+.rb-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: calc(100vh - 130px);
+  min-height: 480px;
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.rb-col {
+  display: flex; flex-direction: column;
+  border-right: 0.5px solid var(--border);
+  min-height: 0;
+}
+.rb-col:last-child { border-right: none; }
+
+.rb-col-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  background: var(--bg2); flex-shrink: 0;
+  gap: 8px;
+}
+.rb-col-count {
+  font-size: 10px; color: var(--text3);
+  background: var(--bg3); border-radius: 4px;
+  padding: 1px 6px; font-weight: 400;
+}
+
+.rb-search {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px; border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.rb-search svg { color: var(--text3); flex-shrink: 0; }
+.rb-search-inp {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-size: 11px; font-family: inherit;
+}
+.rb-search-inp::placeholder { color: var(--text3); }
+.rb-refresh {
+  width: 22px; height: 22px; border-radius: 5px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all .12s;
+}
+.rb-refresh:hover { color: var(--text); border-color: var(--border2); }
+
+.rb-status-tabs {
+  display: flex; flex-shrink: 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.rb-stab {
+  flex: 1; padding: 5px 0; font-size: 10px;
+  border: none; border-right: 0.5px solid var(--border);
+  background: transparent; color: var(--text3);
+  cursor: pointer; font-family: inherit; transition: all .12s;
+}
+.rb-stab:last-child { border-right: none; }
+.rb-stab.active { background: rgba(79,142,247,.1); color: var(--accent2); }
+.rb-stab:hover:not(.active) { background: var(--bg3); color: var(--text2); }
+
+.rb-list {
+  flex: 1; overflow-y: auto; min-height: 0;
+}
+.rb-list::-webkit-scrollbar { width: 3px; }
+.rb-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.rb-empty-hint {
+  padding: 20px 14px; font-size: 11px; color: var(--text3); text-align: center;
+}
+
+/* Rotation card */
+.rb-rot-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-bottom: 0.5px solid var(--border);
+  cursor: pointer; transition: background .1s; position: relative;
+}
+.rb-rot-card:hover { background: var(--bg2); }
+.rb-rot-card.active { background: rgba(79,142,247,.08); }
+.rb-rot-card.selected { background: rgba(79,142,247,.05); }
+
+.rb-rot-indicator {
+  width: 3px; min-height: 28px; border-radius: 2px; flex-shrink: 0; align-self: stretch;
+}
+.rb-rot-info { flex: 1; min-width: 0; }
+.rb-rot-name {
+  font-size: 11px; font-weight: 500; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rb-rot-id { font-size: 9px; color: var(--text3); font-family: monospace; margin-top: 1px; }
+.rb-rot-cnt { font-size: 9px; color: var(--text3); flex-shrink: 0; }
+.rb-rot-cb { accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+
+/* GEO item */
+.rb-geo-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-bottom: 0.5px solid var(--border);
+  cursor: pointer; transition: background .1s; font-size: 11px;
+}
+.rb-geo-item:hover { background: var(--bg2); }
+.rb-geo-item.active { background: rgba(79,142,247,.08); color: var(--accent2); }
+.rb-geo-name { flex: 1; color: var(--text); }
+.rb-geo-cnt { font-size: 10px; color: var(--text3); }
+
+/* Offer detail */
+.rb-detail-tabs {
+  display: flex; gap: 0;
+}
+.rb-dtab {
+  padding: 3px 10px; font-size: 10px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-family: inherit;
+  transition: all .12s;
+}
+.rb-dtab:first-child { border-radius: 4px 0 0 4px; }
+.rb-dtab:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+.rb-dtab.active { background: rgba(79,142,247,.12); border-color: rgba(79,142,247,.3); color: var(--accent2); }
+
+.rb-offer-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 14px; border-bottom: 0.5px solid var(--border);
+  font-size: 11px; gap: 8px;
+}
+.rb-offer-row:hover { background: var(--bg2); }
+.rb-offer-name { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-offer-weight { font-family: monospace; font-size: 10px; color: var(--text3); flex-shrink: 0; }
+
+/* Inline weight edit */
+.rb-w-cell { display: flex; align-items: center; gap: 4px; }
+.rb-w-val { font-family: monospace; font-size: 10px; color: var(--text3); min-width: 22px; text-align: right; }
+.rb-w-btn {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: all .12s;
+}
+.rb-offer-row:hover .rb-w-btn { opacity: 1; }
+.rb-w-btn:hover { border-color: var(--accent); color: var(--accent-txt); background: var(--accent-bg); }
+.rb-w-inp {
+  width: 40px; padding: 1px 4px;
+  border: 0.5px solid var(--accent); border-radius: 4px;
+  background: var(--accent-bg); color: var(--accent-txt);
+  font-family: monospace; font-size: 10px; outline: none; text-align: right;
+}
+
+/* Analytics table in col3 */
+.rb-an-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.rb-an-table th {
+  padding: 5px 14px; text-align: right; font-size: 10px; font-weight: 500;
+  color: var(--text3); border-bottom: 0.5px solid var(--border); white-space: nowrap;
+}
+.rb-an-table th:first-child { text-align: left; }
+.rb-an-table td { padding: 5px 14px; border-bottom: 0.5px solid var(--border); text-align: right; font-family: monospace; font-size: 10px; color: var(--text2); }
+.rb-an-table td:first-child { text-align: left; font-family: inherit; font-size: 11px; color: var(--text); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-an-table tr:last-child td { border-bottom: none; }
+.rb-an-table tr:hover td { background: var(--bg2); }
+.rb-dpu-h { color: #10b981; }
+.rb-dpu-m { color: #f59e0b; }
+
+/* Multi-analytics bar */
+.rb-multi-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-top: 0.5px solid var(--border);
+  background: rgba(79,142,247,.06); flex-shrink: 0;
+}
+.rb-multi-bar svg { color: var(--accent); flex-shrink: 0; }
+.rb-multi-btn {
+  flex: 1; padding: 5px 0; border-radius: 5px;
+  border: 0.5px solid rgba(79,142,247,.35);
+  background: rgba(79,142,247,.12); color: var(--accent2);
+  font-size: 11px; font-family: inherit; cursor: pointer; text-align: center;
+  transition: all .12s;
+}
+.rb-multi-btn:hover { background: rgba(79,142,247,.22); }
+.rb-multi-clear {
+  width: 22px; height: 22px; border-radius: 5px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.rb-multi-clear:hover { color: var(--red); border-color: var(--red); }
+
+/* Multi analytics panel */
+.rb-ma-legend { display: flex; gap: 6px; padding: 10px 14px; flex-wrap: wrap; border-bottom: 0.5px solid var(--border); }
+.rb-ma-leg { display: flex; align-items: center; gap: 5px; font-size: 10px; padding: 2px 7px; border-radius: 4px; border: 0.5px solid; }
+.rb-ma-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.rb-ma-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.rb-ma-table th { padding: 4px 10px; text-align: right; font-weight: 500; color: var(--text3); border-bottom: 0.5px solid var(--border); white-space: nowrap; }
+.rb-ma-table th:first-child { text-align: left; min-width: 160px; }
+.rb-ma-table td { padding: 5px 10px; border-bottom: 0.5px solid var(--border); text-align: right; font-family: monospace; font-size: 10px; color: var(--text2); vertical-align: middle; }
+.rb-ma-table td:first-child { text-align: left; font-family: inherit; font-size: 11px; color: var(--text); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-ma-table tr:hover td { background: var(--bg2); }
+.rb-ma-geo { padding: 6px 12px; background: var(--bg2); font-size: 11px; font-weight: 500; color: var(--text2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 6px; }
+.rb-ma-geo-meta { font-size: 10px; color: var(--text3); font-weight: 400; margin-left: auto; }
+
+/* ── Multi-analytics unified table ── */
+.rb-ma-unified-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rb-ma-unified-table td {
+  border-bottom: 0.5px solid var(--border);
+  vertical-align: middle;
+  transition: background .08s;
+}
+.rb-ma-offer-row td { cursor: default; }
+.rb-ma-th-num { text-align: right !important; }
+
+/* Weight button always visible in multi */
+.rb-ma-offer-row .rb-w-btn { opacity: 0; }
+.rb-ma-offer-row:hover .rb-w-btn { opacity: 1; }
+
+
+/* ── Rotation modal ── */
+.rb-modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.rb-modal {
+  background: var(--bg); border: 0.5px solid var(--border2);
+  border-radius: 12px; width: min(1100px, 96vw);
+  max-height: 92vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.rb-modal-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.rb-modal-title {
+  font-size: 14px; font-weight: 500; color: var(--text); flex: 1;
+}
+.rb-modal-tabs {
+  display: flex; gap: 0;
+}
+.rb-modal-tab {
+  padding: 4px 12px; font-size: 11px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-family: inherit;
+  transition: all .12s;
+}
+.rb-modal-tab:first-child { border-radius: 5px 0 0 5px; }
+.rb-modal-tab:last-child  { border-radius: 0 5px 5px 0; border-left: none; }
+.rb-modal-tab.active { background: rgba(79,142,247,.12); border-color: rgba(79,142,247,.3); color: var(--accent2); }
+.rb-modal-close {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: 0.5px solid var(--border); background: transparent;
+  color: var(--text3); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s; flex-shrink: 0;
+}
+.rb-modal-close:hover { color: var(--red); border-color: var(--red); }
+.rb-modal-body {
+  flex: 1; overflow: auto; padding: 0;
+}
+.rb-modal-body::-webkit-scrollbar { width: 4px; }
+.rb-modal-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Unified multi-analytics table */
+.rb-ma-unified {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.rb-ma-unified thead th {
+  position: sticky; top: 0; z-index: 2;
+  padding: 8px 12px; background: var(--bg2);
+  border-bottom: 0.5px solid var(--border);
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  white-space: nowrap; text-align: right;
+}
+.rb-ma-unified thead th:first-child { text-align: left; min-width: 200px; }
+.rb-ma-unified td {
+  padding: 7px 12px; border-bottom: 0.5px solid var(--border);
+  text-align: right; font-family: monospace; font-size: 12px; color: var(--text2);
+  vertical-align: middle;
+}
+.rb-ma-unified td:first-child {
+  text-align: left; font-family: inherit; font-size: 12px; color: var(--text);
+  max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rb-ma-unified tr:hover td { background: var(--bg2); }
+.rb-ma-geo-sep td {
+  padding: 6px 12px; background: var(--bg2);
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  border-top: 0.5px solid var(--border2);
+  text-align: left !important; font-family: inherit !important;
+}
+.rb-ma-legend {
+  display: flex; gap: 8px; padding: 12px 16px;
+  border-bottom: 0.5px solid var(--border); flex-wrap: wrap; align-items: center;
+}
+.rb-ma-leg-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; padding: 3px 9px; border-radius: 5px; border: 0.5px solid;
+}
+
+/* Offers table in modal */
+.rb-offers-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.rb-offers-table thead th {
+  position: sticky; top: 0;
+  padding: 9px 16px; background: var(--bg2);
+  border-bottom: 0.5px solid var(--border);
+  font-size: 12px; font-weight: 500; color: var(--text3);
+  text-align: left; white-space: nowrap;
+}
+.rb-offers-table thead th:last-child { text-align: right; }
+.rb-offers-table td {
+  padding: 10px 16px; border-bottom: 0.5px solid var(--border);
+  font-size: 13px; color: var(--text); vertical-align: middle;
+}
+.rb-offers-table td:last-child { text-align: right; }
+.rb-offers-table tr:hover td { background: var(--bg2); }
+
+
+/* ── GEO date picker in modal analytics ── */
+.rb-geo-datebar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-bottom: 0.5px solid var(--border);
+  background: var(--bg2); flex-wrap: wrap;
+}
+.rb-geo-datebar label { font-size: 12px; color: var(--text3); }
+.rb-geo-dateinp {
+  padding: 5px 10px; background: var(--bg);
+  border: 0.5px solid var(--border2); border-radius: 6px;
+  color: var(--text); font-size: 12px; font-family: inherit;
+  outline: none; cursor: pointer;
+}
+.rb-geo-dateinp:focus { border-color: var(--accent); }
+.rb-geo-apply {
+  padding: 5px 14px; border-radius: 6px;
+  border: 0.5px solid rgba(79,142,247,.4);
+  background: rgba(79,142,247,.12); color: var(--accent2);
+  font-size: 12px; font-family: inherit; cursor: pointer;
+  transition: all .12s;
+}
+.rb-geo-apply:hover { background: rgba(79,142,247,.22); }

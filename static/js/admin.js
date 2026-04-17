@@ -190,7 +190,7 @@ function _admApplyTheme(dark) {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов', rates: 'Ставки', stop: 'Стоп оффера' };
+const ADM_TITLES = { networks: 'Сети', requests: 'Заявки', users: 'Пользователи', tracking: 'Трекинг офферов', rates: 'Ставки', stop: 'Стоп оффера', rotations: 'Ротации', weekly: 'Weekly Uniques' };
 
 function admNav(name) {
   document.querySelectorAll('.adm-nav-item').forEach(n => n.classList.remove('active'));
@@ -203,8 +203,10 @@ function admNav(name) {
   if (name === 'requests') admLoadRequests();
   if (name === 'users')    admLoadUsers();
   if (name === 'tracking') { admLoadTracking(); admStartTrackingAutoRefresh(); admStartFdCountdown(); }
+  if (name === 'rotations') { admLoadRotationsPanel(); }
+  if (name === 'weekly') { admInitWeeklyPanel(); }
   if (name === 'rates') admLoadRates();
-  else admStopTrackingAutoRefresh();
+  else { admStopTrackingAutoRefresh(); if (_fdCountdownTimer) { clearInterval(_fdCountdownTimer); _fdCountdownTimer = null; } }
 }
 
 // ─── Networks (from Binom) ────────────────────────────────────────────────────
@@ -1062,7 +1064,6 @@ async function admResetTok(id) {
   if (j.ok) alert('Новый токен: ' + j.token);
 }
 
-// ─── Google Sheets Sync Panel ─────────────────────────────────────────────────
 
 
 // ─── Partner account helpers ──────────────────────────────────────────────────
@@ -1178,172 +1179,6 @@ async function admSubmitCreateNet() {
   admLoadNetworks();
 }
 
-(function injectSheetsSyncBtn() {
-  const btn = document.createElement("button");
-  btn.className = "btn sheets-sync-btn";
-  btn.textContent = "📊 Sheets Sync";
-  btn.addEventListener("click", () => openSheetsSyncPanel());
-  const filterRow = document.querySelector(".filter-row") || document.querySelector(".controls");
-  if (filterRow) filterRow.appendChild(btn);
-  else document.body.appendChild(btn);
-})();
-
-function openSheetsSyncPanel() {
-  document.getElementById("sheetsSyncPanel")?.remove();
-
-  const panel = document.createElement("div");
-  panel.id = "sheetsSyncPanel";
-  panel.style.cssText = `
-    position:fixed;top:0;right:0;width:420px;height:100vh;
-    background:#0d1b2e;border-left:1px solid #1e3a5f;
-    display:flex;flex-direction:column;z-index:3000;
-    font-family:inherit;font-size:14px;color:var(--text);
-  `;
-  panel.innerHTML = `
-    <div style="padding:16px 20px;border-bottom:1px solid #1e3a5f;display:flex;justify-content:space-between;align-items:center">
-      <b style="font-size:16px">📊 Google Sheets Sync</b>
-      <button onclick="document.getElementById('sheetsSyncPanel').remove()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
-    </div>
-    <div style="padding:20px;flex:1;overflow-y:auto">
-
-      <!-- Статус автосинка -->
-      <div id="ssSyncStatus" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px">
-        <div style="color:var(--text2);margin-bottom:8px">Авто-синк Filled Cap</div>
-        <div id="ssStatusText" style="color:var(--accent)">Загрузка...</div>
-      </div>
-
-      <!-- Управление авто-синком -->
-      <div style="margin-bottom:16px">
-        <div style="color:var(--text2);font-size:12px;margin-bottom:6px">Интервал (минуты)</div>
-        <input id="ssInterval" type="number" value="5" min="1" max="60"
-          style="width:80px;background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);margin-right:8px">
-        <button class="btn primary" onclick="ssToggle(true)" style="margin-right:6px">▶ Включить</button>
-        <button class="btn" onclick="ssToggle(false)">⏹ Выключить</button>
-      </div>
-
-      <!-- Ручной запуск -->
-      <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-bottom:16px">
-        <div style="color:var(--text2);font-size:12px;margin-bottom:8px">Ручной запуск</div>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button class="btn primary" onclick="ssRunNow(false)" style="flex:1">⟳ Синк сейчас</button>
-          <button class="btn" onclick="ssRunNow(true)" style="flex:1">👁 Dry run</button>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" onclick="ssFillIds(true)" style="flex:1">🔍 Fill IDs (preview)</button>
-          <button class="btn primary" onclick="ssFillIds(false)" style="flex:1">✏️ Fill IDs</button>
-        </div>
-      </div>
-
-      <!-- Лог последнего запуска -->
-      <div id="ssSyncLog" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;font-family:monospace;min-height:100px;white-space:pre-wrap;color:var(--text2)">
-        Нажми "Синк сейчас" или "Dry run"...
-      </div>
-
-
-    </div>
-  `;
-  document.body.appendChild(panel);
-  ssLoadStatus();
-}
-
-async function ssEnsureToken() {
-  if (ADM.token) return true;
-  try {
-    const r = await fetch(_getPrefix() + '/api/auth/session_token');
-    if (r.ok) {
-      const j = await r.json();
-      if (j.ok && j.token) {
-        ADM.token = j.token;
-        return true;
-      }
-    }
-  } catch(e) {}
-  return false;
-}
-
-async function ssLoadStatus() {
-  const ok = await ssEnsureToken();
-  if (!ok) {
-    const el = document.getElementById('ssStatusText');
-    if (el) { el.style.color = '#f87171'; el.textContent = '🔒 Нужно войти в панель'; }
-    return;
-  }
-  try {
-    const j = await admApi('POST', '/api/sheets/schedule', {});
-    const s = j.schedule || {};
-    const el = document.getElementById('ssStatusText');
-    if (!el) return;
-    if (s.enabled) {
-      el.style.color = '#3ecf8e';
-      el.textContent = `✅ Включён — каждые ${s.interval_minutes || 5} мин`;
-    } else {
-      el.style.color = '#f87171';
-      el.textContent = '⛔ Выключен';
-    }
-    if (s.interval_minutes) {
-      const inp = document.getElementById('ssInterval');
-      if (inp) inp.value = s.interval_minutes;
-    }
-  } catch(e) {}
-}
-
-async function ssToggle(enable) {
-  if (!await ssEnsureToken()) { ssLog('🔒 Нужно войти в панель'); return; }
-  const interval = parseInt(document.getElementById('ssInterval')?.value || 5);
-  const j = await admApi('POST', '/api/sheets/schedule', {
-    enabled: enable, interval_minutes: interval, sheet_name: 'all'
-  });
-  ssLog(enable ? `▶ Авто-синк включён (каждые ${interval} мин)` : '⏹ Авто-синк выключен');
-  ssLoadStatus();
-}
-
-async function ssRunNow(dryRun) {
-  if (!await ssEnsureToken()) { ssLog('🔒 Нужно войти в панель'); return; }
-  ssLog('⟳ Запуск...');
-  const j = await admApi('POST', '/api/sheets/sync_caps', {sheet_name: 'all', dry_run: dryRun});
-  if (j.sheets) {
-    let out = dryRun ? '👁 DRY RUN\n' : '✅ Готово\n';
-    for (const [sheet, res] of Object.entries(j.sheets)) {
-      const u = (res.updated || []).length;
-      const nf = (res.not_found || []).length;
-      out += `\n📋 ${sheet}: обновлено=${u} не найдено=${nf}`;
-      if (res.error) out += ` ❌ ${res.error}`;
-      for (const r of (res.updated || [])) {
-        out += `\n  • ${r.sheet_name}: ${r.base}+${r.fd_today}=${r.filled_cap}`;
-      }
-    }
-    ssLog(out);
-  } else {
-    ssLog(JSON.stringify(j, null, 2));
-  }
-}
-
-async function ssFillIds(dryRun) {
-  if (!await ssEnsureToken()) { ssLog('🔒 Нужно войти в панель'); return; }
-  ssLog('🔍 Ищу Binom ID...');
-  const j = await admApi('POST', '/api/sheets/fill_ids', {sheet_name: 'all', dry_run: dryRun});
-  if (j.sheets) {
-    let out = dryRun ? '👁 DRY RUN — IDs не записаны\n' : '✅ IDs записаны\n';
-    for (const [sheet, res] of Object.entries(j.sheets)) {
-      const f = (res.filled || []).length;
-      const nf = (res.not_found || []).length;
-      out += `\n📋 ${sheet}: найдено=${f} пропущено=${res.skipped||0} не найдено=${nf}`;
-    }
-    ssLog(out);
-  } else {
-    ssLog(JSON.stringify(j, null, 2));
-  }
-}
-
-// ─── Stop offer ───────────────────────────────────────────────────────────────
-
-let _stopOfferData = null;
-
-// ─── Rates ───────────────────────────────────────────────────────────────────
-
-const APPROACHES = ['Crash', 'Casino', 'Betting'];
-const CURRENCIES = ['USD', 'EUR', 'BRL', 'GBP', 'TRY', 'UAH', 'PLN'];
-let _rates = {}; // {Crash: {BR: [{rate:25, currency:'USD', note:''}]}}
 
 async function admLoadRates() {
   const el = document.getElementById('admRatesContent');
@@ -1581,6 +1416,7 @@ function _admUpdateFdBtn() {
 
 let _trackingSort   = { col: 'pct', dir: -1 }; // -1 = desc
 let _trackingFilter = 'active'; // active | stopped | no_perform | all
+let _trackingSearch = '';
 
 let _trackingRefreshTimer = null;
 let _trackingLastUpdated  = null;
@@ -1605,13 +1441,18 @@ function trkSetFilter(f, btn) {
   _trackingFilter = f;
   document.querySelectorAll('.trk-filter').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  admLoadTracking();
+  admRenderTracking();
+}
+
+function trkSetSearch(val) {
+  _trackingSearch = val.trim().toLowerCase();
+  admRenderTrackingCards();  // не перезапрашивает сервер, только перерисовывает
 }
 
 function trkToggleSort(col) {
   if (_trackingSort.col === col) _trackingSort.dir *= -1;
   else { _trackingSort.col = col; _trackingSort.dir = -1; }
-  admLoadTracking();
+  admRenderTracking();
 }
 
 function trkSortArrow(col) {
@@ -1636,6 +1477,9 @@ async function admRefreshTrackingFD() {
 
 async function admLoadTracking() {
   const el = document.getElementById('admTrackingTable');
+  el.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+
+
   if (!el) return;
 
   const [j, jfd] = await Promise.all([
@@ -1650,8 +1494,37 @@ async function admLoadTracking() {
   const fdMap  = Object.fromEntries(Object.entries(rawFd).map(([k,v]) => [String(k), v]));
 
   // Filter
-  const filtered = _trackingFilter === 'all' ? offers
+  // Сохраняем данные для быстрой перерисовки
+  window._trkData = { j, jfd, fdMap, offers };
+  admRenderTracking();
+}
+
+function admRenderTracking() {
+  admRenderTrackingCards();
+}
+function admRenderTrackingCards() {
+  if (!window._trkData) return;
+  const { j, jfd, fdMap, offers } = window._trkData;
+
+  const byStatus = _trackingFilter === 'all' ? offers
     : offers.filter(([,o]) => (o.status || 'active') === _trackingFilter);
+
+  // Умный поиск: по названию, GEO, партнёру, ID
+  const filtered = !_trackingSearch ? byStatus : byStatus.filter(([id, o]) => {
+    const q = _trackingSearch;
+    const name    = (o.name || '').toLowerCase();
+    const geo     = (o.geo  || '').toLowerCase();
+    const partner = (o.partner_name || '').toLowerCase();
+    const oid     = String(id).toLowerCase();
+    const groupIds = (o.group_ids || '').toLowerCase();
+
+    // Точное совпадение GEO (напр. "BR")
+    if (geo === q) return true;
+    // Совпадение ID
+    if (oid === q) return true;
+    // Частичное по имени, партнёру, GEO, group_ids
+    return name.includes(q) || geo.includes(q) || partner.includes(q) || groupIds.includes(q);
+  });
 
   // Sort
   const sorted = filtered.slice().sort(([ia, a], [ib, b]) => {
@@ -1691,10 +1564,24 @@ async function admLoadTracking() {
       <button class="trk-chip trk-chip--sort" onclick="trkToggleSort('pct')">
         FD ${trkSortArrow('pct')}
       </button>
+      <div class="trk-search-wrap">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="trk-search-inp" id="trkSearchInput" type="text"
+          placeholder="Поиск по названию, GEO, партнёру..."
+          value="${h(_trackingSearch)}"
+          oninput="trkSetSearch(this.value)"
+          onkeydown="if(event.key==='Escape'){trkSetSearch('');this.value=''}">
+        ${_trackingSearch ? `<button class="trk-search-clear" onclick="trkSetSearch('');document.getElementById('trkSearchInput').value=''">✕</button>` : ''}
+      </div>
     </div>`;
 
   if (!sorted.length) {
-    el.innerHTML = filterBar + '<div class="adm-empty">Нет офферов в этой категории</div>';
+    const listEl = document.getElementById('trkCardsList');
+    if (listEl) {
+      listEl.innerHTML = '<div class="adm-empty">Нет офферов в этой категории</div>';
+    } else {
+      el.innerHTML = filterBar + '<div id="trkCardsList"><div class="adm-empty">Нет офферов в этой категории</div></div>';
+    }
     return;
   }
 
@@ -1718,6 +1605,7 @@ async function admLoadTracking() {
             ${h(o.name || '—')}
             ${o.auto_stop_pct ? `<span class="trkc-tag trkc-tag-stop" title="Авто-стоп при ${o.auto_stop_pct} FD">⚡${o.auto_stop_pct} FD</span>` : ''}
           ${o.group_ids ? `<span class="trkc-tag trkc-tag-group" title="Группа: ${h(o.group_ids)}">⛓ группа</span>` : ''}
+          ${o.geo_cap ? `<span class="trkc-tag" style="background:rgba(99,102,241,.12);color:#818cf8;border:0.5px solid rgba(99,102,241,.3)" title="Кап на каждое GEO: ${o.geo_cap}">🌍 ${o.geo_cap}/GEO</span>` : ''}
             ${o.auto_stopped  ? `<span class="trkc-tag trkc-tag-autostopped">🛑 авто-стоп</span>` : ''}
           </div>
           <div class="trkc-actions">
@@ -1751,6 +1639,23 @@ async function admLoadTracking() {
               : `<span class="trkc-rate-empty">—</span>`}
           </div>
 
+          ${fdInfo.geo_breakdown && o.geo_cap ? `
+            <button class="trkc-geo-expand" onclick="admToggleGeoBreakdown(this)" title="GEO разбивка">
+              🌍 GEO <span class="trkc-geo-arrow">▸</span>
+            </button>
+            <div class="trkc-geo-breakdown" style="display:none">
+              ${Object.entries(fdInfo.geo_breakdown).sort((a,b) => b[1]-a[1]).map(([geo, gfd]) => {
+                const gpct = Math.min(100, Math.round(gfd / o.geo_cap * 100));
+                const gclr = gpct >= 90 ? '#ef4444' : gpct >= 70 ? '#f59e0b' : '#10b981';
+                return `<div class="trkc-geo-row">
+                  <span class="trkc-geo-code">${h(geo)}</span>
+                  <span style="color:${gclr};font-size:11px">${gfd}/${o.geo_cap}</span>
+                  <div class="trkc-bar" style="flex:1"><div class="trkc-bar-fill" style="width:${gpct}%;background:${gclr}"></div></div>
+                  <span style="font-size:10px;color:var(--text3)">${gpct}%</span>
+                </div>`;
+              }).join('')}
+            </div>
+          ` : ''}
           <div class="trkc-cap">
             <div class="trkc-cap-nums">
               ${fd != null ? `<b style="color:${capColor}">${fd}</b>` : ''}
@@ -1811,8 +1716,28 @@ async function admLoadTracking() {
     </div>`;
   }).join('');
 
-  el.innerHTML = filterBar + '<div class="trkc-list">' + cards + '</div>';
+  const el2 = document.getElementById('admTrackingTable');
+  if (!el2) return;
+  // Если поле поиска в фокусе — только обновляем карточки, не трогаем filterBar
+  const searchFocused = document.activeElement?.id === 'trkSearchInput';
+  const searchVal     = document.activeElement?.id === 'trkSearchInput' ? document.activeElement.value : null;
+  const searchPos     = document.activeElement?.id === 'trkSearchInput' ? document.activeElement.selectionStart : null;
+
+  const listEl2 = document.getElementById('trkCardsList');
+  if (listEl2 && searchFocused) {
+    // Только обновляем карточки, не трогаем filterBar/input
+    listEl2.innerHTML = '<div class="trkc-list">' + cards + '</div>';
+  } else {
+    el2.innerHTML = filterBar + '<div id="trkCardsList"><div class="trkc-list">' + cards + '</div></div>';
+    // Восстанавливаем фокус если был
+    if (searchFocused) {
+      const inp = document.getElementById('trkSearchInput');
+      if (inp) { inp.focus(); inp.setSelectionRange(searchPos, searchPos); }
+    }
+  }
 }
+
+
 
 
 
@@ -1917,6 +1842,9 @@ async function admEditTrackingName(id) {
         <div class="adm-field"><label>Группа ID <span style="font-size:.8em;color:var(--text3)">(через :)</span></label>
           <input class="adm-inp" id="trkEditGroupIds" type="text" placeholder="1040:1071" value="${h(o.group_ids||'')}">
         </div>
+        <div class="adm-field"><label>Кап на GEO <span style="font-size:.8em;color:var(--text3)">(CAP/geo)</span></label>
+          <input class="adm-inp" id="trkEditGeoCap" type="number" min="1" placeholder="20" value="${h(String(o.geo_cap||''))}">
+        </div>
         <div class="adm-field"><label>Binom ID</label>
           <input class="adm-inp" id="trkEditId" type="text" value="${h(id)}" readonly style="opacity:.5">
         </div>
@@ -1953,6 +1881,7 @@ async function admSaveTrackingEdit(id) {
     auto_stop_pct: autoStop ? parseInt(autoStop) : null,
     auto_stopped:  autoStop ? null : undefined,
     group_ids:     document.getElementById('trkEditGroupIds')?.value.trim() || null,
+    geo_cap:       (() => { const v = document.getElementById('trkEditGeoCap')?.value.trim(); return v ? parseInt(v) : null; })(),
   });
 
   if (!upd.ok) { errEl.textContent = upd.error || 'Ошибка'; return; }
@@ -2055,6 +1984,7 @@ async function admSubmitTrackingManual() {
   if (!rate) { errEl.textContent = 'Укажите ставку'; return; }
 
   const groupIds = document.getElementById('trkGroupIds')?.value.trim();
+  const geoCap   = document.getElementById('trkGeoCap')?.value.trim();
 
   const j = await admApi('POST', '/api/tracking/manual', {
     offer_id:     offerId,
@@ -2067,6 +1997,7 @@ async function admSubmitTrackingManual() {
     rate:         parseFloat(rate),
     currency,
     group_ids:    groupIds || undefined,
+    geo_cap:      geoCap ? parseInt(geoCap) : undefined,
   });
 
   if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
@@ -2090,10 +2021,6 @@ async function admDeleteTracking(offerId) {
   if (j.ok) admLoadTracking();
 }
 
-function ssLog(text) {
-  const el = document.getElementById('ssSyncLog');
-  if (el) el.textContent = text;
-}
 
 let _stopReason = 'no_perform';
 
@@ -2101,6 +2028,16 @@ function admSelectStopReason(btn) {
   document.querySelectorAll('#stopReasonGroup .trk-chip').forEach(b => b.classList.remove('trk-chip--active'));
   btn.classList.add('trk-chip--active');
   _stopReason = btn.dataset.val;
+}
+
+function admToggleGeoBreakdown(btn) {
+  const card   = btn.closest('.trkc-card') || btn.parentElement;
+  const panel  = btn.nextElementSibling;
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  const arrow = btn.querySelector('.trkc-geo-arrow');
+  if (arrow) arrow.textContent = open ? '▸' : '▾';
 }
 
 function admStopSearchOffer(val) { /* поиск по мере ввода — опционально */ }
@@ -2167,5 +2104,663 @@ async function admStopOffer() {
       ` : ''}
       ${j.not_found ? `<div style="font-size:12px;color:var(--red);margin-top:8px">⚠ Не найден ни в одной ротации</div>` : ''}
       ${j.tg_sent ? `<div style="font-size:12px;color:var(--accent-txt);margin-top:8px">📨 Пуш отправлен</div>` : ''}
+    </div>`;
+}
+
+// ── Rotations Panel ───────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ── Weekly Uniques Panel (in admin) ──────────────────────────────────────────
+
+function admInitWeeklyPanel() {
+  const fromEl = document.getElementById('admWDateFrom');
+  const toEl   = document.getElementById('admWDateTo');
+  if (!fromEl || fromEl.value) return;  // Already initialized
+  const { from, to } = (() => {
+    const today = new Date();
+    const dow = today.getDay();
+    const daysSinceTue = (dow + 7 - 2) % 7;
+    const tue = new Date(today);
+    tue.setDate(today.getDate() - (daysSinceTue === 0 ? 7 : daysSinceTue));
+    const wed = new Date(tue); wed.setDate(tue.getDate() - 6);
+    return { from: wed.toISOString().slice(0,10), to: tue.toISOString().slice(0,10) };
+  })();
+  fromEl.value = from;
+  toEl.value   = to;
+}
+
+async function admRunWeekly() {
+  const dateFrom = document.getElementById('admWDateFrom')?.value;
+  const dateTo   = document.getElementById('admWDateTo')?.value;
+  const minUniq  = parseInt(document.getElementById('admWMinUniq')?.value) || 100;
+  const exclude1x = document.getElementById('admWExclude1x')?.checked ? 'true' : 'false';
+  const result   = document.getElementById('admWeeklyResult');
+  if (!result) return;
+
+  if (!dateFrom || !dateTo) { result.innerHTML = '<div class="adm-empty">Укажите даты</div>'; return; }
+
+  result.innerHTML = '<div class="adm-empty"><div class="spinner"></div> Загрузка данных Binom…</div>';
+
+  const j = await admApi('GET', `/api/report/weekly_uniques?date_from=${dateFrom}&date_to=${dateTo}&min_uniq=1&exclude_1x=${exclude1x}`);
+  if (!j.ok) { result.innerHTML = `<div class="adm-empty">Ошибка: ${h(j.error||'')}</div>`; return; }
+
+  // Merge rotations using same logic as app.js
+  const mergeGroups = [
+    { label: 'Casino',  rotations: ['casino', 'fortune tiger'] },
+    { label: 'Betting', rotations: ['betting', 'betano'] },
+    { label: 'Crash',   rotations: ['crash', 'plinko'] },
+  ];
+  const findGroup = name => {
+    const lower = name.toLowerCase();
+    for (const g of mergeGroups) { if (g.rotations.some(k => lower.includes(k))) return g.label; }
+    return null;
+  };
+
+  // Только Crash, Betting, Casino — остальные игнорируем
+  const ALLOWED = ['Casino', 'Betting', 'Crash'];
+
+  const mergedMap = {};
+  for (const rot of (j.rotations||[])) {
+    const gl = findGroup(rot.rotationName);
+    if (gl && ALLOWED.includes(gl)) {
+      if (!mergedMap[gl]) mergedMap[gl] = { name: gl, countries: new Map() };
+      for (const c of rot.countries) mergedMap[gl].countries.set(c.country, (mergedMap[gl].countries.get(c.country)||0) + c.uniq);
+    }
+  }
+  const all = ALLOWED
+    .filter(label => mergedMap[label])
+    .map(label => ({
+      name: mergedMap[label].name,
+      countries: Array.from(mergedMap[label].countries.entries())
+        .map(([country,uniq]) => ({country,uniq}))
+        .filter(c => c.uniq >= minUniq)
+        .sort((a,b) => b.uniq - a.uniq),
+    }))
+    .filter(r => r.countries.length > 0);
+
+  if (!all.length) { result.innerHTML = '<div class="adm-empty">Нет данных с такими параметрами</div>'; return; }
+
+  const globalMax = Math.max(...all.flatMap(r => r.countries.map(c => c.uniq)));
+
+  const geoFlag = code => {
+    if (!code || code.length !== 2) return '';
+    const a = code.toUpperCase().charCodeAt(0)-65, b = code.toUpperCase().charCodeAt(1)-65;
+    if (a<0||a>25||b<0||b>25) return '';
+    return String.fromCodePoint(0x1F1E6+a) + String.fromCodePoint(0x1F1E6+b);
+  };
+  const geoCodeFn = s => { const m = (s||'').match(/([A-Z]{2})\s*$/); return m?m[1]:(s?.length===2?s.toUpperCase():''); };
+  const geoNameFn = s => (s||'').replace(/\s+[A-Z]{2}\s*$/,'').trim() || s;
+
+  result.innerHTML = `
+    <div style="font-size:.78rem;color:var(--text3);margin-bottom:12px">
+      📅 <b style="color:var(--text2)">${dateFrom} — ${dateTo}</b>
+      · Порог: ≥${minUniq} · Ротаций: ${all.length}
+      ${j.excluded_count > 0 ? `· 🚫 1x: ${j.excluded_count} исключено` : ''}
+    </div>
+    <div class="weekly-cards">
+      ${all.map((rot, ri) => {
+        const topUniq = rot.countries[0]?.uniq || 1;
+        return `<div class="wcard">
+          <div class="wcard-header">
+            <div class="wcard-header-left">
+              <div class="wcard-title">${h(rot.name)}</div>
+              <div class="wcard-badge">${rot.countries.length} GEO</div>
+            </div>
+            <button class="wcopy-btn" data-rot-name="${h(rot.name)}" onclick="admWeeklyCopy(this,${ri})" title="Копировать">⎘ Копировать</button>
+          </div>
+          <div class="wcard-rows">
+            ${rot.countries.map((c, i) => {
+              const code = geoCodeFn(c.country);
+              const pct  = (c.uniq / topUniq * 100).toFixed(1);
+              return `<div class="wrow ${i===0?'wrow-top':''}">
+                <div class="wrow-rank">${i+1}</div>
+                <div class="wrow-country">
+                  <span class="wrow-flag">${geoFlag(code)}</span>
+                  <span class="wrow-geo-name">${h(geoNameFn(c.country))}</span>
+                  <span class="wrow-geo-code">${h(code)}</span>
+                </div>
+                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${pct}%"></div></div>
+                <div class="wrow-uniq">${c.uniq.toLocaleString()}</div>
+                <div class="wrow-tag active" title="Нажми чтобы убрать">Нужен оффер</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Store for copy
+  window._admWeeklyData = all;
+}
+
+function admWeeklyCopy(btn, idx) {
+  const rot = (window._admWeeklyData||[])[idx];
+  if (!rot) return;
+  const geoCodeFn = s => { const m=(s||'').match(/([A-Z]{2})\s*$/); return m?m[1]:(s?.length===2?s.toUpperCase():''); };
+  const geoNameFn = s => (s||'').replace(/\s+[A-Z]{2}\s*$/,'').trim()||s;
+  const roundUniq = n => n>=2000?Math.floor(n/500)*500:n>=1000?Math.floor(n/250)*250:n>=500?Math.floor(n/100)*100:Math.floor(n/50)*50;
+  const lines = [`${rot.name}:`];
+  rot.countries.forEach(c => {
+    const code = geoCodeFn(c.country);
+    const name = geoNameFn(c.country);
+    const r    = roundUniq(c.uniq);
+    lines.push(`${code} ${name} - более ${r.toLocaleString('ru-RU')} уников в неделю`);
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    btn.textContent = '✓ Скопировано';
+    btn.classList.add('wcopy-done');
+    setTimeout(() => { btn.textContent = '⎘ Копировать'; btn.classList.remove('wcopy-done'); }, 2000);
+  });
+}
+
+// ══ Rotations Panel B ════════════════════════════════════════════════════════
+
+let _admRot = {
+  selected: new Set(),
+  currentRotId: null,
+  currentGeo: null,
+  currentTab: 'offers',
+  rotItems: [],         // [{id,name,status}]
+  geoItems: [],         // [{geo, items}]
+};
+
+const ROT_COLORS = ['#4f8ef7','#a78bfa','#22d47a','#fbbf24','#f87171','#34d4c8'];
+
+function admRotSetStatus(btn) {
+  document.querySelectorAll('.rb-stab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  admLoadRotationsPanel();
+}
+
+function admRotClearSelection() {
+  _admRot.selected.clear();
+  document.querySelectorAll('.rb-rot-cb').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.rb-rot-card')?.classList.remove('selected');
+  });
+  _admRotUpdateMultiBar();
+}
+
+function _admRotUpdateMultiBar() {
+  const bar = document.getElementById('admRotMultiBar');
+  const btn = document.getElementById('admRotMultiAnalyticsBtn');
+  const n   = _admRot.selected.size;
+  if (bar) bar.style.display = n >= 2 ? 'flex' : 'none';
+  if (btn) btn.textContent   = `Мульти-аналитика (${n})`;
+}
+
+async function admLoadRotationsPanel() {
+  const list = document.getElementById('admRotList');
+  const meta = document.getElementById('admRotMeta');
+  if (!list) return;
+  list.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+
+  const q      = document.getElementById('admRotQ')?.value.trim() || '';
+  const status = document.querySelector('.rb-stab.active')?.dataset.val || '';
+  const params = new URLSearchParams();
+  if (q)      params.set('q', q);
+  if (status) params.set('status', status);
+  params.set('per_page', '200');
+
+  const j = await admApi('GET', '/api/rotations?' + params);
+  if (!j.ok) { list.innerHTML = '<div class="adm-empty">Ошибка</div>'; return; }
+
+  const raw   = j.data ?? j;
+  const items = Array.isArray(raw) ? raw
+    : Array.isArray(raw.data)   ? raw.data
+    : Array.isArray(raw.items)  ? raw.items
+    : Array.isArray(raw.result) ? raw.result : [];
+
+  _admRot.rotItems = items;
+  _admRot.selected.clear();
+  _admRotUpdateMultiBar();
+  if (meta) meta.textContent = items.length;
+
+  if (!items.length) { list.innerHTML = '<div class="rb-empty-hint">Пусто</div>'; return; }
+
+  const indCls = s => {
+    const sl = (s||'').toLowerCase();
+    if (sl.includes('active'))  return '#10b981';
+    if (sl.includes('pause'))   return '#f59e0b';
+    if (sl.includes('delete') || sl.includes('stop')) return '#ef4444';
+    return 'var(--text3)';
+  };
+
+  list.innerHTML = items.map(it => {
+    const id   = String(it.id ?? it.rotation_id ?? '');
+    const name = it.name ?? it.title ?? `#${id}`;
+    const st   = it.status ?? it.state ?? '';
+    return `<div class="rb-rot-card" data-id="${h(id)}"
+      onclick="admRotSelectRot(event,'${h(id)}','${h(name.replace(/'/g,'\\\''))}')">
+      <div class="rb-rot-indicator" style="background:${indCls(st)}"></div>
+      <div class="rb-rot-info">
+        <div class="rb-rot-name" title="${h(name)}">${h(name)}</div>
+        <div class="rb-rot-id">#${h(id)}</div>
+      </div>
+      <input type="checkbox" class="rb-rot-cb" data-id="${h(id)}"
+        onclick="event.stopPropagation()" onchange="admRotToggleCb(this)">
+    </div>`;
+  }).join('');
+}
+
+async function admRotSelectRot(e, id, name) {
+  document.querySelectorAll('.rb-rot-card').forEach(c => c.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  _admRot.currentRotId = id;
+  _admRot.currentGeo   = null;
+
+  const geoTitle = document.getElementById('admRotGeoTitle');
+  const geoCount = document.getElementById('admRotGeoCount');
+  const geoList  = document.getElementById('admRotGeoList');
+  if (geoTitle) geoTitle.textContent = h(name);
+  if (geoCount) geoCount.textContent = '…';
+  if (geoList)  geoList.innerHTML    = '<div class="adm-empty"><div class="spinner"></div></div>';
+
+  const j = await admApi('GET', `/api/rotation/${id}/active_offers_grouped`);
+  if (!j.ok) { if (geoList) geoList.innerHTML = '<div class="rb-empty-hint">Ошибка</div>'; return; }
+
+  _admRot.geoItems = j.groups || [];
+  if (geoCount) geoCount.textContent = _admRot.geoItems.length;
+
+  if (!_admRot.geoItems.length) {
+    if (geoList) geoList.innerHTML = '<div class="rb-empty-hint">Нет активных офферов</div>';
+    return;
+  }
+
+  geoList.innerHTML = _admRot.geoItems.map(g => {
+    const cnt = g.items?.length || 0;
+    const tw  = (g.totalWeight||0).toFixed(0);
+    return `<div class="rb-geo-item" onclick="admRotOpenGeoModal('${h(g.geoTitle||'')}')">
+      <span class="rb-geo-name">${h(g.geoTitle||'—')}</span>
+      <span class="rb-geo-cnt">${cnt} офф · ∑${tw}</span>
+    </div>`;
+  }).join('');
+}
+
+function admRotOpenGeoModal(geo) {
+  document.querySelectorAll('.rb-geo-item').forEach(g => g.classList.remove('active'));
+  document.querySelector(`.rb-geo-item[onclick*="'${geo}'"]`)?.classList.add('active');
+  _admRot.currentGeo = geo;
+  _admRot.currentTab = 'offers';
+
+  // Default dates: last 7 days (excluding today)
+  const today = new Date();
+  const toD   = new Date(today); toD.setDate(today.getDate() - 1);
+  const fromD = new Date(toD);   fromD.setDate(toD.getDate() - 6);
+  const fmt   = d => d.toISOString().slice(0,10);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'rbModal';
+  overlay.className = 'rb-modal-overlay';
+  overlay.innerHTML = `
+    <div class="rb-modal">
+      <div class="rb-modal-head">
+        <div class="rb-modal-title">${h(geo)}</div>
+        <div class="rb-modal-tabs">
+          <button class="rb-modal-tab active" onclick="admRotModalTab(this,'offers')">Офферы</button>
+          <button class="rb-modal-tab" onclick="admRotModalTab(this,'analytics')">Аналитика</button>
+        </div>
+        <button class="rb-modal-close" onclick="document.getElementById('rbModal').remove()">✕</button>
+      </div>
+      <div id="rbModalDateBar" style="display:none" class="rb-geo-datebar">
+        <label>С</label>
+        <input type="date" id="rbDateFrom" class="rb-geo-dateinp" value="${fmt(fromD)}">
+        <label>По</label>
+        <input type="date" id="rbDateTo" class="rb-geo-dateinp" value="${fmt(toD)}">
+        <button class="rb-geo-apply" onclick="admRotLoadModalAnalytics('${h(geo)}')">Показать</button>
+        <span id="rbPresetBar" style="display:flex;gap:4px;margin-left:4px">
+          ${[['today','Сегодня'],['yesterday','Вчера'],['7','7д'],['14','14д'],['30','30д']].map(([v,l]) =>
+            `<button class="rb-geo-apply" style="padding:5px 10px;font-size:11px" onclick="admRotSetPreset('${v}','${h(geo)}')">${l}</button>`
+          ).join('')}
+        </span>
+      </div>
+      <div class="rb-modal-body" id="rbModalBody">
+        <div class="adm-empty"><div class="spinner"></div></div>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  (document.getElementById('adminOverlay') || document.body).appendChild(overlay);
+
+  admRotLoadModalOffers(geo);
+}
+
+function admRotSetPreset(preset, geo) {
+  const today = new Date();
+  const toD   = new Date(today); toD.setDate(today.getDate() - 1);
+  const fmt   = d => d.toISOString().slice(0,10);
+  let fromD;
+  if (preset === 'today')     { fromD = new Date(today); }
+  else if (preset === 'yesterday') { fromD = new Date(toD); }
+  else { fromD = new Date(toD); fromD.setDate(toD.getDate() - (parseInt(preset)-1)); }
+
+  const fi = document.getElementById('rbDateFrom');
+  const ti = document.getElementById('rbDateTo');
+  if (fi) fi.value = fmt(fromD);
+  if (ti) ti.value = preset === 'today' ? fmt(today) : fmt(toD);
+  admRotLoadModalAnalytics(geo);
+}
+
+function admRotModalTab(btn, tab) {
+  document.querySelectorAll('.rb-modal-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _admRot.currentTab = tab;
+  const datebar = document.getElementById('rbModalDateBar');
+  if (datebar) datebar.style.display = tab === 'analytics' ? 'flex' : 'none';
+  if (tab === 'offers')    admRotLoadModalOffers(_admRot.currentGeo);
+  if (tab === 'analytics') admRotLoadModalAnalytics(_admRot.currentGeo);
+}
+
+function admRotLoadModalOffers(geo) {
+  const body = document.getElementById('rbModalBody');
+  if (!body) return;
+  const g = _admRot.geoItems.find(g => g.geoTitle === geo);
+  if (!g?.items?.length) { body.innerHTML = '<div class="rb-empty-hint" style="padding:24px">Нет офферов</div>'; return; }
+
+  body.innerHTML = `<table class="rb-offers-table">
+    <thead><tr>
+      <th>Оффер</th>
+      <th>Path</th>
+      <th style="text-align:right">Вес</th>
+    </tr></thead>
+    <tbody>
+      ${g.items.map((it, i) => {
+        const wid = `rmo_${i}`;
+        return `<tr>
+          <td title="${h(it.offerName||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(it.offerName||'—')}</td>
+          <td style="font-size:11px;color:var(--text3)">${h(it.pathName||'—')}</td>
+          <td>
+            <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
+              <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
+              <button class="rb-w-btn" style="opacity:1" onclick="admRotEditWeight('${wid}','${h(String(it.offerId))}','${h(_admRot.currentRotId)}')" title="Изменить вес">✎</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+async function admRotLoadModalAnalytics(geo) {
+  const body = document.getElementById('rbModalBody');
+  if (!body) return;
+  body.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+
+  const dateFrom = document.getElementById('rbDateFrom')?.value;
+  const dateTo   = document.getElementById('rbDateTo')?.value;
+  const geoQuery = (dateFrom && dateTo)
+    ? `date_from=${dateFrom}&date_to=${dateTo}`
+    : `preset=last_7_days`;
+  const j = await admApi('GET', `/api/rotation/${_admRot.currentRotId}/analytics_geo?geo=${encodeURIComponent(geo)}&${geoQuery}`);
+  if (!j.ok || !j.items?.length) { body.innerHTML = '<div class="rb-empty-hint" style="padding:24px">Нет данных</div>'; return; }
+
+  const items = j.items;
+  body.innerHTML = `<table class="rb-offers-table">
+    <thead><tr>
+      <th>Оффер</th>
+      <th style="text-align:right">Uniq</th>
+      <th style="text-align:right">CR%</th>
+      <th style="text-align:right">DPU</th>
+      <th style="text-align:right">Вес</th>
+    </tr></thead>
+    <tbody>
+      ${items.map((it, i) => {
+        const dpuClr = (it.dpu||0)>0.3?'#10b981':(it.dpu||0)>0.1?'#f59e0b':'var(--text3)';
+        const wid = `rma_${i}`;
+        return `<tr>
+          <td title="${h(it.offerName||'')}" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px">${h(it.offerName||'—')}</td>
+          <td style="text-align:right;font-family:monospace;font-size:13px">${(it.uniq||0).toLocaleString()}</td>
+          <td style="text-align:right;font-family:monospace;font-size:13px">${it.cr!=null?it.cr+'%':'—'}</td>
+          <td style="text-align:right;font-family:monospace;font-size:13px;color:${dpuClr}">${it.dpu?'$'+it.dpu.toFixed(2):'—'}</td>
+          <td>
+            <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
+              <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
+              <button class="rb-w-btn" style="opacity:1" onclick="admRotEditWeight('${wid}','${h(String(it.offerId))}','${h(_admRot.currentRotId)}')" title="Изменить вес">✎</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function admRotDetailTab(btn, tab) {}  // kept for compat
+
+function admRotSetMaPreset(preset) {
+  const today = new Date();
+  const toD   = new Date(today); toD.setDate(today.getDate()-1);
+  const fmt   = d => d.toISOString().slice(0,10);
+  let fromD;
+  if (preset === 'today')      { fromD = new Date(today); document.getElementById('rbMaDateTo').value = fmt(today); }
+  else if (preset === 'yesterday') { fromD = new Date(toD); document.getElementById('rbMaDateTo').value = fmt(toD); }
+  else { fromD = new Date(toD); fromD.setDate(toD.getDate()-(parseInt(preset)-1)); }
+  document.getElementById('rbMaDateFrom').value = fmt(fromD);
+  admRotRunMultiAnalytics();
+}
+
+async function admRotRunMultiAnalytics() {
+  const body = document.getElementById('rbModalBody');
+  if (!body) return;
+  body.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+  await admRotMultiAnalytics();
+}
+
+function admRotToggleCb(cb) {
+  const id   = cb.dataset.id;
+  const card = cb.closest('.rb-rot-card');
+  if (cb.checked) { _admRot.selected.add(id); card?.classList.add('selected'); }
+  else            { _admRot.selected.delete(id); card?.classList.remove('selected'); }
+  _admRotUpdateMultiBar();
+}
+
+function admRotEditWeight(wid, offerId, rotId) {
+  const cell = document.getElementById(wid+'-cell');
+  const cur  = document.getElementById(wid+'-val')?.textContent || '0';
+  cell.innerHTML = `
+    <input class="rb-w-inp" id="${wid}-inp" type="number" min="0" max="9999" step="1" value="${cur}">
+    <button class="rb-w-btn" style="opacity:1;background:var(--accent-bg);border-color:var(--accent);color:var(--accent-txt)"
+      onclick="admRotSaveWeight('${wid}','${offerId}','${rotId}')">✓</button>
+    <button class="rb-w-btn" style="opacity:1"
+      onclick="admRotCancelWeight('${wid}','${cur}')">✕</button>`;
+  const inp = document.getElementById(wid+'-inp');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  admRotSaveWeight(wid, offerId, rotId);
+    if (e.key === 'Escape') admRotCancelWeight(wid, cur);
+  });
+}
+
+async function admRotSaveWeight(wid, offerId, rotId) {
+  const val = parseInt(document.getElementById(wid+'-inp')?.value);
+  if (isNaN(val) || val < 0) { admRotCancelWeight(wid, document.getElementById(wid+'-val')?.textContent||0); return; }
+
+  const j = await admApi('PATCH', `/api/rotation/${rotId}/offer_weight`, { offer_id: offerId, weight: val });
+  const cell = document.getElementById(wid+'-cell');
+  if (j?.ok) {
+    cell.innerHTML = `<span class="rb-w-val" id="${wid}-val" style="color:var(--accent-txt)">${val}</span>
+      <button class="rb-w-btn" onclick="admRotEditWeight('${wid}','${offerId}','${rotId}')">✎</button>`;
+    setTimeout(() => { const v = document.getElementById(wid+'-val'); if (v) v.style.color=''; }, 2000);
+  } else {
+    admRotCancelWeight(wid, val);
+  }
+}
+
+function admRotCancelWeight(wid, orig) {
+  const cell = document.getElementById(wid+'-cell');
+  // Get offerId and rotId from sibling button if possible
+  cell.innerHTML = `<span class="rb-w-val" id="${wid}-val">${orig}</span>
+    <button class="rb-w-btn" onclick="admRotEditWeight('${wid}','','')">✎</button>`;
+}
+
+async function admRotMultiAnalytics() {
+  const ids = [..._admRot.selected];
+  if (ids.length < 2) return;
+
+  // Open modal
+  document.getElementById('rbModal')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'rbModal';
+  overlay.className = 'rb-modal-overlay';
+  // Default dates
+  const _today = new Date();
+  const _toD   = new Date(_today); _toD.setDate(_today.getDate()-1);
+  const _fromD = new Date(_toD);   _fromD.setDate(_toD.getDate()-6);
+  const _fmt   = d => d.toISOString().slice(0,10);
+
+  overlay.innerHTML = `
+    <div class="rb-modal" style="width:min(1200px,96vw)">
+      <div class="rb-modal-head">
+        <div class="rb-modal-title">Мульти-аналитика</div>
+        <button class="rb-modal-close" onclick="document.getElementById('rbModal').remove()">✕</button>
+      </div>
+      <div class="rb-geo-datebar">
+        <label>С</label>
+        <input type="date" id="rbMaDateFrom" class="rb-geo-dateinp" value="${_fmt(_fromD)}">
+        <label>По</label>
+        <input type="date" id="rbMaDateTo" class="rb-geo-dateinp" value="${_fmt(_toD)}">
+        <button class="rb-geo-apply" onclick="admRotRunMultiAnalytics()">Показать</button>
+        <span style="display:flex;gap:4px;margin-left:4px">
+          ${[['7','7д'],['14','14д'],['30','30д'],['yesterday','Вчера'],['today','Сегодня']].map(([v,l]) =>
+            `<button class="rb-geo-apply" style="padding:5px 10px;font-size:11px"
+              onclick="admRotSetMaPreset('${v}')">${l}</button>`
+          ).join('')}
+        </span>
+      </div>
+      <div class="rb-modal-body" id="rbModalBody">
+        <div class="adm-empty"><div class="spinner"></div></div>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  (document.getElementById('adminOverlay') || document.body).appendChild(overlay);
+
+  const detail = document.getElementById('rbModalBody');
+
+  const _maDateFrom = document.getElementById('rbMaDateFrom')?.value;
+  const _maDateTo   = document.getElementById('rbMaDateTo')?.value;
+  const _maQuery = (_maDateFrom && _maDateTo)
+    ? `date_from=${_maDateFrom}&date_to=${_maDateTo}`
+    : `preset=last_7_days`;
+
+  const results = await Promise.all(ids.map(async (id, i) => {
+    const j = await admApi('GET', `/api/rotation/${id}/analytics?${_maQuery}`);
+    const card = document.querySelector(`.rb-rot-card[data-id="${id}"]`);
+    const name = card?.querySelector('.rb-rot-name')?.textContent?.trim() || `#${id}`;
+    return { id, name, color: ROT_COLORS[i % ROT_COLORS.length], groups: j.groups || [] };
+  }));
+
+  // geo → offerId → {name, byRot: {rotId: item}}
+  const geoMap = new Map();
+  for (const rot of results) {
+    for (const g of rot.groups) {
+      if (!geoMap.has(g.geo)) geoMap.set(g.geo, new Map());
+      for (const item of g.items) {
+        const om = geoMap.get(g.geo);
+        if (!om.has(item.offerId)) om.set(item.offerId, { name: item.offerName, byRot: {} });
+        om.get(item.offerId).byRot[rot.id] = item;
+      }
+    }
+  }
+
+  // Sort GEO by total uniq
+  const sortedGeos = [...geoMap.entries()].sort((a, b) => {
+    const sum = m => [...m.values()].reduce((s,o) => s + Object.values(o.byRot).reduce((x,it)=>x+(it.uniq||0),0), 0);
+    return sum(b[1]) - sum(a[1]);
+  });
+
+  const legend = results.map(r =>
+    `<span class="rb-ma-leg" style="border-color:${r.color}55;color:${r.color};background:${r.color}11">
+      <span class="rb-ma-dot" style="background:${r.color}"></span>${h(r.name)}
+    </span>`
+  ).join('');
+
+  const totalGeos = sortedGeos.length;
+  const totalOffers = sortedGeos.reduce((s,[,m]) => s+m.size, 0);
+
+  // Single unified table with GEO separator rows
+  const colHeaders = results.map(r =>
+    `<th class="rb-ma-th-num" style="border-left:2px solid ${r.color}">Uniq</th>
+     <th class="rb-ma-th-num">DPU</th>
+     <th class="rb-ma-th-num">Вес</th>`
+  ).join('');
+
+  const tableRows = sortedGeos.map(([geo, offerMap]) => {
+    const rotMeta = results.map(r => {
+      const cnt = [...offerMap.values()].filter(o => o.byRot[r.id]).length;
+      return cnt ? `<span style="color:${r.color}">${r.name.split(' ')[0]}: ${cnt}</span>` : '';
+    }).filter(Boolean).join(' · ');
+
+    const geoRow = `<tr class="rb-ma-geo-row">
+      <td colspan="${1 + results.length * 3}" style="padding:7px 14px;background:var(--bg2);font-size:11px;font-weight:500;color:var(--text2);border-top:0.5px solid var(--border2);border-bottom:0.5px solid var(--border)">
+        ${h(geo)} &nbsp;<span style="font-weight:400;color:var(--text3);font-size:10px">${rotMeta}</span>
+      </td>
+    </tr>`;
+
+    const offerRows = [...offerMap.entries()].map(([oid, o]) => {
+      const cells = results.map((r, ri) => {
+        const it  = o.byRot[r.id];
+        const wid = `ma_${String(oid).replace(/[^a-z0-9]/gi,'_')}_${ri}`;
+        if (!it) return `
+          <td style="border-left:2px solid ${r.color};text-align:right;color:var(--text3)">—</td>
+          <td style="text-align:right;color:var(--text3)">—</td>
+          <td style="text-align:right;color:var(--text3)">—</td>`;
+        const dpuClr = (it.dpu||0)>0.3?'#10b981':(it.dpu||0)>0.1?'#f59e0b':'var(--text3)';
+        return `
+          <td style="border-left:2px solid ${r.color};text-align:right;font-family:monospace;font-size:12px">${(it.uniq||0).toLocaleString()}</td>
+          <td style="text-align:right;font-family:monospace;font-size:12px;color:${dpuClr}">${it.dpu?'$'+it.dpu.toFixed(2):'—'}</td>
+          <td style="text-align:right">
+            <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
+              <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
+              <button class="rb-w-btn" onclick="admRotEditWeight('${wid}','${h(String(oid))}','${h(String(r.id))}')" title="Изменить вес">✎</button>
+            </div>
+          </td>`;
+      }).join('');
+
+      return `<tr class="rb-ma-offer-row">
+        <td style="padding:7px 14px;font-size:12px;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${h(o.name)}">${h(o.name)}</td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    return geoRow + offerRows;
+  }).join('');
+
+  if (detail) detail.innerHTML = `
+    <div class="rb-ma-legend">
+      ${legend}
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${totalGeos} GEO · ${totalOffers} офф</span>
+    </div>
+    <div style="overflow:auto">
+      <table class="rb-ma-unified">
+        <thead>
+          <tr>
+            <th style="text-align:left;min-width:200px">Оффер</th>
+            ${colHeaders}
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
     </div>`;
 }
