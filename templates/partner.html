@@ -61,7 +61,10 @@
         </button>
         <button class="filter-chip" onclick="setMyOffersFilter('all', this)">Все</button>
       </div>
-      <div id="myOffersList"><div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div></div>
+      <div class="mo-layout">
+        <div id="moGeoNav" class="mo-geo-nav" style="display:none"></div>
+        <div id="myOffersList" class="mo-list"><div class="p-loading"><div class="p-spinner"></div><span>Загрузка...</span></div></div>
+      </div>
     </div>
 
     <!-- TRAFFIC -->

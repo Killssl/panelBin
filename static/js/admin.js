@@ -1180,7 +1180,11 @@ async function admSubmitCreateNet() {
 }
 
 
+const APPROACHES = ['Crash', 'Betting', 'Casino', 'Slots', 'Mixed', 'Другое'];
+
 async function admLoadRates() {
+  // Предзагружаем кеш офферов чтобы знать в каких ротациях стоит каждый оффер
+  await _getOffersCache();
   const el = document.getElementById('admRatesContent');
   if (!el) return;
 
@@ -1198,21 +1202,43 @@ async function admLoadRates() {
   // Маппинг rotation_id → подход
   const rotToApproach = { '121': 'Crash', '118': 'Betting', '124': 'Casino', '61': 'Slots', '117': 'Mixed' };
 
+  // Кеш ротаций для поиска оффера во всех ротациях
+  const cachedRots = _offersCache || [];
+
   for (const [id, o] of Object.entries(tracking)) {
-    if (!o.rate || !o.geo) continue;
-    const approach = rotToApproach[o.rotation_id] || o.rotation_id || 'Другое';
-    const geo      = (o.geo || '').toUpperCase();
-    if (!_rates[approach]) _rates[approach] = {};
-    if (!_rates[approach][geo]) _rates[approach][geo] = [];
-    // Не дублируем если уже есть такая же ставка
-    const exists = _rates[approach][geo].some(r => r.rate === o.rate && r.currency === (o.currency || 'USD'));
-    if (!exists) {
-      _rates[approach][geo].push({
-        rate:     o.rate,
-        currency: o.currency || 'USD',
-        note:     o.partner_name ? `Партнёр: ${o.partner_name}` : '',
-        from_tracking: true,
-      });
+    if (!o.rate) continue;
+    const geo = (o.geo || '').toUpperCase();
+    if (!geo) continue;
+
+    // Ищем этот оффер во всех ротациях кеша
+    const foundApproaches = new Set();
+    for (const rot of cachedRots) {
+      const inRot = (rot.geos || []).some(g => (g.offers || []).some(off => String(off.offer_id) === String(id)));
+      if (inRot) {
+        const app = rotToApproach[String(rot.id)] || rot.name || 'Другое';
+        foundApproaches.add(app);
+      }
+    }
+
+    // Если кеш пустой — fallback на rotation_id из трекинга
+    if (!foundApproaches.size) {
+      const app = rotToApproach[o.rotation_id] || o.rotation_id || 'Другое';
+      if (app) foundApproaches.add(app);
+    }
+
+    for (const approach of foundApproaches) {
+      if (!_rates[approach]) _rates[approach] = {};
+      if (!_rates[approach][geo]) _rates[approach][geo] = [];
+      const exists = _rates[approach][geo].some(r => r.rate === o.rate && r.currency === (o.currency || 'USD'));
+      if (!exists) {
+        _rates[approach][geo].push({
+          rate:     o.rate,
+          currency: o.currency || 'USD',
+          note:     o.partner_name ? `Партнёр: ${o.partner_name}` : '',
+          from_tracking: true,
+          rotation: approach,
+        });
+      }
     }
   }
 
@@ -1240,7 +1266,7 @@ function admRenderRates() {
               <span class="rates-val">${h(String(r.rate||''))}</span>
               <span class="rates-cur">${h(r.currency||'USD')}</span>
               ${r.note ? `<span class="rates-note">${h(r.note)}</span>` : ''}
-              ${r.from_tracking ? `<span class="rates-tag">📌 трекинг</span>` : `
+              ${r.from_tracking ? `<span class="rates-tag">📌 трекинг</span>` + (r.rotation ? `<span class="rates-tag" style="background:rgba(99,102,241,.12);color:#818cf8">${h(r.rotation)}</span>` : '') + `` : `
                 <div class="rates-row-actions">
                   <button class="trkc-act" onclick="admRatesEdit('${h(approach)}','${h(geo)}',${ri})" title="Редактировать">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1961,6 +1987,77 @@ function admToggleTrackingForm() {
     const dateEl = document.getElementById('trkStartDate');
     if (dateEl && !dateEl.value) dateEl.value = d;
   }
+}
+
+// ── Lookup offer rotations by ID ─────────────────────────────────────────
+let _offersCache = null;
+
+async function _getOffersCache() {
+  if (_offersCache) return _offersCache;
+  const j = await admApi('GET', '/api/offers/cached');
+  _offersCache = j.ok ? (j.rotations || []) : [];
+  return _offersCache;
+}
+
+let _trkLookupTimer = null;
+async function trkLookupOffer(val) {
+  const hint = document.getElementById('trkOfferRotHint');
+  if (!hint) return;
+  const id = val.trim();
+  if (!id || id.length < 3) { hint.style.display = 'none'; return; }
+
+  clearTimeout(_trkLookupTimer);
+  _trkLookupTimer = setTimeout(async () => {
+    const rotations = await _getOffersCache();
+    // Find all rotations this offer is in
+    const found = [];
+    for (const rot of rotations) {
+      for (const geo of (rot.geos || [])) {
+        const off = (geo.offers || []).find(o => String(o.offer_id) === String(id));
+        if (off) {
+          found.push({
+            rot_id:   rot.id,
+            rot_name: rot.name,
+            geo:      geo.name,
+            name:     off.offer_name,
+          });
+        }
+      }
+    }
+
+    if (!found.length) { hint.style.display = 'none'; return; }
+
+    // Pre-fill name if empty
+    const nameInp = document.getElementById('trkName');
+    if (nameInp && !nameInp.value.trim()) {
+      nameInp.value = found[0].name || '';
+    }
+
+    // Group by rotation
+    const byRot = {};
+    for (const f of found) {
+      if (!byRot[f.rot_id]) byRot[f.rot_id] = { name: f.rot_name, geos: [] };
+      byRot[f.rot_id].geos.push(f.geo);
+    }
+
+    // Авто-заполняем первую ротацию
+    const firstRot = Object.entries(byRot)[0];
+    if (firstRot) {
+      const rotSel = document.getElementById('trkRotId');
+      if (rotSel && !rotSel.value) rotSel.value = firstRot[0];
+      const geoInp = document.getElementById('trkGeo');
+      if (geoInp && !geoInp.value) geoInp.value = firstRot[1].geos[0] || '';
+    }
+
+    hint.style.display = 'block';
+    hint.innerHTML = `<span style="font-size:11px;color:var(--text3)">Найден в: </span>` +
+      Object.entries(byRot).map(([rotId, rot]) =>
+        `<span class="trk-rot-hint trk-rot-hint--info" title="GEO: ${h(rot.geos.join(', '))}">
+          ${h(rot.name)}
+          <span style="opacity:.6;font-size:.85em">${rot.geos.length > 1 ? rot.geos.length + ' GEO' : h(rot.geos[0]||'')}</span>
+        </span>`
+      ).join('');
+  }, 400);
 }
 
 async function admSubmitTrackingManual() {

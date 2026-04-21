@@ -505,282 +505,9 @@ def api_partner_my_offers():
 @bp.get("/api/partner/traffic")
 @require_auth("partner")
 def api_partner_traffic():
-    """Weekly uniques для партнёра — аналог Weekly Uniques но по офферам партнёра."""
-    from app.utils.dpu import extract_rows
-    from app.services.binom import binom_get_pairs
-    from app.utils.cache import get_all_campaigns
-    import pytz as _pytz
-    from datetime import timedelta, date as _date
-
-    user   = request.current_user
-    net_id = user.get("binom_network_id")
-    if not net_id:
-        return jsonify({"ok": True, "cards": [], "note": "Нет привязанной сети"})
-
-    msk   = _pytz.timezone("Europe/Moscow")
-    today = datetime.now(msk).date()
-
-    date_to_str   = request.args.get("date_to", "")
-    date_from_str = request.args.get("date_from", "")
-
-    try:
-        date_to   = _date.fromisoformat(date_to_str)   if date_to_str   else today - timedelta(days=1)
-        date_from = _date.fromisoformat(date_from_str) if date_from_str else date_to - timedelta(days=6)
-        if date_to >= today:   date_to   = today - timedelta(days=1)
-        if (date_to - date_from).days > 6: date_from = date_to - timedelta(days=6)
-        if date_from > date_to: date_from = date_to
-    except Exception:
-        date_to   = today - timedelta(days=1)
-        date_from = date_to - timedelta(days=6)
-
-    date_from_str = str(date_from)
-    date_to_str   = str(date_to)
-
-    campaign_ids = [c["id"] for c in (get_all_campaigns() or [])]
-    if not campaign_ids:
-        return jsonify({"ok": False, "error": "Нет кампаний"})
-
-    pairs = [
-        ("datePreset",  "custom_time"),
-        ("dateFrom",    f"{date_from_str} 00:00:00"),
-        ("dateTo",      f"{date_to_str} 23:59:59"),
-        ("timezone",    "Europe/Moscow"),
-        ("groupings[]", "rotation"),
-        ("groupings[]", "geoCountry"),
-        ("sortColumn",  "clicks"),
-        ("sortType",    "desc"),
-        ("limit",       "5000"),
-        ("offset",      "0"),
-        ("affiliateNetworkIds[]", str(net_id)),
-    ] + [("ids[]", cid) for cid in campaign_ids]
-
-    r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
-    if not r.ok:
-        return make_response(jsonify({"ok": False, "error": f"Binom {r.status_code}: {r.text[:300]}"}), 502)
-
-    rows = extract_rows(_safe_json(r))
-
-    cards = []
-    current = None
-    for row in rows:
-        lvl  = str(row.get("level") or "")
-        name = str(row.get("name") or "").strip()
-        uniq = int(float(row.get("unique_campaign_clicks") or 0))
-
-        if lvl == "1":
-            current = {"name": name, "total_uniq": 0, "geos": []}
-            cards.append(current)
-        elif lvl == "2" and current and name:
-            current["geos"].append({"code": name, "uniq": uniq})
-            current["total_uniq"] += uniq
-
-    cards = [c for c in cards if c["geos"]]
-    for c in cards:
-        c["geos"].sort(key=lambda x: -x["uniq"])
-
-    return jsonify({"ok": True, "cards": cards, "date_from": date_from_str, "date_to": date_to_str})
-
-    msk   = _pytz.timezone("Europe/Moscow")
-    today = datetime.now(msk).date()
-
-    # Даты из параметров — макс 7 дней, не включая сегодня
-    date_to_str   = request.args.get("date_to")
-    date_from_str = request.args.get("date_from")
-
-    try:
-        from datetime import date as _date
-        if date_to_str:
-            date_to = _date.fromisoformat(date_to_str)
-        else:
-            date_to = today - timedelta(days=1)
-
-        if date_from_str:
-            date_from = _date.fromisoformat(date_from_str)
-        else:
-            date_from = date_to - timedelta(days=6)
-
-        # Не включать сегодня и не больше 7 дней
-        if date_to >= today:
-            date_to = today - timedelta(days=1)
-        if (date_to - date_from).days > 6:
-            date_from = date_to - timedelta(days=6)
-        if date_from > date_to:
-            date_from = date_to
-
-    except Exception:
-        date_to   = today - timedelta(days=1)
-        date_from = date_to - timedelta(days=6)
-
-    date_from_str = str(date_from)
-    date_to_str   = str(date_to)
-
-    from app.utils.cache import get_all_campaigns
-    campaign_ids = [c["id"] for c in (get_all_campaigns() or [])]
-
-    pairs = [
-        ("datePreset",  "custom_time"),
-        ("dateFrom",    f"{date_from_str} 00:00:00"),
-        ("dateTo",      f"{date_to_str} 23:59:59"),
-        ("timezone",    "Europe/Moscow"),
-        ("groupings[]", "offer"),
-        ("groupings[]", "geoCountry"),
-        ("sortColumn",  "clicks"),
-        ("sortType",    "desc"),
-        ("limit",       "5000"),
-        ("offset",      "0"),
-        ("affiliateNetworkIds[]", str(net_id)),
-    ] + [("ids[]", cid) for cid in campaign_ids]
-
-    try:
-        r = binom_get_pairs("/public/api/v1/report/campaign", pairs)
-        if not r.ok:
-            return make_response(jsonify({
-                "ok": False,
-                "error": f"Binom {r.status_code}: {r.text[:300]}"
-            }), 502)
-
-        raw  = _safe_json(r)
-        rows = extract_rows(raw)
-
-        # Debug: показываем первые 3 строки
-        debug = request.args.get("debug") == "1"
-        if debug:
-            return jsonify({"ok": True, "sample": rows[:5], "total_rows": len(rows)})
-
-        offers = {}
-        for row in rows:
-            lvl = str(row.get("level") or "")
-            if lvl == "2":
-                offer_name = str(row.get("parent_name") or "").strip()
-                geo        = str(row.get("name") or "").strip().upper()
-            elif lvl == "1":
-                offer_name = str(row.get("name") or "").strip()
-                geo        = ""
-            else:
-                continue
-
-            if not offer_name:
-                continue
-
-            uniq = int(float(row.get("unique_campaign_clicks") or row.get("unique_clicks") or 0))
-            fd   = int(float(row.get("fd") or row.get("conversions") or 0))
-
-            if lvl == "2" and geo:
-                if offer_name not in offers:
-                    offers[offer_name] = {"geos": {}, "total_uniq": 0}
-                if geo not in offers[offer_name]["geos"]:
-                    offers[offer_name]["geos"][geo] = {"uniq": 0, "fd": 0}
-                offers[offer_name]["geos"][geo]["uniq"] += uniq
-                offers[offer_name]["geos"][geo]["fd"]   += fd
-                offers[offer_name]["total_uniq"] += uniq
-
-        cards = []
-        for name, data in sorted(offers.items(), key=lambda x: -x[1]["total_uniq"]):
-            geos_sorted = sorted(data["geos"].items(), key=lambda x: -x[1]["uniq"])
-            cards.append({
-                "name":       name,
-                "total_uniq": data["total_uniq"],
-                "geos":       [{"code": g, "uniq": d["uniq"], "fd": d["fd"]} for g, d in geos_sorted],
-            })
-
-        return jsonify({
-            "ok":        True,
-            "cards":     cards,
-            "date_from": date_from_str,
-            "date_to":   date_to_str,
-        })
-    except Exception as e:
-        import traceback
-        return make_response(jsonify({"ok": False, "error": str(e)}), 500)
-
-    msk   = _pytz.timezone("Europe/Moscow")
-    today = datetime.now(msk)
-    date_from = (today - timedelta(days=6)).strftime("%Y-%m-%d")
-    date_to   = today.strftime("%Y-%m-%d")
-
-    # Запрашиваем уники по офферам из Binom
-    pairs = [
-        ("date[from]",   date_from),
-        ("date[to]",     date_to),
-        ("group1",       "offer"),
-        ("group2",       "country"),
-        ("affiliateNetworkId[]", str(net_id)),
-    ]
-
-    try:
-        r = binom_get_pairs("/public/api/v1/report/campaign/stats", pairs)
-        if not r.ok:
-            # Fallback: try alternative endpoint
-            pairs2 = [
-                ("dateFrom",    date_from),
-                ("dateTo",      date_to),
-                ("groupings[]", "offer"),
-                ("groupings[]", "country"),
-                ("affiliateNetworkIds[]", str(net_id)),
-            ]
-            r = binom_get_pairs("/public/api/v1/report/campaign", pairs2)
-        if not r.ok:
-            return make_response(jsonify({
-                "ok": False,
-                "error": f"Binom {r.status_code}: {r.text[:300]}"
-            }), 502)
-
-        raw  = _safe_json(r)
-        rows = extract_rows(raw) if callable(extract_rows) else (raw if isinstance(raw, list) else (raw.get("data") or raw.get("rows") or []))
-
-        # Логируем структуру первых строк для диагностики
-        import logging
-        log = logging.getLogger("partner.traffic")
-        log.info(f"[traffic] net_id={net_id} rows={len(rows)} sample={rows[:2] if rows else []}")
-
-        # Группируем: offer → {geo: {uniq, clicks, fd}}
-        offers = {}
-        for row in rows:
-            lvl = str(row.get("level") or "")
-            # Пробуем разные форматы группировки
-            if lvl == "2":
-                offer_name = str(row.get("parent_name") or row.get("parent") or "").strip()
-                geo        = str(row.get("name") or row.get("country") or "").strip().upper()
-            elif lvl in ("", "1") or "country" in row:
-                offer_name = str(row.get("offer_name") or row.get("offer") or row.get("name") or "").strip()
-                geo        = str(row.get("country") or row.get("country_code") or "").strip().upper()
-            else:
-                continue
-
-            uniq   = int(float(row.get("unique_clicks") or row.get("uniq") or 0))
-            clicks = int(float(row.get("clicks") or 0))
-            fd     = int(float(row.get("conversions") or row.get("ftd") or row.get("fd") or 0))
-
-            if not offer_name or not geo or uniq == 0:
-                continue
-            if offer_name not in offers:
-                offers[offer_name] = {"geos": {}, "total_uniq": 0}
-            if geo not in offers[offer_name]["geos"]:
-                offers[offer_name]["geos"][geo] = {"uniq": 0, "clicks": 0, "fd": 0}
-            offers[offer_name]["geos"][geo]["uniq"]   += uniq
-            offers[offer_name]["geos"][geo]["clicks"]  += clicks
-            offers[offer_name]["geos"][geo]["fd"]      += fd
-            offers[offer_name]["total_uniq"] += uniq
-
-        # Сортируем офферы по total_uniq
-        cards = []
-        for name, data in sorted(offers.items(), key=lambda x: -x[1]["total_uniq"]):
-            geos_sorted = sorted(data["geos"].items(), key=lambda x: -x[1]["uniq"])
-            cards.append({
-                "name":       name,
-                "total_uniq": data["total_uniq"],
-                "geos":       [{"code": g, "uniq": d["uniq"], "fd": d["fd"]} for g, d in geos_sorted],
-            })
-
-        return jsonify({
-            "ok":        True,
-            "cards":     cards,
-            "date_from": date_from,
-            "date_to":   date_to,
-        })
-    except Exception as e:
-        import traceback
-        return make_response(jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500)
+    """Трафик партнёра — переиспользует weekly_uniques без фильтра по сети."""
+    from app.routes.reports import api_weekly_uniques
+    return api_weekly_uniques()
 
 
 @bp.get("/api/partner/traffic/debug")
@@ -831,6 +558,7 @@ def api_partner_tracking_fd():
         oid: {
             "name":    info.get("name"),
             "max_cap": info.get("max_cap"),
+            "geo_cap": info.get("geo_cap"),
         }
         for oid, info in tracking.items()
     }})
@@ -1035,7 +763,7 @@ def api_tracking_add(offer_id):
     key      = str(offer_id)
     existing = tracking.get(key, {})
     # Обновляем только переданные поля
-    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name", "rate", "currency", "auto_stop_pct", "auto_stopped", "group_ids"):
+    for field in ("name", "start_date", "rotation_id", "geo", "sheet_name", "max_cap", "partner_name", "rate", "currency", "auto_stop_pct", "auto_stopped", "group_ids", "geo_cap"):
         if field in body:
             existing[field] = body[field]
     if not existing.get("created_at"):
@@ -1069,6 +797,7 @@ def api_tracking_manual():
 
     tracking = _load_tracking()
     group_ids_val = str(body.get("group_ids", "")).strip()
+    geo_cap_val   = body.get("geo_cap")
     tracking[offer_id] = {
         "name":         name,
         "start_date":   start_date,
@@ -1079,6 +808,7 @@ def api_tracking_manual():
         "rate":         float(rate_val) if rate_val else None,
         "currency":     currency_val or "USD",
         "group_ids":    group_ids_val or None,
+        "geo_cap":      int(geo_cap_val) if geo_cap_val else None,
         "created_at":   datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S"),
         "manual":       True,
     }

@@ -63,7 +63,6 @@ async function showApp() {
   const hUser = document.getElementById('hUser');
   if (hUser) hUser.innerHTML = ME.username;
   await Promise.all([loadMyOffers(), loadRequests(), loadBaseOffers()]);
-  loadTraffic();
 }
 
 // ── TABS ─────────────────────────────────────────
@@ -82,7 +81,7 @@ let _myOffersFilter = 'active';
 async function loadMyOffers(forceRefresh = false) {
   const el = document.getElementById('myOffersList');
   if (!el) return;
-  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
+  el.innerHTML = '<div class="p-loading"><div class="p-spinner"></div><span>Загрузка...</span></div>';
 
   if (forceRefresh) {
     await api('POST', '/api/partner/refresh_offers_cache');
@@ -101,6 +100,19 @@ async function loadMyOffers(forceRefresh = false) {
   _partnerFd = jfd.fd || {};
   _partnerTrk = jfd.tracking || {};
   renderMyOffers();
+}
+
+function moScrollToGeo(id, el) {
+  document.querySelectorAll('.mo-geo-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  const sec = document.getElementById('geo-sec-' + id);
+  if (!sec) return;
+  // Считаем offset с учётом шапки и filter-bar
+  const header     = document.querySelector('.header') || document.querySelector('header');
+  const filterBar  = document.querySelector('.filter-bar');
+  const offset     = (header?.offsetHeight || 0) + (filterBar?.offsetHeight || 0) + 12;
+  const top = sec.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 function setMyOffersFilter(f, btn) {
@@ -122,6 +134,8 @@ function renderMyOffers() {
 
   if (!filtered.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет офферов в этой категории</div>';
+    const nav2 = document.getElementById('moGeoNav');
+    if (nav2) nav2.style.display = 'none';
     return;
   }
 
@@ -133,8 +147,10 @@ function renderMyOffers() {
     byCountry[country].push(o);
   }
 
-  el.innerHTML = Object.entries(byCountry).sort(([a],[b]) => a.localeCompare(b)).map(([country, offs]) => `
-    <div class="geo-section">
+  const sortedCountries = Object.entries(byCountry).sort(([a],[b]) => a.localeCompare(b));
+
+  el.innerHTML = sortedCountries.map(([country, offs]) => `
+    <div class="geo-section" id="geo-sec-${h(country.replace(/[^a-zA-Z0-9]/g,'_'))}">
       <div class="geo-label">${country}</div>
       ${offs.map(o => {
         const payout   = o.payout ? `${o.payout} ${o.currency}` : '';
@@ -181,6 +197,32 @@ function renderMyOffers() {
       }).join('')}
     </div>
   `).join('');
+
+  // Build GEO nav
+  const nav = document.getElementById('moGeoNav');
+  if (nav) {
+    const geoFlag = code => {
+      const m = (code||'').match(/([A-Z]{2})$/);
+      const c = m ? m[1] : (code?.length === 2 ? code.toUpperCase() : '');
+      if (!c || c.length !== 2) return '';
+      const base = 0x1F1E6;
+      return String.fromCodePoint(base + c.charCodeAt(0)-65) + String.fromCodePoint(base + c.charCodeAt(1)-65);
+    };
+    nav.style.display = 'block';
+    nav.innerHTML = `<div class="mo-geo-nav-title">GEO</div>` +
+      sortedCountries.map(([country]) => {
+        const id  = country.replace(/[^a-zA-Z0-9]/g,'_');
+        const m   = country.match(/([A-Z]{2})$/);
+        const code = m ? m[1] : country.slice(0,2).toUpperCase();
+        const name = country.replace(/\s+[A-Z]{2}$/, '').trim() || country;
+        const flag = geoFlag(code);
+        return `<div class="mo-geo-nav-item" onclick="moScrollToGeo('${id}',this)">
+          <span class="mo-geo-flag">${flag}</span>
+          <span class="mo-geo-code">${h(code)}</span>
+        </div>`;
+      }).join('');
+  }
+
 }
 
 // ── OFFERS ───────────────────────────────────────
@@ -450,34 +492,67 @@ const GEO_NAMES = {
 async function loadTraffic(dateFrom, dateTo) {
   const el = document.getElementById('trafficContent');
   if (!el) return;
-  el.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>Загрузка...</div>';
+  el.innerHTML = '<div class="p-loading"><div class="p-spinner"></div><span>Загрузка...</span></div>';
 
   if (!dateFrom || !dateTo) {
     const today = new Date();
     const to    = new Date(today); to.setDate(today.getDate() - 1);
-    const from  = new Date(to);   from.setDate(to.getDate() - 6);
+    const from  = new Date(to);   from.setDate(to.getDate() - (_trafficDays - 1));
     dateTo   = to.toISOString().slice(0,10);
     dateFrom = from.toISOString().slice(0,10);
   }
 
-  const j = await api('GET', `/api/partner/traffic?date_from=${dateFrom}&date_to=${dateTo}`);
+  const j = await api('GET', `/api/partner/traffic?date_from=${dateFrom}&date_to=${dateTo}&min_uniq=1&exclude_1x=false`);
   if (!j.ok) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${h(j.error || 'Ошибка')}</div>`;
     return;
   }
 
-  const cards = j.cards || [];
+  const ALLOWED     = ['Crash', 'Casino', 'Betting'];
+  const mergeGroups = [
+    { label: 'Casino',  rotations: ['casino', 'fortune tiger'] },
+    { label: 'Betting', rotations: ['betting', 'betano'] },
+    { label: 'Crash',   rotations: ['crash', 'plinko'] },
+  ];
+  const findGroup = name => {
+    const lower = name.toLowerCase();
+    for (const g of mergeGroups) { if (g.rotations.some(k => lower.includes(k))) return g.label; }
+    return null;
+  };
+  const geoCodeFn = s => { const m=(s||'').match(/([A-Z]{2})\s*$/); return m?m[1]:(s?.length===2?s.toUpperCase():''); };
+  const geoNameFn = s => (s||'').replace(/\s+[A-Z]{2}\s*$/,'').trim()||s;
+
+  const mergedMap = {};
+  for (const rot of (j.rotations||[])) {
+    const gl = findGroup(rot.rotationName);
+    if (!gl || !ALLOWED.includes(gl)) continue;
+    if (!mergedMap[gl]) mergedMap[gl] = { name: gl, countries: new Map() };
+    for (const c of (rot.countries||[])) {
+      mergedMap[gl].countries.set(c.country, (mergedMap[gl].countries.get(c.country)||0) + c.uniq);
+    }
+  }
+
+  const minUniq = 50;
+  const cards = ALLOWED
+    .filter(label => mergedMap[label])
+    .map(label => ({
+      name: mergedMap[label].name,
+      geos: Array.from(mergedMap[label].countries.entries())
+        .map(([country, uniq]) => ({ country, uniq, code: geoCodeFn(country), name: geoNameFn(country) }))
+        .filter(c => c.uniq >= minUniq)
+        .sort((a,b) => b.uniq - a.uniq),
+    }))
+    .filter(r => r.geos.length > 0);
+
   if (!cards.length) {
     el.innerHTML = `
-      ${renderTrafficControls(j.date_from, j.date_to)}
+      ${renderTrafficControls(_trafficDays)}
       <div class="empty" style="margin-top:20px"><div class="empty-icon">📭</div>Нет данных за этот период</div>`;
     return;
   }
 
-  const maxUniq = Math.max(...cards.flatMap(c => c.geos.map(g => g.uniq)));
-
   el.innerHTML = `
-    ${renderTrafficControls(j.date_from, j.date_to)}
+    ${renderTrafficControls(_trafficDays)}
     <div class="weekly-cards" style="margin-top:16px">
       ${cards.map(card => {
         const topUniq = card.geos[0]?.uniq || 1;
@@ -489,59 +564,63 @@ async function loadTraffic(dateFrom, dateTo) {
             </div>
           </div>
           <div class="wcard-rows">
-            ${card.geos.map((g, i) => `
-              <div class="wrow ${i === 0 ? 'wrow-top' : ''}">
+            ${card.geos.map((g, i) => {
+              const pct = Math.round(g.uniq / topUniq * 100);
+              return `<div class="wrow ${i === 0 ? 'wrow-top' : ''}">
                 <div class="wrow-rank">${i+1}</div>
                 <div class="wrow-country">
                   <span class="wrow-flag">${geoFlag(g.code)}</span>
-                  <span class="wrow-geo-name">${h(g.code)}</span>
+                  <span class="wrow-geo-name">${h(g.name || g.code)}</span>
+                  ${g.code && g.code !== g.name ? `<span class="wrow-geo-code">${h(g.code)}</span>` : ''}
                 </div>
-                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${Math.round(g.uniq/topUniq*100)}%"></div></div>
+                <div class="wrow-bar-wrap"><div class="wrow-bar" style="width:${pct}%"></div></div>
                 <div class="wrow-uniq">${g.uniq.toLocaleString()}</div>
-              </div>
-            `).join('')}
+              </div>`;
+            }).join('')}
           </div>
         </div>`;
       }).join('')}
     </div>`;
 }
 
-function renderTrafficControls(dateFrom, dateTo) {
-  return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
-    <label style="font-size:.78rem;color:var(--text2)">С</label>
-    <input type="date" id="tfDateFrom" value="${dateFrom}"
-      style="background:var(--s1);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:.82rem;font-family:inherit">
-    <label style="font-size:.78rem;color:var(--text2)">По</label>
-    <input type="date" id="tfDateTo" value="${dateTo}"
-      style="background:var(--s1);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;font-size:.82rem;font-family:inherit">
-    <button onclick="applyTrafficDates()" class="btn" style="padding:5px 12px;font-size:.78rem">Показать</button>
+function renderTrafficControls(activeDays) {
+  // Сколько дней прошло с начала месяца (по Москве)
+  const now       = new Date();
+  const dayOfMonth = now.getDate(); // сегодня число
+  const show14    = dayOfMonth >= 14;
+  const show30    = dayOfMonth >= 30;
+
+  return `<div class="trf-controls">
+    <div class="trf-presets">
+      <button class="trf-preset-btn${activeDays===7?' active':''}" onclick="applyTrafficPreset(7,this)">7 дней</button>
+      ${show14 ? `<button class="trf-preset-btn${activeDays===14?' active':''}" onclick="applyTrafficPreset(14,this)">14 дней</button>` : ''}
+      ${show30 ? `<button class="trf-preset-btn${activeDays===30?' active':''}" onclick="applyTrafficPreset(30,this)">30 дней</button>` : ''}
+    </div>
+    <div class="trf-hint">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      ${(() => {
+        const today = new Date();
+        const to    = new Date(today); to.setDate(today.getDate() - 1);
+        const from  = new Date(to);   from.setDate(to.getDate() - (activeDays - 1));
+        const fmt   = d => d.toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
+        return fmt(from) + ' — ' + fmt(to);
+      })()} &nbsp;·&nbsp; Порог ≥50 уников
+    </div>
   </div>`;
 }
 
-function geoFlag(code) {
-  if (!code || code.length !== 2) return '🌍';
-  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(0x1F1E0 - 65 + c.charCodeAt(0)));
-}
 
-function applyTrafficDates() {
-  const from = document.getElementById('tfDateFrom')?.value;
-  const to   = document.getElementById('tfDateTo')?.value;
-  if (!from || !to) return;
 
-  // Проверка: не больше 7 дней и не включая сегодня
-  const today = new Date(); today.setHours(0,0,0,0);
-  const dFrom = new Date(from);
-  const dTo   = new Date(to);
+let _trafficDays = 7;
 
-  if (dTo >= today) {
-    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-    return loadTraffic(from, yesterday.toISOString().slice(0,10));
-  }
-  if ((dTo - dFrom) / 86400000 > 6) {
-    const newFrom = new Date(dTo); newFrom.setDate(dTo.getDate()-6);
-    return loadTraffic(newFrom.toISOString().slice(0,10), to);
-  }
-  loadTraffic(from, to);
+function applyTrafficPreset(days, btn) {
+  _trafficDays = days;
+  document.querySelectorAll('.trf-preset-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const today = new Date();
+  const to    = new Date(today); to.setDate(today.getDate() - 1);
+  const from  = new Date(to);   from.setDate(to.getDate() - (days - 1));
+  loadTraffic(from.toISOString().slice(0,10), to.toISOString().slice(0,10));
 }
 
 // ── Partner offer actions ────────────────────────────

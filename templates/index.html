@@ -279,7 +279,9 @@
                 <div class="trk-form-title">Добавить оффер в трекинг</div>
                 <div class="adm-form-row" style="grid-template-columns:1fr 1fr 1fr">
                   <div class="adm-field"><label>Binom ID оффера *</label>
-                    <input class="adm-inp" id="trkOfferId" type="text" placeholder="1234">
+                    <input class="adm-inp" id="trkOfferId" type="text" placeholder="1234"
+                      oninput="trkLookupOffer(this.value)">
+                    <div id="trkOfferRotHint" style="margin-top:5px;display:none"></div>
                   </div>
                   <div class="adm-field"><label>Название *</label>
                     <input class="adm-inp" id="trkName" type="text" placeholder="CAP30! Leon [TR]">

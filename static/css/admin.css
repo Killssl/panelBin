@@ -1429,3 +1429,14 @@ textarea.adm-inp { resize: vertical; }
   transition: all .12s;
 }
 .rb-geo-apply:hover { background: rgba(79,142,247,.22); }
+
+/* ── Tracking offer rotation hints ── */
+.trk-rot-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 6px; font-size: 11px;
+  border: 0.5px solid var(--border2); background: var(--bg2);
+  color: var(--text2); cursor: pointer; margin: 2px 4px 2px 0;
+  transition: all .12s;
+}
+.trk-rot-hint:hover { border-color: var(--accent); color: var(--accent-txt); background: var(--accent-bg); }
+.trk-rot-hint.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-txt); }
