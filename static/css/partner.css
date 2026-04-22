@@ -478,3 +478,166 @@ header {
   color: var(--text3);
 }
 .trf-hint svg { flex-shrink: 0; }
+
+/* ── Invoice cards ───────────────────────────────────────── */
+.inv-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: border-color .15s;
+}
+.inv-card--action { border-color: rgba(129,140,248,.4); }
+.inv-card--open   { border-color: var(--border2); }
+.inv-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.inv-card-month {
+  font-weight: 500;
+  font-size: .88rem;
+  color: var(--text);
+  min-width: 90px;
+}
+.inv-card-amount {
+  font-size: .95rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.inv-card-sub {
+  font-size: .72rem;
+  color: var(--text3);
+  margin-top: 1px;
+}
+.inv-status-badge {
+  font-size: .72rem;
+  white-space: nowrap;
+}
+.inv-chevron { color: var(--text3); transition: transform .15s; flex-shrink: 0; }
+.inv-section { border-top: 1px solid var(--border); }
+.inv-section-title {
+  padding: 6px 16px;
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: var(--s2);
+}
+
+/* ── Invoice form fields ─────────────────────────────────── */
+.adm-inp {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--s1);
+  color: var(--text);
+  font-family: inherit;
+  font-size: .82rem;
+  outline: none;
+  transition: border-color .12s;
+}
+.adm-inp:focus { border-color: var(--accent); }
+.adm-inp::placeholder { color: var(--text3); }
+.adm-inp[readonly] { background: var(--s2); color: var(--text2); cursor: default; }
+select.adm-inp { cursor: pointer; }
+textarea.adm-inp { resize: vertical; line-height: 1.5; }
+
+.btn-secondary {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: .82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .12s;
+}
+.btn-secondary:hover { background: var(--s2); color: var(--text); }
+
+/* ── Invoices layout with sidebar ────────────────────────── */
+.inv-layout {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.inv-sidebar {
+  width: 120px;
+  flex-shrink: 0;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 0;
+  position: sticky;
+  top: 72px;
+}
+.inv-sidebar-title {
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.inv-sidebar-item {
+  padding: 7px 10px;
+  border-bottom: .5px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+}
+.inv-sidebar-item:last-child { border-bottom: none; }
+.inv-sidebar-item:hover { background: var(--s2); }
+.inv-sidebar-month {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--text2);
+}
+.inv-sidebar-hold {
+  font-size: .8rem;
+  color: #f59e0b;
+  font-family: monospace;
+  font-weight: 500;
+  margin-top: 1px;
+}
+.inv-main { flex: 1; min-width: 0; overflow: hidden; }
+
+/* ── Pending hold rows ─────────────────────────────────── */
+.inv-ph-row {
+  border-bottom: .5px solid rgba(99,102,241,.15);
+}
+.inv-ph-row:last-child { border-bottom: none; }
+.inv-ph-row--active { background: rgba(99,102,241,.04); }
+.inv-ph-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+.inv-ph-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(99,102,241,.4);
+  background: transparent;
+  color: #818cf8;
+  font-size: .75rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.inv-ph-btn:hover { background: rgba(99,102,241,.12); }
+.inv-ph-btn--active {
+  background: rgba(99,102,241,.15);
+  border-color: #818cf8;
+  color: #a5b4fc;
+}

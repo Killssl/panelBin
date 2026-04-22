@@ -1440,3 +1440,83 @@ textarea.adm-inp { resize: vertical; }
 }
 .trk-rot-hint:hover { border-color: var(--accent); color: var(--accent-txt); background: var(--accent-bg); }
 .trk-rot-hint.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-txt); }
+
+/* ── Invoice modal styles ─────────────────────────────── */
+#admModal .adm-modal {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+#admModal .adm-modal-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+#admModal .adm-inp {
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: .82rem;
+  font-family: inherit;
+  outline: none;
+}
+#admModal .adm-inp:focus { border-color: var(--accent); }
+#admModal .adm-inp::placeholder { color: var(--text3); }
+#admModal .adm-inp[readonly] {
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: default;
+}
+#admModal select.adm-inp { cursor: pointer; }
+#admModal textarea.adm-inp { resize: vertical; line-height: 1.5; }
+
+/* Invoice modal — override transparent backgrounds */
+#admModal [style*="background:var(--bg2)"],
+#admModal [style*="background: var(--bg2)"] {
+  background: var(--bg1) !important;
+}
+#admModalBody > div[style*="grid-template-columns"] > div {
+  background: var(--bg1) !important;
+  border-color: var(--border2) !important;
+}
+#admModalBody table {
+  background: var(--bg1);
+}
+#admModalBody tr:hover td {
+  background: var(--bg2) !important;
+}
+
+.btn-secondary {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: .82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .12s;
+}
+.btn-secondary:hover {
+  background: var(--bg2);
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+/* inv-partner-opt hover */
+.inv-partner-opt:hover {
+  background: var(--bg3) !important;
+}
+.inv-partner-opt:last-child {
+  border-bottom: none !important;
+}
+
+/* invoice table mono */
+#admInvoicesContent .mono { font-family: monospace; }

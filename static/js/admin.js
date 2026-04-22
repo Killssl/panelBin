@@ -40,6 +40,8 @@ async function admApi(method, path, body) {
   }
 }
 
+function admModalClose() { admCloseModal('admModal'); }
+
 function admCloseModal(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'none';
@@ -206,6 +208,8 @@ function admNav(name) {
   if (name === 'rotations') { admLoadRotationsPanel(); }
   if (name === 'weekly') { admInitWeeklyPanel(); }
   if (name === 'rates') admLoadRates();
+  if (name === 'invoices') admLoadInvoices();
+  if (name === 'holds') admLoadHolds();
   else { admStopTrackingAutoRefresh(); if (_fdCountdownTimer) { clearInterval(_fdCountdownTimer); _fdCountdownTimer = null; } }
 }
 
@@ -2860,4 +2864,428 @@ async function admRotMultiAnalytics() {
         <tbody>${tableRows}</tbody>
       </table>
     </div>`;
+}
+
+
+// ══════════════════════════════════════════════════════════
+// INVOICES — admin panel
+// ══════════════════════════════════════════════════════════
+
+let _invMonth = (() => {
+  const d = new Date(); d.setMonth(d.getMonth() - 1);
+  return d.toISOString().slice(0, 7);
+})();
+let _invList = [];
+
+async function admLoadInvoices() {
+  const el = document.getElementById('admInvoicesContent');
+  if (!el) return;
+  el.innerHTML = admInvLoadingHtml();
+
+  const j = await admApi('GET', `/api/admin/invoices?month=${_invMonth}`);
+  if (!j.ok) { el.innerHTML = `<div class="adm-empty">Ошибка: ${h(j.error||'')}</div>`; return; }
+
+  _invList = j.invoices || [];
+  admRenderInvoices(el);
+}
+
+function admRenderInvoices(el) {
+  const statusLabels = {
+    pending:    '⏳ Ожидает',
+    filled:     '✏️ Заполнен',
+    review:     '🔍 На проверке',
+    confirmed:  '✅ Подтверждён',
+    rejected:   '❌ Отклонён',
+    questioned: '❓ Вопрос',
+  };
+  const statusColors = {
+    pending:    'var(--text3)',
+    filled:     '#818cf8',
+    review:     '#f59e0b',
+    confirmed:  'var(--green)',
+    rejected:   'var(--red)',
+    questioned: '#ef4444',
+  };
+
+  const toolbar = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <input type="month" value="${_invMonth}" onchange="_invMonth=this.value;admLoadInvoices()"
+      style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:5px 10px;font-size:.82rem;font-family:inherit">
+    <button class="btn" onclick="admInvCreateModal()" style="margin-left:auto;padding:5px 14px;font-size:.8rem">+ Создать счёт</button>
+  </div>`;
+
+  if (!_invList.length) {
+    el.innerHTML = toolbar + '<div class="adm-empty">Счетов за этот период нет</div>';
+    return;
+  }
+
+  const rows = _invList.map(inv => {
+    const diff     = ((inv.paid_amount || 0) + (inv.hold_amount || 0)) - inv.binom_amount;
+    const diffPct  = inv.binom_amount ? (diff / inv.binom_amount * 100).toFixed(1) : 0;
+    const diffStr  = inv.binom_amount
+      ? `<span style="color:${diff >= 0 ? 'var(--green)' : 'var(--red)'}">
+           ${diff >= 0 ? '+' : ''}$${Math.abs(diff).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
+           (${diffPct}%)
+         </span>` : '—';
+    return `<tr style="cursor:pointer" onclick="admInvOpenModal(${inv.id})">
+      <td style="font-weight:500">${h(inv.partner_name || inv.network_id)}</td>
+      <td class="mono">$${(inv.binom_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td class="mono">${inv.paid_amount != null ? '$'+inv.paid_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
+      <td>${diffStr}</td>
+      <td class="mono" style="color:${(inv.hold_amount||0)>0?'#f59e0b':'var(--text3)'}">
+        ${(inv.hold_amount||0)>0 ? '$'+inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}
+      </td>
+      <td><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:rgba(128,128,128,.12);color:${statusColors[inv.status]||'var(--text3)'}">${statusLabels[inv.status]||inv.status}</span></td>
+      <td style="font-size:.75rem;color:var(--text3)">${(inv.updated_at||'').slice(5,10)}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = toolbar + `
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+        <thead>
+          <tr style="background:var(--bg2)">
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Партнёрка</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">По Binom</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Оплачено</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Разница</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Холд</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Статус</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Обновлён</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Create invoice modal ───────────────────────────────────
+async function admInvCreateModal() {
+  const m = document.getElementById('admModal');
+  if (!m) return;
+  m.style.display = 'flex';
+  document.getElementById('admModalTitle').textContent = 'Новый счёт';
+  document.getElementById('admModalBody').innerHTML = '<div style="color:var(--text3);padding:20px;text-align:center">Загрузка партнёров...</div>';
+
+  // Load partners list
+  const jp = await admApi('GET', '/api/admin/partners');
+  const partners = (jp.ok ? jp.partners || [] : []).filter(p => p.binom_network_id);
+
+  document.getElementById('admModalBody').innerHTML = `
+    <div style="margin-bottom:12px">
+      <label style="font-size:.78rem;color:var(--text3);display:block;margin-bottom:3px">Партнёр <span style="color:var(--red)">*</span></label>
+      <input class="adm-inp" id="invPartnerSearch" placeholder="Поиск по имени..."
+        oninput="admInvFilterPartners(this.value)"
+        style="margin-bottom:6px">
+      <div id="invPartnerList" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:7px;background:var(--bg2)">
+        ${partners.map(p => `
+          <div class="inv-partner-opt" data-netid="${p.binom_network_id}" data-name="${h(p.username)}"
+            onclick="admInvSelectPartner('${p.binom_network_id}','${h(p.username)}')"
+            style="padding:8px 12px;cursor:pointer;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;border-bottom:.5px solid var(--border)">
+            <span>${h(p.username)}</span>
+            <span style="font-size:.72rem;color:var(--text3);font-family:monospace">net:${p.binom_network_id}</span>
+          </div>`).join('')}
+        ${!partners.length ? '<div style="padding:12px;color:var(--text3);font-size:.82rem;text-align:center">Нет партнёров с привязанной сетью</div>' : ''}
+      </div>
+      <div id="invSelectedPartner" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:7px;font-size:.82rem;display:flex;align-items:center;justify-content:space-between">
+        <span id="invSelectedName" style="color:#a5b4fc;font-weight:500"></span>
+        <button onclick="admInvClearPartner()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem">✕</button>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:.78rem;color:var(--text3);display:block;margin-bottom:3px">Месяц <span style="color:var(--red)">*</span></label>
+      <input class="adm-inp" id="invMonth" type="month" value="${_invMonth}">
+    </div>
+    <input type="hidden" id="invNetId">
+    <button class="btn" onclick="admInvLoadBinom()" style="width:100%;margin-bottom:12px;font-size:.8rem">⟳ Загрузить данные из Binom</button>
+    <div id="invBinomResult" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:.8rem;max-height:220px;overflow-y:auto"></div>
+    <input type="hidden" id="invBinomAmt" value="0">
+    <div style="margin-top:4px;display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn-secondary" onclick="admModalClose()">Отмена</button>
+      <button class="btn" onclick="admInvCreate()">Выставить счёт</button>
+    </div>`;
+}
+
+function admInvFilterPartners(q) {
+  const lq = q.toLowerCase();
+  document.querySelectorAll('.inv-partner-opt').forEach(el => {
+    const match = el.dataset.name.toLowerCase().includes(lq) || el.dataset.netid.includes(lq);
+    el.style.display = match ? '' : 'none';
+  });
+}
+
+function admInvSelectPartner(netId, name) {
+  document.getElementById('invNetId').value = netId;
+  const sel = document.getElementById('invSelectedPartner');
+  if (sel) { sel.style.display = 'flex'; }
+  const nm = document.getElementById('invSelectedName');
+  if (nm) nm.textContent = name + '  (net:' + netId + ')';
+  document.getElementById('invPartnerList').style.display = 'none';
+  document.getElementById('invPartnerSearch').style.display = 'none';
+}
+
+function admInvClearPartner() {
+  document.getElementById('invNetId').value = '';
+  const sel = document.getElementById('invSelectedPartner');
+  if (sel) sel.style.display = 'none';
+  document.getElementById('invPartnerList').style.display = '';
+  document.getElementById('invPartnerSearch').style.display = '';
+  document.getElementById('invPartnerSearch').value = '';
+  admInvFilterPartners('');
+}
+
+let _invBinomOffers = [];
+
+async function admInvLoadBinom() {
+  const netId = document.getElementById('invNetId')?.value.trim();
+  const month = document.getElementById('invMonth')?.value.trim();
+  const resEl = document.getElementById('invBinomResult');
+  if (!netId || !month) { alert('Укажите Network ID и месяц'); return; }
+
+  resEl.style.display = 'block';
+  resEl.innerHTML = '<div style="color:var(--text3)">Загрузка из Binom...</div>';
+
+  const j = await admApi('GET', `/api/admin/invoices/binom_data?network_id=${netId}&month=${month}`);
+  if (!j.ok) { resEl.innerHTML = `<div style="color:var(--red)">Ошибка: ${h(j.error||'')}</div>`; return; }
+
+  _invBinomOffers = j.offers || [];
+  const amtInp = document.getElementById('invBinomAmt');
+  if (amtInp) amtInp.value = j.total || 0;
+
+  if (!_invBinomOffers.length) {
+    resEl.innerHTML = '<div style="color:var(--text3)">Нет данных за этот период</div>';
+    return;
+  }
+
+  resEl.innerHTML = `
+    <div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.05em">Разбивка по офферам</div>
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="color:var(--text3);font-size:.72rem">
+        <th style="text-align:left;padding:2px 4px">Оффер</th>
+        <th style="text-align:right;padding:2px 4px">FD</th>
+        <th style="text-align:right;padding:2px 4px">Сумма</th>
+      </tr>
+      ${_invBinomOffers.map(o => `
+        <tr style="border-top:.5px solid var(--border)">
+          <td style="padding:3px 4px;color:var(--text2);font-size:.75rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(o.offer_name)}</td>
+          <td style="padding:3px 4px;text-align:right;font-family:monospace;color:var(--text3)">${o.fd}</td>
+          <td style="padding:3px 4px;text-align:right;font-family:monospace;font-weight:500">$${(o.amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        </tr>`).join('')}
+      <tr style="border-top:1px solid var(--border)">
+        <td style="padding:4px;font-weight:500">Итого</td>
+        <td></td>
+        <td style="padding:4px;text-align:right;font-family:monospace;font-weight:500">$${(j.total||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      </tr>
+    </table>`;
+}
+
+async function admInvCreate() {
+  const netId  = document.getElementById('invNetId')?.value.trim();
+  const month  = document.getElementById('invMonth')?.value.trim();
+  const amount = parseFloat(document.getElementById('invBinomAmt')?.value) || 0;
+  if (!netId || !month) { alert('Укажите Network ID и месяц'); return; }
+
+  const j = await admApi('POST', '/api/admin/invoices', {
+    network_id:      netId,
+    month:           month,
+    binom_amount:    amount,
+    offer_breakdown: _invBinomOffers,
+  });
+  if (!j.ok) { alert('Ошибка: ' + (j.error || '')); return; }
+  admModalClose();
+  admLoadInvoices();
+}
+
+// ── View/review invoice modal ─────────────────────────────
+async function admInvOpenModal(invId) {
+  const m = document.getElementById('admModal');
+  if (!m) return;
+  m.style.display = 'flex';
+  document.getElementById('admModalTitle').textContent = 'Счёт #' + invId;
+  document.getElementById('admModalBody').innerHTML = '<div style="color:var(--text3);padding:20px;text-align:center">Загрузка...</div>';
+
+  const j = await admApi('GET', `/api/admin/invoices/${invId}`);
+  if (!j.ok) { document.getElementById('admModalBody').innerHTML = `<div style="color:var(--red)">Ошибка</div>`; return; }
+
+  const inv  = j.invoice;
+  const msgs = j.messages || [];
+  const breakdown = inv.offer_breakdown || [];
+  const txs  = inv.tx_hashes || [];
+
+  const statusLabels = {pending:'⏳ Ожидает',filled:'✏️ Заполнен',review:'🔍 На проверке',confirmed:'✅ Подтверждён',rejected:'❌ Отклонён',questioned:'❓ Вопрос'};
+
+  const diffVal  = ((inv.paid_amount||0) + (inv.hold_amount||0)) - inv.binom_amount;
+  const diffPct  = inv.binom_amount ? (diffVal/inv.binom_amount*100).toFixed(1) : 0;
+  const diffColor = diffVal >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const offersHtml = breakdown.length ? `
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+      <div style="padding:6px 12px;font-size:.72rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Данные Binom</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+        <tr style="color:var(--text3)">
+          <th style="padding:5px 10px;text-align:left;font-weight:400">Оффер</th>
+          <th style="padding:5px 10px;text-align:right;font-weight:400">FD</th>
+          <th style="padding:5px 10px;text-align:right;font-weight:400">Сумма</th>
+        </tr>
+        ${breakdown.slice(0,8).map(o => `
+          <tr style="border-top:.5px solid var(--border)">
+            <td style="padding:4px 10px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(o.offer_name||'')}</td>
+            <td style="padding:4px 10px;text-align:right;font-family:monospace;color:var(--text3)">${o.fd||0}</td>
+            <td style="padding:4px 10px;text-align:right;font-family:monospace">$${(o.amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+          </tr>`).join('')}
+        ${breakdown.length > 8 ? `<tr><td colspan="3" style="padding:4px 10px;color:var(--text3);font-size:.72rem">+ ${breakdown.length-8} других</td></tr>` : ''}
+      </table>
+    </div>` : '';
+
+  const chatHtml = msgs.length ? msgs.map(m =>
+    `<div style="margin-bottom:8px">
+       <div style="font-size:.7rem;color:var(--text3);margin-bottom:2px">${m.author === 'admin' ? '🔑 Админ' : '👤 Партнёр'} · ${(m.created_at||'').slice(5,16)}</div>
+       <div style="background:${m.author==='admin'?'rgba(99,102,241,.1)':'var(--bg2)'};border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:.82rem;line-height:1.5">${h(m.text)}</div>
+     </div>`).join('') : '<div style="color:var(--text3);font-size:.8rem">Сообщений нет</div>';
+
+  const canAct = inv.status === 'review' || inv.status === 'questioned';
+
+  document.getElementById('admModalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:3px">По Binom</div>
+        <div style="font-size:1.1rem;font-weight:500;font-family:monospace">$${(inv.binom_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+      </div>
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:3px">Оплачено</div>
+        <div style="font-size:1.1rem;font-weight:500;font-family:monospace;color:var(--green)">
+          ${inv.paid_amount != null ? '$'+inv.paid_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}
+        </div>
+        <div style="font-size:.72rem;color:${diffColor};margin-top:2px">${inv.paid_amount!=null?`${diffVal>=0?'+':''}$${Math.abs(diffVal).toFixed(2)} (${diffPct}%)`:'—'}</div>
+      </div>
+      <div style="background:${(inv.hold_amount||0)>0?'rgba(245,158,11,.1)':'var(--bg2)'};border:1px solid ${(inv.hold_amount||0)>0?'rgba(245,158,11,.4)':'var(--border)'};border-radius:8px;padding:10px">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:3px">Холд</div>
+        <div style="font-size:1.1rem;font-weight:500;font-family:monospace;color:${(inv.hold_amount||0)>0?'#f59e0b':'var(--text3)'}">
+          ${(inv.hold_amount||0)>0 ? '$'+inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '$0'}
+        </div>
+        ${inv.hold_reason ? `<div style="font-size:.7rem;color:#f59e0b;margin-top:2px">${h(inv.hold_reason)}</div>` : ''}
+      </div>
+    </div>
+
+    ${offersHtml}
+
+    ${inv.hold_paid ? `
+      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.8rem;color:var(--green)">
+        ✅ Холд выплачен
+      </div>` : (inv.hold_amount > 0 ? `
+      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.8rem;color:#f59e0b;display:flex;justify-content:space-between;align-items:center">
+        <span>⏳ Холд $${(inv.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})} — ожидает выплаты</span>
+        <button class="btn" onclick="admMarkHoldPaid(${inv.id})" style="padding:3px 10px;font-size:.72rem">Отметить выплаченным</button>
+      </div>` : '')}
+
+    ${inv.partner_comment ? `
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:4px">Комментарий партнёра</div>
+        <div style="font-size:.82rem;color:var(--text2);line-height:1.5">${h(inv.partner_comment)}</div>
+      </div>` : ''}
+
+    ${txs.length ? `
+      <div style="margin-bottom:12px">
+        <div style="font-size:.7rem;color:var(--text3);margin-bottom:4px">Транзакции:</div>
+        ${txs.map(tx => `<div style="font-family:monospace;font-size:.72rem;color:#818cf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="${h(tx)}" target="_blank" style="color:#818cf8">${h(tx)}</a></div>`).join('')}
+      </div>` : ''}
+
+    <div style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px">
+      <div style="font-size:.7rem;color:var(--text3);margin-bottom:8px;font-weight:500">Переписка</div>
+      <div id="invChat_${invId}" style="margin-bottom:8px;max-height:180px;overflow-y:auto">${chatHtml}</div>
+      <div style="display:flex;gap:6px">
+        <input class="adm-inp" id="invMsgInput_${invId}" placeholder="Написать сообщение..." style="flex:1;font-size:.8rem">
+        <button class="btn" onclick="admInvSendMsg(${invId})" style="padding:5px 10px;font-size:.78rem">Отправить</button>
+      </div>
+    </div>
+
+    ${canAct ? `
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn-secondary" onclick="admInvAction(${invId},'reject')" style="color:var(--red)">❌ Отклонить</button>
+        <button class="btn-secondary" onclick="admInvAction(${invId},'question')">❓ Задать вопрос</button>
+        <button class="btn" onclick="admInvAction(${invId},'confirm')">✅ Подтвердить</button>
+      </div>` : `<div style="text-align:right;font-size:.8rem;color:var(--text3)">${statusLabels[inv.status]||inv.status}</div>`}`;
+}
+
+async function admInvSendMsg(invId) {
+  const inp  = document.getElementById(`invMsgInput_${invId}`);
+  const text = inp?.value.trim();
+  if (!text) return;
+  const j = await admApi('POST', `/api/admin/invoices/${invId}/message`, { text });
+  if (!j.ok) { alert('Ошибка'); return; }
+  inp.value = '';
+  admInvOpenModal(invId);
+}
+
+async function admInvAction(invId, action) {
+  let comment = '';
+  if (action === 'reject' || action === 'question') {
+    comment = prompt(action === 'reject' ? 'Причина отклонения:' : 'Ваш вопрос:');
+    if (!comment) return;
+  }
+  const j = await admApi('POST', `/api/admin/invoices/${invId}/action`, { action, comment });
+  if (!j.ok) { alert('Ошибка: ' + (j.error||'')); return; }
+  admModalClose();
+  admLoadInvoices();
+}
+
+async function admMarkHoldPaid(invId) {
+  if (!confirm('Отметить холд как выплаченный?')) return;
+  const j = await admApi('POST', `/api/admin/invoices/${invId}/action`, {
+    action: 'mark_hold_paid', comment: 'Холд отмечен выплаченным администратором'
+  });
+  if (!j.ok) { alert('Ошибка: ' + (j.error||'')); return; }
+  admInvOpenModal(invId);
+}
+
+async function admLoadHolds() {
+  const el = document.getElementById('admHoldsContent');
+  if (!el) return;
+  el.innerHTML = admInvLoadingHtml();
+
+  const j = await admApi('GET', '/api/admin/invoices/holds');
+  if (!j.ok) { el.innerHTML = `<div class="adm-empty">Ошибка: ${h(j.error||'')}</div>`; return; }
+
+  const holds = j.holds || [];
+  if (!holds.length) {
+    el.innerHTML = '<div class="adm-empty">Нет активных холдов</div>';
+    return;
+  }
+
+  const total = holds.reduce((s, h) => s + (h.hold_amount||0), 0);
+  el.innerHTML = `
+    <div style="margin-bottom:14px;padding:12px 16px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.82rem;color:#f59e0b">Всего в холде</span>
+      <span style="font-family:monospace;font-size:1.1rem;font-weight:500;color:#f59e0b">$${total.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+    </div>
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+        <thead>
+          <tr style="background:var(--bg2)">
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Партнёр</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Месяц</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Сумма холда</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Причина</th>
+            <th style="padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);border-bottom:1px solid var(--border)">Статус счёта</th>
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border)"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${holds.map(h => `
+            <tr style="cursor:pointer" onclick="admInvOpenModal(${h.id})">
+              <td style="padding:8px 12px;font-weight:500">${h(h.partner_name||h.network_id)}</td>
+              <td style="padding:8px 12px;font-family:monospace">${h.month}</td>
+              <td style="padding:8px 12px;font-family:monospace;color:#f59e0b;font-weight:500">$${(h.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+              <td style="padding:8px 12px;color:var(--text3);font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(h.hold_reason||'—')}</td>
+              <td style="padding:8px 12px"><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:var(--bg2);color:var(--text3)">${h.status}</span></td>
+              <td style="padding:8px 12px">
+                <button class="btn" onclick="event.stopPropagation();admMarkHoldPaid(${h.id})" style="padding:3px 10px;font-size:.72rem">Выплачен</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function admInvLoadingHtml() {
+  return '<div class="adm-empty"><div class="spinner"></div> Загрузка…</div>';
 }

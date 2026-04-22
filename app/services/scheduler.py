@@ -1,5 +1,5 @@
 """
-Планировщик: обновление FD трекинга.
+Планировщик авто-синка капов в Google Sheets.
 Запускается из main.py при старте Flask.
 
 pip install apscheduler pytz
@@ -149,6 +149,54 @@ def _do_tracking_fd():
                     fd_by_id[matched_id] = max(fd_by_id.get(matched_id, 0), fd)
 
             log.info(f"[tracking] batch start={start_date} chunk={len(chunk)} → {len(fd_by_id)} matches")
+
+    # ── Geo breakdown для офферов с geo_cap ─────────────────────────────────
+    geo_cap_offers = {oid: info for oid, info in tracking_snapshot.items() if info.get("geo_cap")}
+
+    if geo_cap_offers:
+        geo_breakdown = {}  # offer_id → {geo: fd}
+        geo_cap_ids   = list(geo_cap_offers.keys())
+
+        for ci in range(0, len(geo_cap_ids), 50):
+            chunk = geo_cap_ids[ci:ci+50]
+            pairs_geo = [
+                ("datePreset",  "custom_time"),
+                ("dateFrom",    f"{min(info.get('start_date', today) for info in geo_cap_offers.values())} 00:00:00"),
+                ("dateTo",      f"{today} 23:59:59"),
+                ("timezone",    "Europe/Moscow"),
+                ("groupings[]", "offer"),
+                ("groupings[]", "geoCountry"),
+                ("limit",       "10000"),
+                ("offset",      "0"),
+            ] + [("ids[]", cid) for cid in campaign_ids]               + [("offerIds[]", oid) for oid in chunk]
+
+            r_geo = binom_get_pairs("/public/api/v1/report/campaign", pairs_geo)
+            if not r_geo.ok:
+                continue
+
+            rows_geo = extract_rows(_safe_json(r_geo))
+            current_oid = None
+            for row in rows_geo:
+                lvl = str(row.get("level") or "")
+                if lvl == "1":
+                    eid = str(row.get("entity_id") or "").strip()
+                    if eid in chunk:
+                        current_oid = eid
+                    else:
+                        current_oid = None
+                elif lvl == "2" and current_oid:
+                    geo_name = str(row.get("name") or "").strip().upper()
+                    if not geo_name:
+                        continue
+                    fd_val = int(float(row.get(fd_key) or 0)) if fd_key else 0
+                    if current_oid not in geo_breakdown:
+                        geo_breakdown[current_oid] = {}
+                    geo_breakdown[current_oid][geo_name] = fd_val
+
+        # Сохраняем geo_breakdown в кеш
+        for oid in geo_cap_offers:
+            if oid in geo_breakdown:
+                cache.setdefault(oid, {})["geo_breakdown"] = geo_breakdown[oid]
 
     # Применяем результаты к кешу
     now_str = datetime.now(msk).strftime("%Y-%m-%d %H:%M:%S")
@@ -364,8 +412,55 @@ def _do_tracking_fd():
         if alerts:
             check_cap_alerts(alerts)
 
+        # Алерты по GEO капам
+        for offer_id, info in fresh.items():
+            geo_cap = info.get("geo_cap")
+            if not geo_cap:
+                continue
+            if info.get("status") in ("stopped", "no_perform"):
+                continue
+            geo_bd = cache.get(offer_id, {}).get("geo_breakdown", {})
+            if not geo_bd:
+                continue
+
+            threshold = int(geo_cap) * 0.85  # 85% порог
+            offer_name = info.get("name", f"#{offer_id}")
+
+            prev_alerts = cache.get(offer_id, {}).get("geo_alerted", {})
+            new_alerts  = dict(prev_alerts)
+            alerted_this_cycle = []
+
+            for geo_code, geo_fd in geo_bd.items():
+                if geo_fd >= threshold:
+                    pct = round(geo_fd / int(geo_cap) * 100)
+                    prev_pct = prev_alerts.get(geo_code, 0)
+                    # Шлём только если новый порог (каждые 5%)
+                    bucket = (pct // 5) * 5
+                    if bucket > prev_pct:
+                        new_alerts[geo_code] = bucket
+                        alerted_this_cycle.append((geo_code, geo_fd, pct))
+
+            if alerted_this_cycle:
+                lines = [f"⚠️ <b>GEO кап заполняется</b>", f"", f"📋 <b>{offer_name}</b>", f"🎯 Кап на GEO: {geo_cap}", f""]
+                for geo_code, geo_fd, pct in alerted_this_cycle:
+                    lines.append(f"  🌍 {geo_code}: {geo_fd}/{geo_cap} ({pct}%)")
+                try:
+                    send_message(chr(10).join(lines))
+                    cache.setdefault(offer_id, {})["geo_alerted"] = new_alerts
+                except Exception:
+                    pass
+
     except Exception as e:
         log.error(f"[tracking] TG/auto-stop error: {e}", exc_info=True)
+
+
+def _do_hold_reminders():
+    """Еженедельно напоминает партнёрам о невыплаченных холдах."""
+    try:
+        from app.routes.invoices import send_hold_reminders
+        send_hold_reminders()
+    except Exception as e:
+        log.error(f"[scheduler] Hold reminders error: {e}", exc_info=True)
 
 
 def init_scheduler(app=None):
@@ -388,6 +483,18 @@ def init_scheduler(app=None):
             replace_existing = True,
         )
         log.info("[scheduler] Tracking FD job started (every 10 min, independent)")
+
+        _scheduler.add_job(
+            _do_hold_reminders,
+            trigger  = "cron",
+            day_of_week = "mon",
+            hour     = 10,
+            minute   = 0,
+            id       = "hold_reminders",
+            name     = "Weekly hold reminders",
+            replace_existing = True,
+        )
+        log.info("[scheduler] Hold reminders job started (every Monday 10:00)")
 
         return _scheduler
     except ImportError:

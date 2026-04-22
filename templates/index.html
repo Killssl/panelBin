@@ -124,6 +124,14 @@
           <div class="adm-nav-item" onclick="admNav('stop')" id="adm-nav-stop">
             <span class="ico">⏹</span> Стоп оффера
           </div>
+          <div class="adm-nav-item" onclick="admNav('invoices')" id="adm-nav-invoices">
+            <span class="adm-nav-icon">📋</span>
+            <span class="adm-nav-label">Счета</span>
+          </div>
+          <div class="adm-nav-item" onclick="admNav('holds')" id="adm-nav-holds">
+            <span class="adm-nav-icon">💰</span>
+            <span class="adm-nav-label">Холды</span>
+          </div>
           <div class="adm-nav-item" onclick="admNav('users')" id="adm-nav-users">
             <span class="ico">👥</span> Пользователи
           </div>
@@ -406,6 +414,14 @@
           </div>
 
           <!-- Users -->
+          <div class="adm-panel" id="adm-panel-holds">
+            <div id="admHoldsContent"></div>
+          </div>
+
+          <div class="adm-panel" id="adm-panel-invoices">
+            <div id="admInvoicesContent"></div>
+          </div>
+
           <div class="adm-panel" id="adm-panel-users">
             <div class="adm-toolbar">
               <button class="adm-btn primary" onclick="admOpenCreateUser()">+ Добавить пользователя</button>
@@ -682,5 +698,12 @@
 
   <script src="/static/js/app.js"></script>
   <script src="/static/js/admin.js"></script>
+  <!-- Universal modal for invoices -->
+  <div class="adm-overlay" id="admModal" style="display:none" onclick="if(event.target===this)admModalClose()">
+    <div class="adm-modal" style="width:580px;max-height:90vh;overflow-y:auto">
+      <div class="adm-modal-title" id="admModalTitle">Счёт</div>
+      <div id="admModalBody" style="padding:16px"></div>
+    </div>
+  </div>
 </body>
 </html>

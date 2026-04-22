@@ -7,6 +7,7 @@ from app.routes.rotations import bp as bp_rotations
 from app.routes.panel     import bp as bp_panel
 from app.routes.reports   import bp as bp_reports
 from app.routes.partner   import bp as bp_partner
+from app.routes.invoices  import bp as bp_invoices
 
 
 app = Flask(
@@ -126,6 +127,7 @@ app.register_blueprint(bp_rotations)
 app.register_blueprint(bp_panel)
 app.register_blueprint(bp_reports)
 app.register_blueprint(bp_partner)
+app.register_blueprint(bp_invoices)
 
 
 # ---------- Scheduler ----------

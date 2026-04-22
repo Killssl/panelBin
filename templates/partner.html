@@ -41,6 +41,9 @@
     <div class="tab active" data-tab="my_offers" onclick="switchTab('my_offers')">Мои офферы</div>
     <div class="tab" data-tab="traffic" onclick="switchTab('traffic')">Трафик</div>
     <div class="tab" data-tab="new" onclick="switchTab('new')">＋ Заявка</div>
+    <div class="tab" data-tab="invoices" onclick="switchTab('invoices')">
+      Счета <span id="invBadge" style="display:none;margin-left:4px;background:#f59e0b;color:#000;border-radius:10px;padding:0 6px;font-size:.7rem"></span>
+    </div>
     <div class="tab" data-tab="requests" onclick="switchTab('requests')">
       Мои заявки <span id="pendingBadge" style="display:none;margin-left:4px;background:#f59e0b;color:#000;border-radius:10px;padding:1px 6px;font-size:.7em"></span>
     </div>
@@ -64,6 +67,14 @@
       <div class="mo-layout">
         <div id="moGeoNav" class="mo-geo-nav" style="display:none"></div>
         <div id="myOffersList" class="mo-list"><div class="p-loading"><div class="p-spinner"></div><span>Загрузка...</span></div></div>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="page" id="page-invoices">
+      <div class="inv-layout">
+        <div id="invoicesSidebar" class="inv-sidebar" style="display:none"></div>
+        <div id="invoicesContent" class="inv-main"></div>
       </div>
     </div>
 
