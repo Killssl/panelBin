@@ -154,6 +154,19 @@
         <div class="adm-topbar">
           <span class="adm-topbar-title" id="admTopbarTitle">Сети</span>
           <div class="adm-topbar-actions" id="admTopbarActions"></div>
+          <div style="position:relative;margin-left:8px">
+            <button id="admNotifBell" onclick="admToggleNotifications()" class="adm-bell-btn" title="Уведомления">
+              🔔
+              <span id="admNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:.6rem;border-radius:10px;padding:0 4px;min-width:16px;text-align:center;font-weight:500"></span>
+            </button>
+            <div id="admNotifPanel" style="display:none;position:absolute;right:0;top:36px;width:340px;background:var(--bg1);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:1000;overflow:hidden">
+              <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:.82rem;font-weight:500;color:var(--text)">Уведомления</span>
+                <button onclick="admApi('POST','/api/admin/notifications/read',{});admRenderNotifications()" style="font-size:.72rem;color:var(--text3);background:none;border:none;cursor:pointer">Прочитать все</button>
+              </div>
+              <div id="admNotifList" style="max-height:360px;overflow-y:auto"></div>
+            </div>
+          </div>
         </div>
         <div class="adm-content">
 

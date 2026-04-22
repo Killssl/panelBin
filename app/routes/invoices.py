@@ -40,6 +40,8 @@ def init_invoices_db():
             tx_hashes       TEXT,                    -- JSON [url, ...]
             partner_comment TEXT,
             admin_comment   TEXT,
+            wallet_address  TEXT,                    -- адрес кошелька
+            wallet_network  TEXT,                    -- TRC20 / ERC20 / BEP20 и т.д.
             status          TEXT NOT NULL DEFAULT 'pending',
             hold_paid        INTEGER NOT NULL DEFAULT 0,  -- 1 = холд выплачен
             -- pending → filled → review → confirmed | rejected | questioned
@@ -57,11 +59,28 @@ def init_invoices_db():
         CREATE INDEX IF NOT EXISTS idx_inv_month   ON invoices(month);
         CREATE INDEX IF NOT EXISTS idx_inv_status  ON invoices(status);
         CREATE INDEX IF NOT EXISTS idx_msg_inv     ON invoice_messages(invoice_id);
+
+        CREATE TABLE IF NOT EXISTS admin_notifications (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            type        TEXT NOT NULL,   -- "hold_paid" | "invoice_review" | etc
+            invoice_id  INTEGER REFERENCES invoices(id),
+            text        TEXT NOT NULL,
+            read        INTEGER NOT NULL DEFAULT 0,
+            created_at  TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_notif_read ON admin_notifications(read);
         """)
+        # Migration: add wallet fields if missing
+        cols = {r[1] for r in c.execute("PRAGMA table_info(invoices)")}
+        if "wallet_address" not in cols:
+            c.execute("ALTER TABLE invoices ADD COLUMN wallet_address TEXT")
+        if "wallet_network" not in cols:
+            c.execute("ALTER TABLE invoices ADD COLUMN wallet_network TEXT")
         # Migration: add hold_paid if missing
         cols = {r[1] for r in c.execute("PRAGMA table_info(invoices)")}
         if "hold_paid" not in cols:
             c.execute("ALTER TABLE invoices ADD COLUMN hold_paid INTEGER NOT NULL DEFAULT 0")
+        # Migration: notifications table (created above via IF NOT EXISTS)
 
 
 # Auto-run migrations on import
@@ -102,26 +121,6 @@ def _get_user():
 
 # ─── ADMIN endpoints ──────────────────────────────────────────────────────────
 
-@bp.get("/api/admin/invoices/holds")
-def admin_list_holds():
-    """Все активные холды (hold_amount > 0 AND hold_paid = 0)."""
-    from app.routes.partner import _get_token, _admin_static_token
-    from app.utils.partner_db import get_user_by_token
-    token = _get_token()
-    if token != _admin_static_token():
-        user = get_user_by_token(token)
-        if not user or user.get("role") != "admin":
-            return make_response(jsonify({"ok": False, "error": "forbidden"}), 403)
-
-    with _conn() as c:
-        rows = c.execute("""
-            SELECT i.*, u.username as partner_name
-            FROM invoices i
-            LEFT JOIN users u ON u.binom_network_id = i.network_id
-            WHERE i.hold_amount > 0 AND i.hold_paid = 0
-            ORDER BY i.month DESC
-        """).fetchall()
-    return jsonify({"ok": True, "holds": [_inv_row(r) for r in rows]})
 
 
 @bp.get("/api/admin/invoices")
@@ -176,6 +175,8 @@ def admin_create_invoice():
     month           = str(body.get("month", "")).strip()  # "2026-03"
     binom_amount    = float(body.get("binom_amount") or 0)
     offer_breakdown = body.get("offer_breakdown") or []
+    wallet_address  = str(body.get("wallet_address") or "").strip()
+    wallet_network  = str(body.get("wallet_network") or "").strip()
 
     if not network_id or not month:
         return make_response(jsonify({"ok": False, "error": "network_id and month required"}), 400)
@@ -194,15 +195,40 @@ def admin_create_invoice():
         now = _now()
         cur = c.execute(
             """INSERT INTO invoices
-               (network_id, partner_id, month, binom_amount, offer_breakdown, status, created_at, updated_at)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               (network_id, partner_id, month, binom_amount, offer_breakdown,
+                wallet_address, wallet_network, status, created_at, updated_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
             (network_id, partner_id, month, binom_amount,
              json.dumps(offer_breakdown, ensure_ascii=False),
+             wallet_address or None, wallet_network or None,
              "pending", now, now)
         )
         inv_id = cur.lastrowid
 
     return jsonify({"ok": True, "id": inv_id})
+
+
+@bp.get("/api/admin/invoices/holds")
+def admin_list_holds():
+    """Все активные холды (hold_amount > 0 AND hold_paid = 0)."""
+    from app.routes.partner import _get_token, _admin_static_token
+    from app.utils.partner_db import get_user_by_token
+    token = _get_token()
+    if token != _admin_static_token():
+        user = get_user_by_token(token)
+        if not user or user.get("role") != "admin":
+            return make_response(jsonify({"ok": False, "error": "forbidden"}), 403)
+
+    with _conn() as c:
+        rows = c.execute("""
+            SELECT i.*, u.username as partner_name
+            FROM invoices i
+            LEFT JOIN users u ON u.binom_network_id = i.network_id
+            WHERE i.hold_amount > 0 AND i.hold_paid = 0
+            ORDER BY i.month DESC
+        """).fetchall()
+    return jsonify({"ok": True, "holds": [_inv_row(r) for r in rows]})
+
 
 
 @bp.get("/api/admin/invoices/<int:inv_id>")
@@ -485,6 +511,14 @@ def partner_fill_invoice(inv_id):
             c.execute("INSERT INTO invoice_messages (invoice_id,author,text,created_at) VALUES (?,?,?,?)",
                       (inv_id, "partner", comment, now))
 
+        # Уведомление админу при отправке на проверку
+        if submit:
+            c.execute("""INSERT INTO admin_notifications (type, invoice_id, text, created_at)
+                VALUES (?,?,?,?)""",
+                ("invoice_review", inv_id,
+                 f"Счёт на проверке: {user.get('username')} — {dict(row).get('month','')}",
+                 now))
+
         # Погашение холдов прошлых месяцев
         for ph in pending_hold_payments:
             ph_id  = int(ph.get("invoice_id") or 0)
@@ -507,6 +541,13 @@ def partner_fill_invoice(inv_id):
                 (json.dumps(existing_tx, ensure_ascii=False), now, ph_id))
             c.execute("INSERT INTO invoice_messages (invoice_id,author,text,created_at) VALUES (?,?,?,?)",
                       (ph_id, "partner", f"Холд погашен: ${ph_amt:,.2f} · {ph_tx}", now))
+            # Admin notification
+            ph_month = dict(ph_row).get("month","")
+            c.execute("""INSERT INTO admin_notifications (type, invoice_id, text, created_at)
+                VALUES (?,?,?,?)""",
+                ("hold_paid", ph_id,
+                 f"Холд выплачен: {user.get('username')} — {ph_month} · ${ph_amt:,.2f} · {ph_tx}",
+                 now))
 
     # Notify admin via TG if submitted
     if submit:
@@ -521,6 +562,50 @@ def partner_fill_invoice(inv_id):
             send_message(msg)
         except Exception:
             pass
+
+    return jsonify({"ok": True})
+
+
+@bp.post("/api/partner/invoices/<int:inv_id>/pay_hold")
+def partner_pay_hold(inv_id):
+    """Партнёр оплачивает холд отдельно."""
+    user = _auth_partner()
+    if not user: return make_response(jsonify({"ok": False, "error": "auth"}), 401)
+
+    net_id = user.get("binom_network_id")
+    body   = request.get_json(force=True) or {}
+    amount = float(body.get("amount") or 0)
+    tx     = str(body.get("tx_hash") or "").strip()
+
+    if not tx:   return make_response(jsonify({"ok": False, "error": "Хэш транзакции обязателен"}), 400)
+    if not amount: return make_response(jsonify({"ok": False, "error": "Укажите сумму"}), 400)
+
+    now = _now()
+    with _conn() as c:
+        row = c.execute("SELECT * FROM invoices WHERE id=? AND network_id=?", (inv_id, net_id)).fetchone()
+        if not row: return make_response(jsonify({"ok": False, "error": "not found"}), 404)
+        if row["hold_paid"]: return make_response(jsonify({"ok": False, "error": "Холд уже выплачен"}), 409)
+
+        existing_tx = []
+        try: existing_tx = json.loads(row["tx_hashes"] or "[]")
+        except: pass
+        if tx not in existing_tx: existing_tx.append(tx)
+
+        c.execute("UPDATE invoices SET hold_paid=1, tx_hashes=?, updated_at=? WHERE id=?",
+                  (json.dumps(existing_tx, ensure_ascii=False), now, inv_id))
+        c.execute("INSERT INTO invoice_messages (invoice_id,author,text,created_at) VALUES (?,?,?,?)",
+                  (inv_id, "partner", f"Холд выплачен отдельно: ${amount:,.2f} · {tx}", now))
+        c.execute("""INSERT INTO admin_notifications (type, invoice_id, text, created_at)
+            VALUES (?,?,?,?)""",
+            ("hold_paid", inv_id,
+             f"Холд выплачен: {user.get('username')} — {row['month']} · ${amount:,.2f} · {tx}",
+             now))
+
+    # TG notify
+    try:
+        from app.services.tg import send_message
+        send_message(f"💰 <b>Холд выплачен</b>\n\nПартнёр: {user.get('username')}\nМесяц: {row['month']}\nСумма: ${amount:,.2f}\nХэш: {tx}")
+    except Exception: pass
 
     return jsonify({"ok": True})
 
@@ -543,6 +628,40 @@ def partner_send_message(inv_id):
             return make_response(jsonify({"ok": False, "error": "not found"}), 404)
         c.execute("INSERT INTO invoice_messages (invoice_id,author,text,created_at) VALUES (?,?,?,?)",
                   (inv_id, "partner", text, now))
+    return jsonify({"ok": True})
+
+
+# ─── Admin notifications ─────────────────────────────────────────────────────────
+
+@bp.get("/api/admin/notifications")
+def admin_get_notifications():
+    from app.routes.partner import _get_token, _admin_static_token
+    from app.utils.partner_db import get_user_by_token
+    token = _get_token()
+    if token != _admin_static_token():
+        user = get_user_by_token(token)
+        if not user or user.get("role") != "admin":
+            return make_response(jsonify({"ok": False, "error": "forbidden"}), 403)
+    with _conn() as c:
+        rows = c.execute("SELECT * FROM admin_notifications ORDER BY id DESC LIMIT 50").fetchall()
+        unread = c.execute("SELECT COUNT(*) FROM admin_notifications WHERE read=0").fetchone()[0]
+    return jsonify({"ok": True, "notifications": [dict(r) for r in rows], "unread": unread})
+
+
+@bp.post("/api/admin/notifications/read")
+def admin_mark_read():
+    from app.routes.partner import _get_token, _admin_static_token
+    from app.utils.partner_db import get_user_by_token
+    token = _get_token()
+    if token != _admin_static_token():
+        user = get_user_by_token(token)
+        if not user or user.get("role") != "admin":
+            return make_response(jsonify({"ok": False, "error": "forbidden"}), 403)
+    body = request.get_json(force=True) or {}
+    nid  = body.get("id")
+    with _conn() as c:
+        if nid: c.execute("UPDATE admin_notifications SET read=1 WHERE id=?", (nid,))
+        else:   c.execute("UPDATE admin_notifications SET read=1")
     return jsonify({"ok": True})
 
 

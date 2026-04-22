@@ -751,7 +751,7 @@ async function loadInvoices() {
     sideEl.innerHTML = `
       <div class="inv-sidebar-title">Холды</div>
       ${withHold.map(i => `
-        <div class="inv-sidebar-item" onclick="document.getElementById('inv-body-${i.id}')?.previousElementSibling?.click()">
+        <div class="inv-sidebar-item" onclick="invOpenAndExpandHold(${i.id})">
           <div class="inv-sidebar-month">${i.month}</div>
           <div class="inv-sidebar-hold">$${(i.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
         </div>`).join('')}`;
@@ -839,6 +839,21 @@ function renderInvBody(body, inv, msgs, pendingHolds) {
        <div style="font-size:.7rem;color:var(--text3);margin-bottom:2px">${m.author==='admin'?'🔑 Администратор':'👤 Вы'} · ${(m.created_at||'').slice(5,16)}</div>
        <div style="background:${m.author==='admin'?'rgba(99,102,241,.1)':'var(--s2)'};border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:.82rem;line-height:1.5">${h(m.text)}</div>
      </div>`).join('') : '';
+
+  const walletHtml = inv.wallet_address ? `
+    <div class="inv-section">
+      <div class="inv-section-title">Реквизиты для оплаты</div>
+      <div style="padding:12px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-family:monospace;font-size:.82rem;color:var(--text);word-break:break-all">${h(inv.wallet_address)}</div>
+          <span style="font-size:.72rem;padding:2px 8px;border-radius:4px;background:var(--s2);border:1px solid var(--border);color:var(--text3);white-space:nowrap;flex-shrink:0">${h(inv.wallet_network||'')}</span>
+        </div>
+        <button data-wallet="${h(inv.wallet_address)}" onclick="invCopyWallet(this)"
+          style="margin-top:8px;font-size:.72rem;color:#818cf8;background:none;border:none;cursor:pointer;padding:0">
+          Скопировать адрес
+        </button>
+      </div>
+    </div>` : '';
 
   const fillFormHtml = canFill ? `
     <div class="inv-section">
@@ -938,18 +953,53 @@ function renderInvBody(body, inv, msgs, pendingHolds) {
       </div>
     </div>` : '';
 
+  const holdPayHtml = !canFill && (inv.hold_amount||0) > 0 && !inv.hold_paid ? `
+    <div class="inv-section">
+      <div class="inv-section-title" style="color:#f59e0b">⏳ Холд ожидает выплаты</div>
+      <div style="padding:12px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:.82rem;font-weight:500;color:#f59e0b;font-family:monospace">$${(inv.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+            ${inv.hold_reason?`<div style="font-size:.72rem;color:var(--text3);margin-top:2px">${h(inv.hold_reason)}</div>`:''}
+          </div>
+          <button class="inv-ph-btn" id="inv-selfhold-btn-${inv.id}" onclick="invToggleSelfHold(${inv.id})">
+            Оплатить холд
+          </button>
+        </div>
+        <div id="inv-selfhold-fields-${inv.id}" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px">
+            <div>
+              <label style="font-size:.72rem;color:var(--text3);display:block;margin-bottom:3px">Сумма <span style="color:var(--red)">*</span></label>
+              <input class="adm-inp" id="inv-selfhold-amt-${inv.id}" type="number" step="0.01"
+                value="${inv.hold_amount||''}" style="font-size:.8rem">
+            </div>
+            <div>
+              <label style="font-size:.72rem;color:var(--text3);display:block;margin-bottom:3px">Хэш транзакции <span style="color:var(--red)">*</span></label>
+              <input class="adm-inp" id="inv-selfhold-tx-${inv.id}" placeholder="https://tronscan.org/..."
+                style="font-size:.78rem">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button onclick="invToggleSelfHold(${inv.id})" style="font-size:.75rem;color:var(--text3);background:none;border:none;cursor:pointer">Отмена</button>
+            <button class="btn" onclick="invPaySelfHold(${inv.id})" style="padding:5px 14px;font-size:.78rem">Отправить</button>
+          </div>
+        </div>
+      </div>
+    </div>` : '';
+
   const summaryHtml = !canFill && inv.paid_amount != null ? `
     <div class="inv-section">
       <div class="inv-section-title">Итог</div>
       <div style="padding:10px 16px;font-size:.82rem">
         <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid var(--border)"><span style="color:var(--text3)">По трекеру</span><span style="font-family:monospace">$${(inv.binom_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
         <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid var(--border)"><span style="color:var(--text3)">Оплачено</span><span style="font-family:monospace;color:var(--green)">$${inv.paid_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
-        ${(inv.hold_amount||0)>0?`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid var(--border)"><span style="color:#f59e0b">Холд</span><span style="font-family:monospace;color:#f59e0b">$${inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`:''}
+        ${(inv.hold_amount||0)>0&&!inv.hold_paid?`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid var(--border)"><span style="color:#f59e0b">Холд</span><span style="font-family:monospace;color:#f59e0b">$${inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`:''}
+        ${inv.hold_paid?`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid var(--border)"><span style="color:var(--green)">Холд выплачен</span><span style="font-family:monospace;color:var(--green)">✓</span></div>`:''}
         ${txs.length?`<div style="margin-top:8px">${txs.map(tx=>`<a href="${h(tx)}" target="_blank" style="display:block;font-family:monospace;font-size:.72rem;color:#818cf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h(tx)}</a>`).join('')}</div>`:''}
       </div>
     </div>` : '';
 
-  body.innerHTML = breakdownHtml + fillFormHtml + summaryHtml + (msgs.length || !canFill ? `
+  body.innerHTML = breakdownHtml + walletHtml + fillFormHtml + holdPayHtml + summaryHtml + (msgs.length || !canFill ? `
     <div class="inv-section">
       <div class="inv-section-title">Переписка</div>
       <div style="padding:12px 16px">
@@ -964,6 +1014,49 @@ function renderInvBody(body, inv, msgs, pendingHolds) {
 
   // Init recalc
   setTimeout(() => invRecalc(inv.id), 50);
+}
+
+async function invOpenAndExpandHold(invId) {
+  // Switch to invoices tab if needed
+  const page = document.getElementById('page-invoices');
+  if (page && !page.classList.contains('active')) switchTab('invoices');
+
+  // Find card head and open it
+  const body = document.getElementById('inv-body-' + invId);
+  if (!body) {
+    // Card not rendered yet — wait for render then expand
+    await loadInvoices();
+    setTimeout(() => invOpenAndExpandHold(invId), 300);
+    return;
+  }
+
+  const headEl = body.previousElementSibling;
+  if (!headEl) return;
+
+  // Open if not already open
+  if (body.style.display === 'none') {
+    headEl.click();
+    // Wait for async load
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  // Scroll to it
+  headEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Find the first hold button and click it to expand
+  setTimeout(() => {
+    const holdBtns = body.querySelectorAll('[id^="inv-ph-btn-"]');
+    holdBtns.forEach(btn => {
+      const phId = btn.id.replace('inv-ph-btn-', '');
+      const fields = document.getElementById('inv-ph-fields-' + phId);
+      if (fields && fields.style.display === 'none') {
+        btn.click();
+      }
+    });
+    // Also if this IS the hold invoice itself (not a past hold), scroll to hold block
+    const holdBlock = body.querySelector('[style*="rgba(245,158,11"]');
+    if (holdBlock) holdBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 400);
 }
 
 function invToggleHoldReason(id) {
@@ -1016,6 +1109,52 @@ function invAddTx(id) {
   inp.placeholder = 'https://tronscan.org/#/transaction/...';
   inp.style.cssText = 'margin-bottom:5px;font-size:.78rem';
   list.appendChild(inp);
+}
+
+function invCopyWallet(btn) {
+  const addr = btn.dataset.wallet || '';
+  navigator.clipboard.writeText(addr).then(() => {
+    btn.textContent = '✓ Скопировано';
+    setTimeout(() => { btn.textContent = 'Скопировать адрес'; }, 1500);
+  }).catch(() => {
+    // fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = addr; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Скопировано';
+    setTimeout(() => { btn.textContent = 'Скопировать адрес'; }, 1500);
+  });
+}
+
+function invToggleSelfHold(id) {
+  const fields = document.getElementById(`inv-selfhold-fields-${id}`);
+  const btn    = document.getElementById(`inv-selfhold-btn-${id}`);
+  if (!fields) return;
+  const open = fields.style.display !== 'none';
+  fields.style.display = open ? 'none' : 'block';
+  if (btn) btn.textContent = open ? 'Оплатить холд' : '✕ Отмена';
+  if (btn) btn.classList.toggle('inv-ph-btn--active', !open);
+}
+
+async function invPaySelfHold(id) {
+  const amt = parseFloat(document.getElementById(`inv-selfhold-amt-${id}`)?.value) || 0;
+  const tx  = document.getElementById(`inv-selfhold-tx-${id}`)?.value.trim() || '';
+  if (!amt)  { alert('Укажите сумму'); return; }
+  if (!tx)   { alert('Укажите хэш транзакции'); return; }
+
+  const j = await api('POST', `/api/partner/invoices/${id}/pay_hold`, { amount: amt, tx_hash: tx });
+  if (!j.ok) { alert('Ошибка: ' + (j.error||'')); return; }
+
+  // Refresh
+  const headEl = document.getElementById('inv-body-' + id)?.previousElementSibling;
+  if (headEl) {
+    document.getElementById('inv-body-' + id).style.display = 'none';
+    headEl.closest('.inv-card')?.classList.remove('inv-card--open');
+    headEl.querySelector('.inv-chevron')?.style.setProperty('transform','');
+  }
+  loadInvoices();
 }
 
 async function invSave(id, submit) {

@@ -208,6 +208,7 @@ function admNav(name) {
   if (name === 'rotations') { admLoadRotationsPanel(); }
   if (name === 'weekly') { admInitWeeklyPanel(); }
   if (name === 'rates') admLoadRates();
+  if (!_notifInterval) admStartNotifications();
   if (name === 'invoices') admLoadInvoices();
   if (name === 'holds') admLoadHolds();
   else { admStopTrackingAutoRefresh(); if (_fdCountdownTimer) { clearInterval(_fdCountdownTimer); _fdCountdownTimer = null; } }
@@ -1183,6 +1184,79 @@ async function admSubmitCreateNet() {
   admLoadNetworks();
 }
 
+
+
+// ══════════════════════════════════════════════════════════
+// ADMIN NOTIFICATIONS
+// ══════════════════════════════════════════════════════════
+
+let _notifInterval = null;
+
+function admStartNotifications() {
+  admPollNotifications();
+  _notifInterval = setInterval(admPollNotifications, 30000); // every 30s
+}
+
+async function admPollNotifications() {
+  const j = await admApi('GET', '/api/admin/notifications');
+  if (!j.ok) return;
+  const unread = j.unread || 0;
+  const bell   = document.getElementById('admNotifBell');
+  const badge  = document.getElementById('admNotifBadge');
+  if (badge) {
+    badge.textContent = unread;
+    badge.style.display = unread ? '' : 'none';
+  }
+  if (bell) bell.classList.toggle('adm-bell--active', unread > 0);
+  window._admNotifications = j.notifications || [];
+}
+
+function admToggleNotifications() {
+  const panel = document.getElementById('admNotifPanel');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) {
+    admRenderNotifications();
+    // Mark all read
+    admApi('POST', '/api/admin/notifications/read', {});
+    setTimeout(() => {
+      const badge = document.getElementById('admNotifBadge');
+      if (badge) badge.style.display = 'none';
+      const bell = document.getElementById('admNotifBell');
+      if (bell) bell.classList.remove('adm-bell--active');
+    }, 500);
+  }
+}
+
+function admRenderNotifications() {
+  const list = document.getElementById('admNotifList');
+  if (!list) return;
+  const notifs = window._admNotifications || [];
+  if (!notifs.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3);font-size:.82rem">Нет уведомлений</div>';
+    return;
+  }
+  const icons = { hold_paid: '💰', invoice_review: '📋' };
+  list.innerHTML = notifs.map(n => `
+    <div class="adm-notif-item ${n.read ? '' : 'adm-notif-item--unread'}"
+      onclick="${n.invoice_id ? `admInvOpenModal(${n.invoice_id});admToggleNotifications()` : ''}">
+      <div class="adm-notif-icon">${icons[n.type] || '🔔'}</div>
+      <div class="adm-notif-body">
+        <div class="adm-notif-text">${h(n.text)}</div>
+        <div class="adm-notif-time">${(n.created_at||'').slice(5,16)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// Close on outside click
+document.addEventListener('click', e => {
+  const panel = document.getElementById('admNotifPanel');
+  const bell  = document.getElementById('admNotifBell');
+  if (panel && bell && !panel.contains(e.target) && !bell.contains(e.target)) {
+    panel.style.display = 'none';
+  }
+});
 
 const APPROACHES = ['Crash', 'Betting', 'Casino', 'Slots', 'Mixed', 'Другое'];
 
@@ -2931,8 +3005,12 @@ function admRenderInvoices(el) {
       <td class="mono">$${(inv.binom_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
       <td class="mono">${inv.paid_amount != null ? '$'+inv.paid_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>
       <td>${diffStr}</td>
-      <td class="mono" style="color:${(inv.hold_amount||0)>0?'#f59e0b':'var(--text3)'}">
-        ${(inv.hold_amount||0)>0 ? '$'+inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}
+      <td class="mono">
+        ${(inv.hold_amount||0)>0
+          ? (inv.hold_paid
+              ? `<span style="color:var(--green)">✓ $${inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
+              : `<span style="color:#f59e0b">$${inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`)
+          : '—'}
       </td>
       <td><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:rgba(128,128,128,.12);color:${statusColors[inv.status]||'var(--text3)'}">${statusLabels[inv.status]||inv.status}</span></td>
       <td style="font-size:.75rem;color:var(--text3)">${(inv.updated_at||'').slice(5,10)}</td>
@@ -2996,6 +3074,20 @@ async function admInvCreateModal() {
       <input class="adm-inp" id="invMonth" type="month" value="${_invMonth}">
     </div>
     <input type="hidden" id="invNetId">
+    <div style="margin-bottom:12px">
+      <label style="font-size:.78rem;color:var(--text3);display:block;margin-bottom:3px">Кошелёк для оплаты <span style="color:var(--red)">*</span></label>
+      <div style="display:grid;grid-template-columns:1fr 120px;gap:8px">
+        <input class="adm-inp" id="invWalletAddr" placeholder="TMxxxxxxxxxxxxxxxxxxxxxx" type="text">
+        <select class="adm-inp" id="invWalletNet">
+          <option value="TRC20">TRC20</option>
+          <option value="ERC20">ERC20</option>
+          <option value="BEP20">BEP20</option>
+          <option value="SOL">SOL</option>
+          <option value="BTC">BTC</option>
+          <option value="Другое">Другое</option>
+        </select>
+      </div>
+    </div>
     <button class="btn" onclick="admInvLoadBinom()" style="width:100%;margin-bottom:12px;font-size:.8rem">⟳ Загрузить данные из Binom</button>
     <div id="invBinomResult" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:.8rem;max-height:220px;overflow-y:auto"></div>
     <input type="hidden" id="invBinomAmt" value="0">
@@ -3084,11 +3176,17 @@ async function admInvCreate() {
   const amount = parseFloat(document.getElementById('invBinomAmt')?.value) || 0;
   if (!netId || !month) { alert('Укажите Network ID и месяц'); return; }
 
+  const walletAddr = document.getElementById('invWalletAddr')?.value.trim();
+  const walletNet  = document.getElementById('invWalletNet')?.value || 'TRC20';
+  if (!walletAddr) { alert('Укажите кошелёк для оплаты'); return; }
+
   const j = await admApi('POST', '/api/admin/invoices', {
     network_id:      netId,
     month:           month,
     binom_amount:    amount,
     offer_breakdown: _invBinomOffers,
+    wallet_address:  walletAddr,
+    wallet_network:  walletNet,
   });
   if (!j.ok) { alert('Ошибка: ' + (j.error || '')); return; }
   admModalClose();
@@ -3157,14 +3255,25 @@ async function admInvOpenModal(invId) {
         </div>
         <div style="font-size:.72rem;color:${diffColor};margin-top:2px">${inv.paid_amount!=null?`${diffVal>=0?'+':''}$${Math.abs(diffVal).toFixed(2)} (${diffPct}%)`:'—'}</div>
       </div>
-      <div style="background:${(inv.hold_amount||0)>0?'rgba(245,158,11,.1)':'var(--bg2)'};border:1px solid ${(inv.hold_amount||0)>0?'rgba(245,158,11,.4)':'var(--border)'};border-radius:8px;padding:10px">
+      <div style="background:${(inv.hold_amount||0)>0 ? (inv.hold_paid?'rgba(34,197,94,.1)':'rgba(245,158,11,.1)') : 'var(--bg2)'};border:1px solid ${(inv.hold_amount||0)>0 ? (inv.hold_paid?'rgba(34,197,94,.4)':'rgba(245,158,11,.4)') : 'var(--border)'};border-radius:8px;padding:10px">
         <div style="font-size:.7rem;color:var(--text3);margin-bottom:3px">Холд</div>
-        <div style="font-size:1.1rem;font-weight:500;font-family:monospace;color:${(inv.hold_amount||0)>0?'#f59e0b':'var(--text3)'}">
+        <div style="font-size:1.1rem;font-weight:500;font-family:monospace;color:${(inv.hold_amount||0)>0 ? (inv.hold_paid?'var(--green)':'#f59e0b') : 'var(--text3)'}">
           ${(inv.hold_amount||0)>0 ? '$'+inv.hold_amount.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}) : '$0'}
         </div>
-        ${inv.hold_reason ? `<div style="font-size:.7rem;color:#f59e0b;margin-top:2px">${h(inv.hold_reason)}</div>` : ''}
+        ${inv.hold_paid
+          ? `<div style="font-size:.7rem;color:var(--green);margin-top:2px">✓ Выплачен</div>`
+          : (inv.hold_reason ? `<div style="font-size:.7rem;color:#f59e0b;margin-top:2px">${h(inv.hold_reason)}</div>` : '')}
       </div>
     </div>
+
+    ${inv.wallet_address ? `
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:.7rem;color:var(--text3);margin-bottom:3px">Кошелёк для оплаты</div>
+          <div style="font-family:monospace;font-size:.82rem;color:var(--text);word-break:break-all">${h(inv.wallet_address)}</div>
+        </div>
+        <span style="font-size:.72rem;padding:2px 8px;border-radius:4px;background:var(--bg2);color:var(--text3);margin-left:10px;flex-shrink:0">${h(inv.wallet_network||'')}</span>
+      </div>` : ''}
 
     ${offersHtml}
 
@@ -3270,15 +3379,15 @@ async function admLoadHolds() {
           </tr>
         </thead>
         <tbody>
-          ${holds.map(h => `
-            <tr style="cursor:pointer" onclick="admInvOpenModal(${h.id})">
-              <td style="padding:8px 12px;font-weight:500">${h(h.partner_name||h.network_id)}</td>
-              <td style="padding:8px 12px;font-family:monospace">${h.month}</td>
-              <td style="padding:8px 12px;font-family:monospace;color:#f59e0b;font-weight:500">$${(h.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-              <td style="padding:8px 12px;color:var(--text3);font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(h.hold_reason||'—')}</td>
-              <td style="padding:8px 12px"><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:var(--bg2);color:var(--text3)">${h.status}</span></td>
+          ${holds.map(hold => `
+            <tr style="cursor:pointer" onclick="admInvOpenModal(${hold.id})">
+              <td style="padding:8px 12px;font-weight:500">${h(hold.partner_name||hold.network_id)}</td>
+              <td style="padding:8px 12px;font-family:monospace">${h(hold.month)}</td>
+              <td style="padding:8px 12px;font-family:monospace;color:#f59e0b;font-weight:500">$${(hold.hold_amount||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+              <td style="padding:8px 12px;color:var(--text3);font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(hold.hold_reason||'—')}</td>
+              <td style="padding:8px 12px"><span style="font-size:.75rem;padding:2px 8px;border-radius:20px;background:var(--bg2);color:var(--text3)">${h(hold.status)}</span></td>
               <td style="padding:8px 12px">
-                <button class="btn" onclick="event.stopPropagation();admMarkHoldPaid(${h.id})" style="padding:3px 10px;font-size:.72rem">Выплачен</button>
+                <button class="btn" onclick="event.stopPropagation();admMarkHoldPaid(${hold.id})" style="padding:3px 10px;font-size:.72rem">Выплачен</button>
               </td>
             </tr>`).join('')}
         </tbody>
