@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    // Apply theme before render to avoid flash
+    if (localStorage.getItem('admTheme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
   <title>AFF Panel</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
   <link rel="stylesheet" href="/static/css/styles.css" />
@@ -215,46 +221,60 @@
           </div>
 
           <!-- Rotations -->
-          <div class="adm-panel" id="adm-panel-rotations">
-            <div class="rb-shell">
+          <div class="adm-panel" id="adm-panel-rotations" style="padding:0">
+            <div class="rot-shell">
 
-              <!-- Col 1: Rotations -->
-              <div class="rb-col rb-col--rotations">
-                <div class="rb-col-head">
-                  <span>Ротации</span>
-                  <span id="admRotMeta" class="rb-col-count">—</span>
+              <!-- Col 1: Rotations list -->
+              <div class="rot-col rot-col--list">
+                <div class="rot-col-head">
+                  <span class="rot-col-title">Ротации</span>
+                  <span id="admRotMeta" class="rot-col-count">—</span>
                 </div>
-                <div class="rb-search">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                  <input id="admRotQ" class="rb-search-inp" type="text" placeholder="Поиск..."
+                <div class="rot-search-wrap">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input id="admRotQ" class="rot-search-inp" type="text" placeholder="Поиск..."
                     onkeydown="if(event.key==='Enter')admLoadRotationsPanel()">
-                  <button class="rb-refresh" onclick="admLoadRotationsPanel()" title="Обновить">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-5.3M20 15a9 9 0 0 1-15 5.3"/></svg>
-                  </button>
                 </div>
-                <div class="rb-status-tabs">
-                  <button class="rb-stab active" data-val="" onclick="admRotSetStatus(this)">Все</button>
-                  <button class="rb-stab" data-val="active" onclick="admRotSetStatus(this)">Активные</button>
-                  <button class="rb-stab" data-val="paused" onclick="admRotSetStatus(this)">Пауза</button>
+                <div class="rot-status-tabs">
+                  <button class="rot-stab active" data-val="" onclick="admRotSetStatus(this)">Все</button>
+                  <button class="rot-stab" data-val="active" onclick="admRotSetStatus(this)">Активные</button>
+                  <button class="rot-stab" data-val="paused" onclick="admRotSetStatus(this)">Пауза</button>
                 </div>
-                <div id="admRotList" class="rb-list">
-                  <div class="adm-empty"><div class="spinner"></div></div>
-                </div>
-                <div id="admRotMultiBar" class="rb-multi-bar" style="display:none">
-                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-                  <button id="admRotMultiAnalyticsBtn" class="rb-multi-btn" onclick="admRotMultiAnalytics()">Мульти-аналитика</button>
-                  <button class="rb-multi-clear" onclick="admRotClearSelection()">✕</button>
-                </div>
+                <div id="admRotList" class="rot-list"></div>
               </div>
 
               <!-- Col 2: GEO list -->
-              <div class="rb-col rb-col--geo">
-                <div class="rb-col-head">
-                  <span id="admRotGeoTitle">GEO</span>
-                  <span id="admRotGeoCount" class="rb-col-count">—</span>
+              <div class="rot-col rot-col--geo">
+                <div class="rot-col-head">
+                  <span class="rot-col-title" id="admRotGeoTitle">—</span>
+                  <span id="admRotGeoCount" class="rot-col-count"></span>
                 </div>
-                <div id="admRotGeoList" class="rb-list">
-                  <div class="rb-empty-hint">← выберите ротацию</div>
+                <div class="rot-geo-actions" id="admRotGeoActions" style="display:none">
+                  <button id="admRotBulkBtn" class="rot-action-btn" onclick="">⚡ Добавить оффер</button>
+                </div>
+                <div class="rot-preset-bar" id="admRotPresetBar" style="display:none">
+                  <button class="rot-preset active" data-preset="today" onclick="admRotSetGeoPreset(this)">Сегодня</button>
+                  <button class="rot-preset" data-preset="yesterday" onclick="admRotSetGeoPreset(this)">Вчера</button>
+                  <button class="rot-preset" data-preset="last_7_days" onclick="admRotSetGeoPreset(this)">7 дней</button>
+                  <button class="rot-preset" data-preset="last_14_days" onclick="admRotSetGeoPreset(this)">14 дней</button>
+                  <button class="rot-preset" data-preset="last_30_days" onclick="admRotSetGeoPreset(this)">30 дней</button>
+                </div>
+                <div id="admRotGeoList" class="rot-list">
+                  <div class="rot-empty">← выберите ротацию</div>
+                </div>
+              </div>
+
+              <!-- Col 3: Offers detail -->
+              <div class="rot-col rot-col--detail">
+                <div class="rot-col-head">
+                  <span class="rot-col-title" id="admRotDetailTitle">—</span>
+                  <div class="rot-detail-tabs" id="admRotDetailTabs" style="display:none">
+                    <button class="rot-dtab active" onclick="admRotDetailSwitch(this,'offers')">Офферы</button>
+                    <button class="rot-dtab" onclick="admRotDetailSwitch(this,'analytics')">Аналитика</button>
+                  </div>
+                </div>
+                <div id="admRotDetailBody" class="rot-detail-body">
+                  <div class="rot-empty">← выберите GEO</div>
                 </div>
               </div>
 
@@ -331,6 +351,12 @@
                   <div class="adm-field"><label>GEO</label>
                     <input class="adm-inp" id="trkGeo" type="text" placeholder="TR">
                   </div>
+                  <div class="adm-field"><label>Платформа</label>
+                    <select class="adm-inp" id="trkPlatform">
+                      <option value="ios">iOS</option>
+                      <option value="android">Android</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="adm-form-row" style="grid-template-columns:1fr 1fr">
                   <div class="adm-field"><label>Ставка *</label>
@@ -367,6 +393,14 @@
                   <button class="trk-btn trk-btn-ghost" onclick="admToggleTrackingForm()">Отмена</button>
                 </div>
               </div>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:16px" id="trkPlatformTabs">
+              <button class="trk-btn trk-btn-primary" id="trkTabIos" onclick="admSetTrackingPlatform('ios')">
+                 iOS
+              </button>
+              <button class="trk-btn trk-btn-ghost" id="trkTabAndroid" onclick="admSetTrackingPlatform('android')">
+                 Android
+              </button>
             </div>
             <div id="admTrackingTable">
               <div class="adm-empty">Загрузка...</div>
@@ -456,8 +490,8 @@
   </div>
 
 
-
   <!-- Network Drawer -->
+  <div class="adm-drawer-overlay" id="admDrawerOverlay" onclick="admCloseDrawer()"></div>
   <div class="adm-drawer" id="admDrawer">
     <div class="adm-drawer-header">
       <span class="adm-drawer-title" id="admDrawerTitle">Настройки сети</span>
@@ -719,4 +753,6 @@
     </div>
   </div>
 </body>
-</html>
+</html
+
+>

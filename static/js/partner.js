@@ -78,6 +78,7 @@ function switchTab(tab) {
 // ── МОИ ОФФЕРЫ ────────────────────────────────────
 let _myOffers = [];
 let _myOffersFilter = 'active';
+let _myOffersPlatform = 'ios';
 
 async function loadMyOffers(forceRefresh = false) {
   const el = document.getElementById('myOffersList');
@@ -116,6 +117,14 @@ function moScrollToGeo(id, el) {
   window.scrollTo({ top, behavior: 'smooth' });
 }
 
+function setMyOffersPlatform(p) {
+  _myOffersPlatform = p;
+  document.querySelectorAll('.mo-platform-btn').forEach(b => {
+    b.classList.toggle('mo-platform-btn--active', b.dataset.platform === p);
+  });
+  renderMyOffers();
+}
+
 function setMyOffersFilter(f, btn) {
   _myOffersFilter = f;
   document.querySelectorAll('.mo-filter').forEach(b => b.classList.remove('active'));
@@ -127,11 +136,16 @@ function renderMyOffers() {
   const el = document.getElementById('myOffersList');
   if (!el) return;
 
-  const filtered = _myOffers.filter(o =>
-    _myOffersFilter === 'all'     ? true :
-    _myOffersFilter === 'active'  ? o.status === 'active' :
-    _myOffersFilter === 'stopped' ? o.status === 'stopped' : true
-  );
+  const filtered = _myOffers.filter(o => {
+    // Platform filter: ios shows ios+both, android shows android+both
+    const p = o.platform || 'ios';
+    if (_myOffersPlatform === 'ios'     && p === 'android') return false;
+    if (_myOffersPlatform === 'android' && p === 'ios')     return false;
+    // Status filter
+    if (_myOffersFilter === 'active')  return o.status === 'active';
+    if (_myOffersFilter === 'stopped') return o.status === 'stopped';
+    return true;
+  });
 
   if (!filtered.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Нет офферов в этой категории</div>';
@@ -523,10 +537,15 @@ async function loadTraffic(dateFrom, dateTo) {
   const geoCodeFn = s => { const m=(s||'').match(/([A-Z]{2})\s*$/); return m?m[1]:(s?.length===2?s.toUpperCase():''); };
   const geoNameFn = s => (s||'').replace(/\s+[A-Z]{2}\s*$/,'').trim()||s;
 
+  const isAndroid = rot => rot.rotationName.toLowerCase().includes('android');
+
   const mergedMap = {};
   for (const rot of (j.rotations||[])) {
     const gl = findGroup(rot.rotationName);
     if (!gl || !ALLOWED.includes(gl)) continue;
+    // Platform filter
+    if (_trafficPlatform === 'android' && !isAndroid(rot)) continue;
+    if (_trafficPlatform === 'ios'     &&  isAndroid(rot)) continue;
     if (!mergedMap[gl]) mergedMap[gl] = { name: gl, countries: new Map() };
     for (const c of (rot.countries||[])) {
       mergedMap[gl].countries.set(c.country, (mergedMap[gl].countries.get(c.country)||0) + c.uniq);
@@ -592,10 +611,15 @@ function renderTrafficControls(activeDays) {
   const show30    = dayOfMonth >= 30;
 
   return `<div class="trf-controls">
+    <div style="display:flex;gap:2px;margin-right:8px">
+      <button class="trf-platform-btn${activeDays==='ios'||_trafficPlatform==='ios'?' trf-platform-btn--active':''}" data-platform="ios" onclick="setTrafficPlatform('ios')"> iOS</button>
+      <button class="trf-platform-btn${_trafficPlatform==='android'?' trf-platform-btn--active':''}" data-platform="android" onclick="setTrafficPlatform('android')"> Android</button>
+    </div>
     <div class="trf-presets">
       <button class="trf-preset-btn${activeDays===7?' active':''}" onclick="applyTrafficPreset(7,this)">7 дней</button>
       ${show14 ? `<button class="trf-preset-btn${activeDays===14?' active':''}" onclick="applyTrafficPreset(14,this)">14 дней</button>` : ''}
       ${show30 ? `<button class="trf-preset-btn${activeDays===30?' active':''}" onclick="applyTrafficPreset(30,this)">30 дней</button>` : ''}
+    </div>
     </div>
     <div class="trf-hint">
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -613,6 +637,14 @@ function renderTrafficControls(activeDays) {
 
 
 let _trafficDays = 7;
+let _trafficPlatform = 'ios';
+
+function setTrafficPlatform(p) {
+  _trafficPlatform = p;
+  document.querySelectorAll('.trf-platform-btn').forEach(b =>
+    b.classList.toggle('trf-platform-btn--active', b.dataset.platform === p));
+  loadTraffic();
+}
 
 function applyTrafficPreset(days, btn) {
   _trafficDays = days;

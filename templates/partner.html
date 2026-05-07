@@ -56,6 +56,11 @@
       <div class="filter-bar">
         <button onclick="loadMyOffers(true)" class="btn" style="padding:5px 12px;font-size:.78rem">↺ Обновить</button>
         <div style="width:1px;height:20px;background:var(--border)"></div>
+        <div style="display:flex;gap:2px">
+          <button class="mo-platform-btn mo-platform-btn--active" data-platform="ios" onclick="setMyOffersPlatform('ios')"> iOS</button>
+          <button class="mo-platform-btn" data-platform="android" onclick="setMyOffersPlatform('android')"> Android</button>
+        </div>
+        <div style="width:1px;height:20px;background:var(--border)"></div>
         <button class="filter-chip active" onclick="setMyOffersFilter('active', this)">
           <span class="filter-dot" style="background:#22c55e"></span> Активные
         </button>

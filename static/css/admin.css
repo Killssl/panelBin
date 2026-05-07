@@ -1,3 +1,23 @@
+/* Root vars for elements outside #adminOverlay (e.g. drawer) */
+:root {
+  --bg:      #f9fafb;
+  --bg2:     #ffffff;
+  --border:  #e5e7eb;
+  --border2: #d1d5db;
+  --text:    #111827;
+  --text2:   #6b7280;
+  --text3:   #9ca3af;
+}
+:root.dark {
+  --bg:      #0d0d0d;
+  --bg2:     #141414;
+  --border:  #1f1f1f;
+  --border2: #2a2a2a;
+  --text:    #f3f4f6;
+  --text2:   #9ca3af;
+  --text3:   #6b7280;
+}
+
 /* ═══════════════════════════════════
    AFF Panel — Admin UI v2
    Light/Dark theme via CSS vars
@@ -32,6 +52,34 @@
 }
 
 #adminOverlay.dark-theme {
+  --bg:         #0d0d0d;
+  --bg2:        #141414;
+  --bg3:        #1a1a1a;
+  --bg4:        #222222;
+  --border:     #1f1f1f;
+  --border2:    #2a2a2a;
+  --text:       #f0f0f0;
+  --text2:      #888888;
+  --text3:      #555555;
+  --accent:     #818cf8;
+  --accent-bg:  #1e1b4b;
+  --accent-txt: #a5b4fc;
+  --green:      #34d399;
+  --green-bg:   #052e16;
+  --green-txt:  #6ee7b7;
+  --red:        #f87171;
+  --red-bg:     #450a0a;
+  --red-txt:    #fca5a5;
+  --amber:      #fbbf24;
+  --amber-bg:   #1c1500;
+  --amber-txt:  #fde68a;
+  --blue:       #60a5fa;
+  --blue-bg:    #172554;
+  --blue-txt:   #93c5fd;
+}
+
+/* ── Mirror dark theme via html.dark (set by inline script in <head>) ── */
+html.dark #adminOverlay {
   --bg:         #0d0d0d;
   --bg2:        #141414;
   --bg3:        #1a1a1a;
@@ -273,11 +321,19 @@ textarea.adm-inp { resize: vertical; }
 /* ── Drawer ── */
 .adm-drawer {
   position: fixed; right: 0; top: 0; bottom: 0;
-  width: 480px; background: var(--bg2);
-  border-left: 0.5px solid var(--border);
+  width: 480px; background: var(--bg2, #ffffff);
+  border-left: 1px solid var(--border2, #e5e7eb);
+  box-shadow: -12px 0 40px rgba(0,0,0,.4);
   transform: translateX(100%); transition: transform .2s ease;
   z-index: 2000; display: flex; flex-direction: column;
 }
+.adm-drawer-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 1999;
+}
+.adm-drawer-overlay.visible { display: block; }
 .adm-drawer.open { transform: translateX(0); }
 .adm-drawer-header {
   height: 56px; display: flex; align-items: center;
@@ -330,7 +386,13 @@ textarea.adm-inp { resize: vertical; }
 
 /* ── Save message ── */
 .adm-save-msg { font-size: 12px; display: none; }
-.adm-raw-debug { background: var(--bg3); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+.adm-raw-debug { background: var(--bg2); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+.adm-drawer-body .adm-inp {
+  background: var(--bg);
+  border-color: var(--border2);
+}
+.adm-drawer-body .adm-inp:focus { border-color: var(--accent); }
+.adm-drawer-section { background: transparent; }
 .adm-raw-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 
 /* ── Trk filter buttons ── */
@@ -1565,3 +1627,317 @@ textarea.adm-inp { resize: vertical; }
   word-break: break-word;
 }
 .adm-notif-time { font-size: .7rem; color: var(--text3); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════
+   ROTATIONS REDESIGN
+   ══════════════════════════════════════════════ */
+.rot-shell {
+  display: grid;
+  grid-template-columns: 240px 220px 1fr;
+  height: calc(100vh - 56px);
+  overflow: hidden;
+}
+.rot-col {
+  display: flex;
+  flex-direction: column;
+  border-right: 0.5px solid var(--border);
+  overflow: hidden;
+}
+.rot-col--detail { border-right: none; }
+
+.rot-col-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg1);
+}
+.rot-col-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rot-col-count {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+/* Search */
+.rot-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+  color: var(--text3);
+}
+.rot-search-inp {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+}
+.rot-search-inp::placeholder { color: var(--text3); }
+
+/* Status tabs */
+.rot-status-tabs {
+  display: flex;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.rot-stab {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition: all .12s;
+}
+.rot-stab:hover { color: var(--text2); }
+.rot-stab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+/* List */
+.rot-list {
+  flex: 1;
+  overflow-y: auto;
+}
+.rot-empty {
+  padding: 24px 14px;
+  font-size: 13px;
+  color: var(--text3);
+  text-align: center;
+}
+
+/* Rotation card */
+.rot-rot-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+}
+.rot-rot-card:hover { background: var(--bg2); }
+.rot-rot-card.active { background: var(--bg2); border-left: 2px solid var(--accent); }
+.rot-rot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rot-rot-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rot-rot-id { font-size: 11px; color: var(--text3); }
+
+/* GEO actions */
+.rot-geo-actions {
+  padding: 6px 10px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.rot-action-btn {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 0.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .12s;
+  text-align: left;
+}
+.rot-action-btn:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
+
+/* Preset bar */
+.rot-preset-bar {
+  display: flex;
+  gap: 3px;
+  padding: 6px 10px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.rot-preset {
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 0.5px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .12s;
+}
+.rot-preset:hover { background: var(--bg2); color: var(--text2); }
+.rot-preset.active { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.4); color: #a5b4fc; }
+
+/* GEO item */
+.rot-geo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+  gap: 6px;
+}
+.rot-geo-item:hover { background: var(--bg2); }
+.rot-geo-item.active { background: var(--bg2); border-left: 2px solid var(--accent); }
+.rot-geo-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rot-geo-fd {
+  font-size: 12px;
+  font-weight: 500;
+  color: #10b981;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.rot-geo-cnt {
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+/* Detail tabs */
+.rot-detail-tabs {
+  display: flex;
+  gap: 2px;
+}
+.rot-dtab {
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 0.5px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.rot-dtab.active { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.4); color: #a5b4fc; }
+
+/* Detail body */
+.rot-detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Stats row */
+.rot-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 14px;
+  border-bottom: 0.5px solid var(--border);
+}
+.rot-stat {
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.rot-stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.rot-stat-val {
+  font-size: 22px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.rot-stat-val.blue { color: #378ADD; }
+.rot-stat-val.green { color: #10b981; }
+.rot-stat-val.amber { color: #f59e0b; }
+
+/* Offers table */
+.rot-offers-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.rot-offers-table th {
+  padding: 8px 12px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--bg2);
+  position: sticky;
+  top: 0;
+}
+.rot-offers-table th:first-child { text-align: left; }
+.rot-offers-table td {
+  padding: 9px 12px;
+  text-align: right;
+  border-bottom: 0.5px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+.rot-offers-table td:first-child { text-align: left; }
+.rot-offers-table tr:hover td { background: var(--bg2); }
+.rot-off-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rot-off-net { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.rot-rec {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 0.5px solid;
+  display: inline-block;
+  white-space: nowrap;
+}
+.rot-rec-ok  { background: rgba(59,130,246,.08); color: #378ADD; border-color: rgba(59,130,246,.3); }
+.rot-rec-up  { background: rgba(16,185,129,.08); color: #10b981; border-color: rgba(16,185,129,.3); }
+.rot-rec-dn  { background: rgba(245,158,11,.08); color: #f59e0b; border-color: rgba(245,158,11,.3); }
+.rot-rec-stop{ background: rgba(239,68,68,.08);  color: #ef4444; border-color: rgba(239,68,68,.3); }
+.rot-rec-nd  { background: var(--bg2); color: var(--text3); border-color: var(--border); }

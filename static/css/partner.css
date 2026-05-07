@@ -641,3 +641,41 @@ textarea.adm-inp { resize: vertical; line-height: 1.5; }
   border-color: #818cf8;
   color: #a5b4fc;
 }
+
+/* ── Platform tabs ──────────────────────────────────────── */
+.mo-platform-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: .78rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .12s;
+}
+.mo-platform-btn:hover { background: var(--s2); color: var(--text); }
+.mo-platform-btn--active {
+  background: rgba(99,102,241,.12);
+  border-color: rgba(99,102,241,.4);
+  color: #a5b4fc;
+}
+
+/* ── Traffic platform tabs ───────────────────────────────── */
+.trf-platform-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: .78rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .12s;
+}
+.trf-platform-btn:hover { background: var(--s2); color: var(--text); }
+.trf-platform-btn--active {
+  background: rgba(99,102,241,.12);
+  border-color: rgba(99,102,241,.4);
+  color: #a5b4fc;
+}

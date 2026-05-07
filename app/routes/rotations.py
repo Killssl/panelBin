@@ -258,6 +258,8 @@ def api_rotation_analytics(rotation_id: int):
     ?network=BlackFlag+Partners  (фильтр по партнёрке, опционально)
     """
     preset         = request.args.get("preset",  "last_7_days").strip()
+    date_from      = request.args.get("date_from", "").strip()
+    date_to        = request.args.get("date_to",   "").strip()
     network_filter = request.args.get("network", "").strip().lower()
 
     # 1. Получаем активные офферы из ротации
@@ -311,8 +313,16 @@ def api_rotation_analytics(rotation_id: int):
     # 2. Запрос в Binom: rotation → offer → geoCountry
     # Запрос с группировкой rotation → offer → geoCountry
     # Так же как dpu.py — фильтруем по entity_id ротации на уровне 1
-    pairs2 = [
-        ("datePreset",   preset),
+    if date_from and date_to:
+        date_pairs = [
+            ("datePreset", "custom_time"),
+            ("dateFrom",   f"{date_from} 00:00:00"),
+            ("dateTo",     f"{date_to} 23:59:59"),
+        ]
+    else:
+        date_pairs = [("datePreset", preset)]
+
+    pairs2 = date_pairs + [
         ("timezone",     "Europe/Moscow"),
         ("groupings[]",  "rotation"),
         ("groupings[]",  "offer"),
@@ -526,6 +536,8 @@ def api_rotation_analytics_geo(rotation_id: int):
     """
     geo_title = request.args.get("geo", "").strip()
     preset    = request.args.get("preset", "today").strip()
+    date_from = request.args.get("date_from", "").strip()
+    date_to   = request.args.get("date_to",   "").strip()
     if not geo_title:
         return make_response(jsonify({"ok": False, "error": "geo required"}), 400)
 
@@ -576,7 +588,14 @@ def api_rotation_analytics_geo(rotation_id: int):
         "last_30_days":  {"datePreset": "last_30_days"},
     }
 
-    preset_params = PRESET_MAP.get(preset, {"datePreset": "last_7_days"})
+    if date_from and date_to:
+        preset_params = {
+            "datePreset": "custom_time",
+            "dateFrom":   f"{date_from} 00:00:00",
+            "dateTo":     f"{date_to} 23:59:59",
+        }
+    else:
+        preset_params = PRESET_MAP.get(preset, {"datePreset": "last_7_days"})
 
     pairs = [
         ("timezone",     "Europe/Moscow"),
@@ -871,7 +890,10 @@ def api_rotation_add_offer(rotation_id: int):
 
     print(f"[add_offer] rotation={rotation_id} geo='{geo_title}' path='{target_path.get('name')}' offer_id={offer_id} weight={weight}", flush=True)
 
-    r_put = binom_put(f"/public/api/v1/rotation/{rotation_id}", rotation_obj)
+    # Не трогаем defaultPaths — убираем из PUT чтобы не перезаписать изменения
+    put_obj = {k: v for k, v in rotation_obj.items() if k != "defaultPaths"}
+
+    r_put = binom_put(f"/public/api/v1/rotation/{rotation_id}", put_obj)
     print(f"[add_offer] PUT status={r_put.status_code} body={r_put.text[:300]}", flush=True)
 
     if not r_put.ok:
@@ -981,7 +1003,7 @@ def api_all_offers_binom():
 # ─── Offers sync cache (JSON file) ───────────────────────────────────────────
 
 import os, json, threading
-_OFFERS_SYNC_FILE = os.path.join(os.path.dirname(__file__), "data/offers_sync.json")
+_OFFERS_SYNC_FILE = os.path.join(os.path.dirname(__file__), "offers_sync.json")
 _OFFERS_SYNC_LOCK = threading.Lock()
 
 
@@ -1245,3 +1267,263 @@ def api_offers_dpu():
         remaining = still_remaining
 
     return jsonify({"ok": True, "dpu_map": result})
+
+
+
+@bp.post("/api/rotation/<int:rotation_id>/bulk_add_offer")
+def api_rotation_bulk_add_offer(rotation_id: int):
+    """
+    Добавляет оффер сразу в несколько GEO ротации.
+    Если GEO нет — создаёт новый Rule с country condition.
+    Body: {
+      offer_id: "123",
+      offer_name: "...",
+      weight: 50,
+      path_name: "Path 1",
+      geos: ["Brazil BR", "Poland PL", "Germany DE"]
+    }
+    Returns: { results: [{geo, action: "added"|"created"|"exists"|"error", message}] }
+    """
+    body       = request.get_json(force=True) or {}
+    offer_id   = str(body.get("offer_id", "")).strip()
+    offer_name = str(body.get("offer_name", "")).strip()
+    path_name  = str(body.get("path_name", "Path 1")).strip() or "Path 1"
+    try:
+        weight = int(float(body.get("weight", 50)))
+        if weight < 0: raise ValueError
+    except (TypeError, ValueError):
+        weight = 50
+
+    geos = body.get("geos") or []
+    if not offer_id or not geos:
+        return make_response(jsonify({"ok": False, "error": "offer_id and geos required"}), 400)
+
+    # Один GET запрос — используем для чтения и PUT
+    r_raw = binom_get(f"/public/api/v1/rotation/{rotation_id}")
+    if not r_raw.ok:
+        return make_response(jsonify({"ok": False, "error": f"Binom {r_raw.status_code}"}), 502)
+
+    rotation_data = _safe_json(r_raw)
+    if isinstance(rotation_data, dict) and isinstance(rotation_data.get("data"), dict):
+        rotation_obj = rotation_data["data"]
+    else:
+        rotation_obj = rotation_data
+
+    if not isinstance(rotation_obj, dict):
+        return make_response(jsonify({"ok": False, "error": "Unexpected rotation format"}), 502)
+
+    rules = rotation_obj.get("rules") or []
+
+    # Индекс существующих GEO (по имени)
+    existing_rules: Dict[str, dict] = {}
+    # Собираем campaignId из любого оффера в ротации
+    global_campaign_id = None
+    for rule in (rules if isinstance(rules, list) else []):
+        if not isinstance(rule, dict): continue
+        existing_rules[str(rule.get("name") or "").strip().lower()] = rule
+        if global_campaign_id is None:
+            for path in (rule.get("paths") or []):
+                for off in (path.get("offers") or []):
+                    cid = off.get("campaignId")
+                    if cid is None:
+                        cid = off.get("campaign_id")
+                    if cid is not None:  # 0 тоже валидный
+                        global_campaign_id = int(cid)
+                        break
+                if global_campaign_id is not None:
+                    break
+
+    results = []
+    changed = False
+
+    DIRECT_LANDING = {
+        "id":           0,
+        "name":         "DIRECT",
+        "enabled":      True,
+        "weight":       100,
+        "languageCode": "",
+        "isDomainBanned": False,
+    }
+
+    def _make_offer(offer_id, offer_name, weight):
+        return {
+            "offerId":              int(offer_id) if str(offer_id).isdigit() else offer_id,
+            "campaignId":          global_campaign_id if global_campaign_id is not None else 0,
+            "name":                offer_name,
+            "weight":              weight,
+            "enabled":             True,
+            "directUrl":           "",
+            "url":                 "",
+            "affiliateNetworkName": "",
+            "countryCode":         "",
+            "payout":              {"money": {"amount": 0, "currency": "USD"}, "isAuto": True, "isUpsell": False},
+            "conversionCap":       None,
+        }
+
+    def _extract_code(geo_title: str) -> str:
+        """Из 'Brazil BR' вытащить 'BR'"""
+        parts = geo_title.rsplit(" ", 1)
+        if len(parts) == 2 and len(parts[1]) == 2 and parts[1].isalpha() and parts[1].upper() == parts[1]:
+            return parts[1].upper()
+        return geo_title[:2].upper()
+
+    for geo_title in geos:
+        geo_title = str(geo_title).strip()
+        geo_lower = geo_title.lower()
+        geo_code  = _extract_code(geo_title)
+
+        # Ищем существующее правило
+        target_rule = existing_rules.get(geo_lower)
+        if target_rule is None:
+            # Частичный поиск
+            for k, v in existing_rules.items():
+                if k.startswith(geo_lower) or geo_lower.startswith(k.split(" ")[0]):
+                    target_rule = v
+                    break
+
+        if target_rule is not None:
+            # GEO существует — добавляем в первый активный path
+            paths = target_rule.get("paths") or []
+            target_path = next((p for p in paths if isinstance(p, dict) and p.get("enabled") is not False), None)
+
+            if target_path is None:
+                results.append({"geo": geo_title, "action": "error", "message": "Нет активных Path"})
+                continue
+
+            # Проверяем дубликат
+            existing_offers = target_path.get("offers") or []
+            if any(str(o.get("offerId") or o.get("id") or "") == offer_id for o in existing_offers):
+                results.append({"geo": geo_title, "action": "exists", "message": "Оффер уже есть"})
+                continue
+
+            # Берём campaignId из существующих офферов, fallback — глобальный
+            campaign_id = global_campaign_id if global_campaign_id is not None else 0
+            for o in existing_offers:
+                cid = o.get("campaignId")
+                if cid is None: cid = o.get("campaign_id")
+                if cid is not None:
+                    campaign_id = int(cid)
+                    break
+
+            existing_offers.append(_make_offer(offer_id, offer_name, weight))
+            target_path["offers"] = existing_offers
+            results.append({"geo": geo_title, "action": "added", "message": "Добавлен в существующий Rule"})
+            changed = True
+
+        else:
+            # GEO нет — создаём новый Rule с чистым Path (DIRECT)
+            template_path = {
+                "name":      path_name,
+                "enabled":   True,
+                "weight":    100,
+                "directUrl": "",
+                "landings":  [DIRECT_LANDING],
+                "offers":    [_make_offer(offer_id, offer_name, weight)],
+            }
+
+            new_rule = {
+                "name":       geo_title,
+                "enabled":    True,
+                "markAsBot":  False,
+                "criteria": [
+                    {
+                        "enabled":  True,
+                        "operator": "is",
+                        "type":     "country",
+                        "values":   [geo_code],
+                    }
+                ],
+                "paths": [template_path],
+            }
+            if isinstance(rules, list):
+                rules.append(new_rule)
+            else:
+                rotation_obj["rules"] = [new_rule]
+            results.append({"geo": geo_title, "action": "created", "message": f"Создан новый Rule ({geo_code})"})
+            changed = True
+
+    if not changed:
+        return jsonify({
+            "ok": True, "changed": False,
+            "results": results, "server_time_local": _now_local_str(),
+        })
+
+    # PUT обновлённую ротацию
+    # Sanitize all offers: replace null fields with defaults
+    def _sanitize_offer(o):
+        o["directUrl"]     = o.get("directUrl") or ""
+        o["campaignId"]    = o.get("campaignId") if o.get("campaignId") is not None else 0
+        o["name"]          = o.get("name") or ""
+        o["weight"]        = int(o.get("weight") or 0)
+        o["enabled"]       = bool(o.get("enabled", True))
+        o["url"]           = o.get("url") or ""
+        return o
+
+    # Debug: print first path landings
+    for _rule in (rotation_obj.get("rules") or []):
+        for _path in (_rule.get("paths") or []):
+            print(f"[bulk_add] path keys: {list(_path.keys())}", flush=True)
+            print(f"[bulk_add] path landings: {_path.get('landings')}", flush=True)
+            break
+        break
+
+    for _rule in (rotation_obj.get("rules") or []):
+        for _path in (_rule.get("paths") or []):
+            _path["directUrl"] = _path.get("directUrl") or ""
+            if not _path.get("landings"):
+                _path["landings"] = [DIRECT_LANDING]
+            for _off in (_path.get("offers") or []):
+                _sanitize_offer(_off)
+
+    import json as _json
+    print(f"[bulk_add] PUT rotation {rotation_id}, rules count: {len(rotation_obj.get('rules',[]))}", flush=True)
+    print(f"[bulk_add] rotation_obj keys: {list(rotation_obj.keys())}", flush=True)
+    print(f"[bulk_add] global_campaign_id={global_campaign_id}", flush=True)
+    # Debug: print first offer structure
+    for _r in (rules or []):
+        for _p in (_r.get("paths") or []):
+            for _o in (_p.get("offers") or []):
+                print(f"[bulk_add] first offer keys: {list(_o.keys())}, values: { {k:v for k,v in _o.items()} }", flush=True)
+                break
+            break
+        break
+
+    r_put = binom_put(f"/public/api/v1/rotation/{rotation_id}", rotation_obj)
+    print(f"[bulk_add] PUT status={r_put.status_code} body={r_put.text[:800]}", flush=True)
+    if not r_put.ok:
+        return make_response(jsonify({
+            "ok": False,
+            "error": f"Binom PUT failed: {r_put.status_code}",
+            "details": r_put.text[:500],
+        }), 502)
+
+    return jsonify({
+        "ok": True,
+        "changed": True,
+        "rotation_id": rotation_id,
+        "results": results,
+        "server_time_local": _now_local_str(),
+    })
+
+
+@bp.get("/api/rotation/<int:rotation_id>/geo_list")
+def api_rotation_geo_list(rotation_id: int):
+    """
+    Список всех GEO из ротации + полный список стран для выбора.
+    Returns existing_geos (из ротации) для подсветки "уже есть".
+    """
+    src, err = _get_rotation_src(rotation_id)
+    if err:
+        return err
+    rules = src if isinstance(src, list) else (src.get("rules") or [])
+
+    existing = []
+    for rule in (rules if isinstance(rules, list) else []):
+        if not isinstance(rule, dict): continue
+        existing.append(str(rule.get("name") or "").strip())
+
+    return jsonify({
+        "ok": True,
+        "existing_geos": [e for e in existing if e],
+        "server_time_local": _now_local_str(),
+    })

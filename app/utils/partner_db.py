@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from typing import Optional, List, Dict
 
-DB_PATH = os.environ.get("PARTNER_DB_PATH", "partner.db")
+DB_PATH = os.environ.get("PARTNER_DB_PATH", "data/partner.db")
 
 def _conn():
     c = sqlite3.connect(DB_PATH)

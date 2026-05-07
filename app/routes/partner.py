@@ -64,18 +64,22 @@ _offer_weights_ts: float   = 0
 _OFFER_WEIGHTS_TTL         = 600  # 10 минут
 
 # Только эти ротации проверяем для статуса офферов партнёра
-PARTNER_ROTATION_IDS = ["121", "118", "61", "117", "120", "124"]
+PARTNER_ROTATION_IDS = ["121", "118", "61", "117", "120", "124"]  # iOS
+ANDROID_ROTATION_IDS = ["133", "134"]                               # Android
+ANDROID_ROT_NAMES    = {"133": "Crash", "134": "Betting"}
+
+ALL_ROTATION_IDS = PARTNER_ROTATION_IDS + ANDROID_ROTATION_IDS
 
 
 def _get_offer_weights() -> dict:
-    """Возвращает {offer_name_lower: max_weight} из ротаций PARTNER_ROTATION_IDS. Кешируется на 10 мин."""
+    """Возвращает {offer_name_lower: max_weight} из ВСЕХ ротаций (iOS + Android). Кешируется на 10 мин."""
     global _offer_weights_cache, _offer_weights_ts
     if _time.time() - _offer_weights_ts < _OFFER_WEIGHTS_TTL:
         return _offer_weights_cache
 
     weights: dict = {}
     try:
-        for rot_id in PARTNER_ROTATION_IDS:
+        for rot_id in ALL_ROTATION_IDS:
             r2 = binom_get(f"/public/api/v1/rotation/{rot_id}")
             if not r2.ok:
                 continue
@@ -455,25 +459,64 @@ def api_partner_my_offers():
             "currency": (o.get("payout") or {}).get("money", {}).get("currency", "USD"),
         })
 
-    # Добавляем статус active/stopped из весов ротаций
-    weights = _get_offer_weights()
+    # Добавляем статус + платформу из весов ротаций
+    # Строим отдельные индексы для iOS и Android
+    from app.services.binom import binom_get as _bg2, _safe_json as _sj2
     from app.services.sheets import _names_match
+
+    def _build_weights(rot_ids):
+        """Возвращает {str(offer_id): max_weight} по всем ротациям."""
+        w = {}
+        for rid in rot_ids:
+            try:
+                r2 = _bg2(f"/public/api/v1/rotation/{rid}")
+                if not r2.ok: continue
+                d2 = _sj2(r2)
+                obj = d2.get("data", d2) if isinstance(d2, dict) else d2
+                for rule in (obj.get("rules") or []):
+                    for path in (rule.get("paths") or []):
+                        for off in (path.get("offers") or []):
+                            oid = str(off.get("offerId") or off.get("id") or "")
+                            if not oid: continue
+                            wt = float(off.get("weight") or 0)
+                            w[oid] = max(w.get(oid, 0), wt)
+            except Exception:
+                pass
+        return w
+
+    ios_weights     = _build_weights(PARTNER_ROTATION_IDS)
+    android_weights = _build_weights(ANDROID_ROTATION_IDS)
+
     for o in offers:
-        name = o["name"]
-        name_lo = name.lower()
+        oid_str = str(o.get("id") or "")
 
-        # Сначала точное совпадение
-        w = weights.get(name_lo, None)
+        def _find(wmap):
+            if oid_str and oid_str in wmap:
+                return wmap[oid_str]
+            return None
 
-        # Если не нашли — нечёткий матч
-        if w is None:
-            for rot_name_lo, rot_w in weights.items():
-                if _names_match(name, rot_name_lo) or _names_match(rot_name_lo, name):
-                    w = rot_w
-                    break
+        w_ios     = _find(ios_weights)
+        w_android = _find(android_weights)
 
-        if w is None:
-            o["status"] = "unknown"
+        # Определяем платформу и статус
+        if w_ios is not None and w_android is not None:
+            # Есть в обеих — берём активную или ios по умолчанию
+            o["platform"] = "both"
+            w = max(w_ios, w_android)
+        elif w_android is not None:
+            o["platform"] = "android"
+            w = w_android
+        elif w_ios is not None:
+            o["platform"] = "ios"
+            w = w_ios
+        else:
+            o["platform"] = "ios"  # по умолчанию
+            w = None
+
+        # Если в имени оффера уже есть стоп-префикс — показываем как остановленный
+        name_has_stop = any(o["name"].startswith(p) for p in ("STOP!", "No Perform!", "FRAUD!", "FCP -", "CAP"))
+        if w is None or (name_has_stop and (w or 0) == 0):
+            o["status"] = "stopped" if name_has_stop else "unknown"
         elif w == 0:
             o["status"] = "stopped"
         else:
@@ -608,7 +651,7 @@ def api_partner_stop_request(offer_id):
         return make_response(jsonify({"ok": False, "error": "Укажите причину"}), 400)
 
     try:
-        from app.services.tg import send_message
+        from app.services.tg import send_message, _load_pending, _save_pending
         partner_name = user.get("username", "—")
         msg_lines = [
             "📩 <b>Запрос на стоп оффера</b>",
@@ -619,7 +662,31 @@ def api_partner_stop_request(offer_id):
         ]
         if comment:
             msg_lines.append("💬 " + comment)
-        send_message(chr(10).join(msg_lines))
+
+        cb_stop    = f"stop_partner:stop:{offer_id}:{offer_name[:25]}"
+        cb_noperf  = f"stop_partner:noperf:{offer_id}:{offer_name[:25]}"
+        reply_markup = {
+            "inline_keyboard": [[
+                {"text": "⏹ STOP!", "callback_data": cb_stop},
+                {"text": "📉 NO PERF!", "callback_data": cb_noperf},
+            ]]
+        }
+        pending = _load_pending()
+        for cb_data in (cb_stop, cb_noperf):
+            pending[cb_data] = {
+                "offer_id":   str(offer_id),
+                "offer_name": offer_name,
+                "partner":    partner_name,
+                "reason":     reason,
+                "action":     "stop" if "stop:" in cb_data else "noperf",
+            }
+        _save_pending(pending)
+
+        mid = send_message(chr(10).join(msg_lines), reply_markup)
+        if mid:
+            for cb_data in (cb_stop, cb_noperf):
+                pending[cb_data]["message_id"] = mid
+            _save_pending(pending)
     except Exception as e:
         import logging
         logging.getLogger("partner").error(f"stop_request TG: {e}")
@@ -798,6 +865,9 @@ def api_tracking_manual():
     tracking = _load_tracking()
     group_ids_val = str(body.get("group_ids", "")).strip()
     geo_cap_val   = body.get("geo_cap")
+    platform_val  = str(body.get("platform", "ios")).strip().lower()
+    if platform_val not in ("ios", "android"):
+        platform_val = "ios"
     tracking[offer_id] = {
         "name":         name,
         "start_date":   start_date,
@@ -809,6 +879,7 @@ def api_tracking_manual():
         "currency":     currency_val or "USD",
         "group_ids":    group_ids_val or None,
         "geo_cap":      int(geo_cap_val) if geo_cap_val else None,
+        "platform":     platform_val,
         "created_at":   datetime.now(_pytz2.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S"),
         "manual":       True,
     }
@@ -1018,7 +1089,7 @@ def api_admin_stop_offer():
     elif not offer_name:
         offer_name = f"#{offer_id}"
 
-    ROTATIONS = ["121", "118", "61", "117", "120", "124"]
+    ROTATIONS = ["121", "117", "118", "120", "124", "127", "61", "133", "134", "135", "137"]
     stopped_rots  = []
     already_zero  = []
     errors        = []

@@ -184,16 +184,14 @@ def check_cap_alerts(updated: list):
         offer_key = name
         prev = state.get(offer_key, {})
         prev_in_threshold = prev.get("in_threshold", False)
-        prev_max_cap = prev.get("max_cap", 0)
-        prev_filled = prev.get("filled", -1)
+        prev_max_cap      = prev.get("max_cap", 0)
 
-        new_state[offer_key] = {"in_threshold": in_threshold, "max_cap": max_cap, "filled": filled}
+        new_state[offer_key] = {"in_threshold": in_threshold, "max_cap": max_cap}
 
         if not in_threshold:
             continue
 
-        # Не дублируем только если то же самое значение filled
-        if prev_in_threshold and prev_max_cap == max_cap and prev_filled == filled:
+        if prev_in_threshold and prev_max_cap == max_cap:
             continue
 
         network_line = f"🏢 Партнёрка: <b>{network}</b>\n" if network else ""
@@ -363,6 +361,169 @@ def _handle_stop_callback(callback_query: dict):
     _save_pending(pending)
 
 
+# ── Partner stop request callback ────────────────────────────────────────────
+
+def _rename_offer_in_binom(offer_id: str, offer_name: str, prefix: str) -> bool:
+    """Переименовывает оффер в Binom через /rename — как через панель."""
+    try:
+        from app.services.binom import binom_get, binom_put, _safe_json
+
+        # Получаем актуальное имя из Binom
+        r = binom_get(f"/public/api/v1/offer/{offer_id}")
+        if not r.ok:
+            log.error(f"[tg] rename: get offer {offer_id} failed {r.status_code}")
+            return False
+        od = _safe_json(r)
+        current_name = (
+            (od.get("name") or "")
+            or ((od.get("data") or {}).get("name") or "")
+            or ((od.get("offer") or {}).get("name") or "")
+            or offer_name
+        )
+
+        # Не добавляем если уже есть
+        known_prefixes = ["NO PERF!", "STOP!", "FRAUD!"]
+        if any(current_name.startswith(p) for p in known_prefixes):
+            log.info(f"[tg] offer {offer_id} already has prefix: {current_name!r}")
+            return current_name  # уже переименован
+
+        new_name = f"{prefix} {current_name}"
+        r_rename = binom_put(f"/public/api/v1/offer/{offer_id}/rename", {"name": new_name})
+        if r_rename.ok:
+            log.info(f"[tg] renamed offer {offer_id} → {new_name!r}")
+            return new_name  # возвращаем новое имя
+
+        log.error(f"[tg] rename PUT failed: {r_rename.status_code} {r_rename.text[:300]}")
+        return None
+    except Exception as e:
+        log.error(f"[tg] rename error: {e}")
+        return None
+
+
+def _handle_partner_stop_callback(callback_query: dict):
+    cb_id   = callback_query.get("id", "")
+    cb_data = callback_query.get("data", "")
+    user    = callback_query.get("from", {}).get("username") or "unknown"
+    msg_id  = callback_query.get("message", {}).get("message_id")
+
+    pending = _load_pending()
+    info    = pending.get(cb_data)
+
+    if not info:
+        answer_callback(cb_id, "Уже обработано")
+        return
+
+    offer_id   = info.get("offer_id", "")
+    offer_name = info.get("offer_name", "")
+    partner    = info.get("partner", "—")
+    reason     = info.get("reason", "—")
+    action     = info.get("action", "stop")  # "stop" | "noperf"
+
+    prefix     = "STOP!" if action == "stop" else "No Perform!"
+    action_lbl = "⏹ STOP!" if action == "stop" else "📉 NO PERF!"
+
+    answer_callback(cb_id, f"⏳ {action_lbl}...")
+
+    # Remove sibling button from pending too
+    sibling_action = "noperf" if action == "stop" else "stop"
+    for key in list(pending.keys()):
+        if key.startswith(f"stop_partner:{sibling_action}:{offer_id}:"):
+            del pending[key]
+
+    stopped_rots = []
+    errors = []
+
+    try:
+        from app.services.binom import binom_get, binom_put, _safe_json
+        from app.services.sheets import _names_match
+
+        STOP_ROTATIONS = ["121", "118", "61", "117", "120", "124", "133", "134"]
+        ROT_NAMES = {"121":"Crash iOS","118":"Betting iOS","124":"Casino","61":"Slots","117":"Mixed","120":"Other","133":"Crash Android","134":"Betting Android"}
+
+        log.info(f"[tg_stop] looking for offer_id={offer_id!r} name={offer_name!r}")
+        for rot_id in STOP_ROTATIONS:
+            r = binom_get(f"/public/api/v1/rotation/{rot_id}")
+            if not r.ok:
+                log.error(f"[tg_stop] GET rot {rot_id} failed {r.status_code}")
+                continue
+            rotation_data = _safe_json(r)
+            if isinstance(rotation_data, dict) and isinstance(rotation_data.get("data"), dict):
+                rotation_obj = rotation_data["data"]
+            else:
+                rotation_obj = rotation_data
+
+            rules = rotation_obj.get("rules") or []
+            changed = False
+            for rule in (rules if isinstance(rules, list) else []):
+                if not isinstance(rule, dict): continue
+                for path in (rule.get("paths") or []):
+                    if not isinstance(path, dict): continue
+                    for offer in (path.get("offers") or []):
+                        if not isinstance(offer, dict): continue
+                        oid   = str(offer.get("offerId") or offer.get("id") or "")
+                        oname = offer.get("name") or ""
+                        match = oid == str(offer_id)
+                        if not match:
+                            match = _names_match(offer_name, oname) or offer_name == oname
+                        if oid == str(offer_id):
+                            log.info(f"[tg_stop] rot={rot_id} found by id oid={oid} w={offer.get('weight')}")
+                        if match:
+                            log.info(f"[tg_stop] rot={rot_id} MATCH oid={oid} oname={oname!r} w={offer.get('weight')}")
+                            if offer.get("weight", 0) != 0:
+                                offer["weight"] = 0
+                                changed = True
+                            # Rename in rotation too
+                            if not oname.startswith(prefix):
+                                offer["name"] = f"{prefix} {oname}"
+
+            if changed:
+                r_put = binom_put(f"/public/api/v1/rotation/{rot_id}", rotation_obj)
+                if r_put.ok:
+                    stopped_rots.append(ROT_NAMES.get(rot_id, f"#{rot_id}"))
+                else:
+                    errors.append(f"{ROT_NAMES.get(rot_id, rot_id)}: {r_put.status_code}")
+    except Exception as e:
+        log.error(f"[tg] Partner stop error: {e}", exc_info=True)
+        errors.append(str(e)[:50])
+
+    # Rename offer itself in Binom
+    new_name = None
+    if offer_id:
+        new_name = _rename_offer_in_binom(offer_id, offer_name, prefix)
+
+    if stopped_rots:
+        rename_line = f"\n✏️ <code>{new_name}</code>" if new_name else ""
+        text = (
+            f"{action_lbl} <b>Оффер остановлен</b>\n\n"
+            f"📋 <b>{offer_name}</b> (#{offer_id})"
+            f"{rename_line}\n"
+            f"👤 Партнёр: {partner} · причина: {reason}\n"
+            f"🔄 Ротации: {', '.join(stopped_rots)}\n\n"
+            f"👤 @{user}"
+        )
+    elif errors:
+        text = (
+            f"❌ <b>Ошибка</b>\n\n"
+            f"📋 {offer_name} (#{offer_id})\n"
+            f"{', '.join(errors)}"
+        )
+    else:
+        rename_line = f"\n✏️ <code>{new_name}</code>" if new_name else ""
+        text = (
+            f"ℹ️ <b>{offer_name}</b> — не найден в активных ротациях"
+            f"{rename_line}\n"
+            f"Возможно уже остановлен."
+        )
+
+    if msg_id:
+        edit_message(msg_id, text, reply_markup={"inline_keyboard": []})
+    else:
+        send_message(text)
+
+    del pending[cb_data]
+    _save_pending(pending)
+
+
 # ── Polling ───────────────────────────────────────────────────────────────────
 
 _polling_thread  = None
@@ -385,6 +546,8 @@ def _polling_loop():
                     cb_data = cb.get("data", "")
                     if cb_data.startswith("stop:"):
                         _handle_stop_callback(cb)
+                    elif cb_data.startswith("stop_partner:stop:") or cb_data.startswith("stop_partner:noperf:"):
+                        _handle_partner_stop_callback(cb)
 
         except Exception as e:
             log.error(f"[tg] Polling error: {e}")

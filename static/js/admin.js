@@ -175,10 +175,12 @@ function _admApplyTheme(dark) {
   const overlay = document.getElementById('adminOverlay');
   if (dark) {
     overlay.classList.add('dark-theme');
+    document.documentElement.classList.add('dark');
     document.getElementById('admThemeBtn').textContent = '☀️';
     localStorage.setItem('admTheme', 'dark');
   } else {
     overlay.classList.remove('dark-theme');
+    document.documentElement.classList.remove('dark');
     document.getElementById('admThemeBtn').textContent = '🌙';
     localStorage.setItem('admTheme', 'light');
   }
@@ -327,6 +329,7 @@ async function admOpenDrawer(netId) {
   titleEl.textContent = 'Загрузка…';
   bodyEl.innerHTML    = `<div class="adm-empty">⟳ Получаем данные из Binom…</div>`;
   drawer.classList.add('open');
+  document.getElementById('admDrawerOverlay')?.classList.add('visible');
 
   const j = await admApi('GET', `/api/admin/networks/${netId}`);
   if (!j.ok) {
@@ -559,6 +562,7 @@ async function admSaveNetwork() {
 
 function admCloseDrawer() {
   document.getElementById('admDrawer')?.classList.remove('open');
+  document.getElementById('admDrawerOverlay')?.classList.remove('visible');
 }
 
 // ─── Requests ─────────────────────────────────────────────────────────────────
@@ -1579,6 +1583,17 @@ async function admRefreshTrackingFD() {
   }
 }
 
+let _trkPlatform = 'ios';
+
+function admSetTrackingPlatform(p) {
+  _trkPlatform = p;
+  const ios = document.getElementById('trkTabIos');
+  const and = document.getElementById('trkTabAndroid');
+  if (ios) ios.className = p==='ios' ? 'trk-btn trk-btn-primary' : 'trk-btn trk-btn-ghost';
+  if (and) and.className = p==='android' ? 'trk-btn trk-btn-primary' : 'trk-btn trk-btn-ghost';
+  admRenderTracking();
+}
+
 async function admLoadTracking() {
   const el = document.getElementById('admTrackingTable');
   el.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
@@ -1610,8 +1625,9 @@ function admRenderTrackingCards() {
   if (!window._trkData) return;
   const { j, jfd, fdMap, offers } = window._trkData;
 
-  const byStatus = _trackingFilter === 'all' ? offers
-    : offers.filter(([,o]) => (o.status || 'active') === _trackingFilter);
+  const byPlatform = offers.filter(([,o]) => (o.platform || 'ios').toLowerCase() === (_trkPlatform || 'ios'));
+  const byStatus = _trackingFilter === 'all' ? byPlatform
+    : byPlatform.filter(([,o]) => (o.status || 'active') === _trackingFilter);
 
   // Умный поиск: по названию, GEO, партнёру, ID
   const filtered = !_trackingSearch ? byStatus : byStatus.filter(([id, o]) => {
@@ -1708,6 +1724,7 @@ function admRenderTrackingCards() {
           <div class="trkc-name" onclick="admEditTrackingName('${h(id)}')" title="Редактировать">
             ${h(o.name || '—')}
             ${o.auto_stop_pct ? `<span class="trkc-tag trkc-tag-stop" title="Авто-стоп при ${o.auto_stop_pct} FD">⚡${o.auto_stop_pct} FD</span>` : ''}
+            <span style="font-size:.65rem;padding:1px 5px;border-radius:3px;margin-left:2px;${(o.platform||'ios')==='android'?'background:rgba(52,211,122,.12);color:#34d47a':'background:rgba(99,102,241,.12);color:#818cf8'}">${(o.platform||'ios')==='android'?'Android':'iOS'}</span>
           ${o.group_ids ? `<span class="trkc-tag trkc-tag-group" title="Группа: ${h(o.group_ids)}">⛓ группа</span>` : ''}
           ${o.geo_cap ? `<span class="trkc-tag" style="background:rgba(99,102,241,.12);color:#818cf8;border:0.5px solid rgba(99,102,241,.3)" title="Кап на каждое GEO: ${o.geo_cap}">🌍 ${o.geo_cap}/GEO</span>` : ''}
             ${o.auto_stopped  ? `<span class="trkc-tag trkc-tag-autostopped">🛑 авто-стоп</span>` : ''}
@@ -2161,6 +2178,8 @@ async function admSubmitTrackingManual() {
   const groupIds = document.getElementById('trkGroupIds')?.value.trim();
   const geoCap   = document.getElementById('trkGeoCap')?.value.trim();
 
+  const platform = document.getElementById('trkPlatform')?.value || 'ios';
+
   const j = await admApi('POST', '/api/tracking/manual', {
     offer_id:     offerId,
     name,
@@ -2173,6 +2192,7 @@ async function admSubmitTrackingManual() {
     currency,
     group_ids:    groupIds || undefined,
     geo_cap:      geoCap ? parseInt(geoCap) : undefined,
+    platform,
   });
 
   if (!j.ok) { errEl.textContent = j.error || 'Ошибка'; return; }
@@ -2492,17 +2512,17 @@ async function admLoadRotationsPanel() {
   const list = document.getElementById('admRotList');
   const meta = document.getElementById('admRotMeta');
   if (!list) return;
-  list.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+  list.innerHTML = '<div class="rot-empty">Загрузка...</div>';
 
   const q      = document.getElementById('admRotQ')?.value.trim() || '';
-  const status = document.querySelector('.rb-stab.active')?.dataset.val || '';
+  const status = document.querySelector('.rot-stab.active')?.dataset.val || '';
   const params = new URLSearchParams();
   if (q)      params.set('q', q);
   if (status) params.set('status', status);
   params.set('per_page', '200');
 
   const j = await admApi('GET', '/api/rotations?' + params);
-  if (!j.ok) { list.innerHTML = '<div class="adm-empty">Ошибка</div>'; return; }
+  if (!j.ok) { list.innerHTML = '<div class="rot-empty">Ошибка</div>'; return; }
 
   const raw   = j.data ?? j;
   const items = Array.isArray(raw) ? raw
@@ -2515,9 +2535,9 @@ async function admLoadRotationsPanel() {
   _admRotUpdateMultiBar();
   if (meta) meta.textContent = items.length;
 
-  if (!items.length) { list.innerHTML = '<div class="rb-empty-hint">Пусто</div>'; return; }
+  if (!items.length) { list.innerHTML = '<div class="rot-empty">Пусто</div>'; return; }
 
-  const indCls = s => {
+  const dotColor = s => {
     const sl = (s||'').toLowerCase();
     if (sl.includes('active'))  return '#10b981';
     if (sl.includes('pause'))   return '#f59e0b';
@@ -2529,144 +2549,143 @@ async function admLoadRotationsPanel() {
     const id   = String(it.id ?? it.rotation_id ?? '');
     const name = it.name ?? it.title ?? `#${id}`;
     const st   = it.status ?? it.state ?? '';
-    return `<div class="rb-rot-card" data-id="${h(id)}"
-      onclick="admRotSelectRot(event,'${h(id)}','${h(name.replace(/'/g,'\\\''))}')">
-      <div class="rb-rot-indicator" style="background:${indCls(st)}"></div>
-      <div class="rb-rot-info">
-        <div class="rb-rot-name" title="${h(name)}">${h(name)}</div>
-        <div class="rb-rot-id">#${h(id)}</div>
+    return `<div class="rot-rot-card" data-id="${h(id)}"
+      onclick="admRotSelectRot(event,'${h(id)}','${h(name.replace(/'/g,"\'"))}')">
+      <div class="rot-rot-dot" style="background:${dotColor(st)}"></div>
+      <div style="flex:1;overflow:hidden">
+        <div class="rot-rot-name" title="${h(name)}">${h(name)}</div>
+        <div class="rot-rot-id">#${h(id)}</div>
       </div>
-      <input type="checkbox" class="rb-rot-cb" data-id="${h(id)}"
-        onclick="event.stopPropagation()" onchange="admRotToggleCb(this)">
     </div>`;
   }).join('');
 }
 
+let _rotGeoPreset = 'today';
+
 async function admRotSelectRot(e, id, name) {
-  document.querySelectorAll('.rb-rot-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.rot-rot-card').forEach(c => c.classList.remove('active'));
   e.currentTarget.classList.add('active');
   _admRot.currentRotId = id;
   _admRot.currentGeo   = null;
 
-  const geoTitle = document.getElementById('admRotGeoTitle');
-  const geoCount = document.getElementById('admRotGeoCount');
-  const geoList  = document.getElementById('admRotGeoList');
-  if (geoTitle) geoTitle.textContent = h(name);
-  if (geoCount) geoCount.textContent = '…';
-  if (geoList)  geoList.innerHTML    = '<div class="adm-empty"><div class="spinner"></div></div>';
+  document.getElementById('admRotGeoTitle').textContent = name;
+  document.getElementById('admRotGeoCount').textContent = '';
+  document.getElementById('admRotDetailTitle').textContent = '—';
+  document.getElementById('admRotDetailBody').innerHTML = '<div class="rot-empty">← выберите GEO</div>';
+  document.getElementById('admRotDetailTabs').style.display = 'none';
+  document.getElementById('admRotGeoList').innerHTML = '<div class="rot-empty">Загрузка...</div>';
+
+  const geoActions = document.getElementById('admRotGeoActions');
+  if (geoActions) geoActions.style.display = '';
+  const bulkBtn = document.getElementById('admRotBulkBtn');
+  if (bulkBtn) bulkBtn.onclick = () => admOpenBulkAdd(id, name);
+
+  const presetBar = document.getElementById('admRotPresetBar');
+  if (presetBar) presetBar.style.display = '';
 
   const j = await admApi('GET', `/api/rotation/${id}/active_offers_grouped`);
-  if (!j.ok) { if (geoList) geoList.innerHTML = '<div class="rb-empty-hint">Ошибка</div>'; return; }
-
-  _admRot.geoItems = j.groups || [];
-  if (geoCount) geoCount.textContent = _admRot.geoItems.length;
-
-  if (!_admRot.geoItems.length) {
-    if (geoList) geoList.innerHTML = '<div class="rb-empty-hint">Нет активных офферов</div>';
+  if (!j.ok) {
+    document.getElementById('admRotGeoList').innerHTML = '<div class="rot-empty">Ошибка</div>';
     return;
   }
 
+  _admRot.geoItems = j.groups || [];
+  document.getElementById('admRotGeoCount').textContent = _admRot.geoItems.length;
+
+  if (!_admRot.geoItems.length) {
+    document.getElementById('admRotGeoList').innerHTML = '<div class="rot-empty">Нет активных офферов</div>';
+    return;
+  }
+
+  // Load FD for current preset
+  await admRotRenderGeoList();
+}
+
+async function admRotRenderGeoList() {
+  const geoList = document.getElementById('admRotGeoList');
+  if (!geoList || !_admRot.geoItems.length) return;
+
+  // Fetch analytics to get FD per GEO
+  const rotId = _admRot.currentRotId;
+  let fdMap = {}; // geoTitle -> fd count
+
+  try {
+    const j = await admApi('GET', `/api/rotation/${rotId}/analytics?preset=${_rotGeoPreset}`);
+    if (j.ok && j.groups) {
+      for (const g of j.groups) {
+        fdMap[g.geo] = g.items.reduce((s, it) => s + (it.fd || 0), 0);
+      }
+    }
+  } catch(e) {}
+
   geoList.innerHTML = _admRot.geoItems.map(g => {
+    const fd  = fdMap[g.geoTitle] || 0;
     const cnt = g.items?.length || 0;
-    const tw  = (g.totalWeight||0).toFixed(0);
-    return `<div class="rb-geo-item" onclick="admRotOpenGeoModal('${h(g.geoTitle||'')}')">
-      <span class="rb-geo-name">${h(g.geoTitle||'—')}</span>
-      <span class="rb-geo-cnt">${cnt} офф · ∑${tw}</span>
+    return `<div class="rot-geo-item" onclick="admRotSelectGeo('${h(g.geoTitle||'')}')">
+      <span class="rot-geo-name">${h(g.geoTitle||'—')}</span>
+      ${fd > 0 ? `<span class="rot-geo-fd">${fd} FD</span>` : `<span class="rot-geo-cnt">${cnt} офф</span>`}
     </div>`;
   }).join('');
 }
 
-function admRotOpenGeoModal(geo) {
-  document.querySelectorAll('.rb-geo-item').forEach(g => g.classList.remove('active'));
-  document.querySelector(`.rb-geo-item[onclick*="'${geo}'"]`)?.classList.add('active');
-  _admRot.currentGeo = geo;
-  _admRot.currentTab = 'offers';
-
-  // Default dates: last 7 days (excluding today)
-  const today = new Date();
-  const toD   = new Date(today); toD.setDate(today.getDate() - 1);
-  const fromD = new Date(toD);   fromD.setDate(toD.getDate() - 6);
-  const fmt   = d => d.toISOString().slice(0,10);
-
-  const overlay = document.createElement('div');
-  overlay.id = 'rbModal';
-  overlay.className = 'rb-modal-overlay';
-  overlay.innerHTML = `
-    <div class="rb-modal">
-      <div class="rb-modal-head">
-        <div class="rb-modal-title">${h(geo)}</div>
-        <div class="rb-modal-tabs">
-          <button class="rb-modal-tab active" onclick="admRotModalTab(this,'offers')">Офферы</button>
-          <button class="rb-modal-tab" onclick="admRotModalTab(this,'analytics')">Аналитика</button>
-        </div>
-        <button class="rb-modal-close" onclick="document.getElementById('rbModal').remove()">✕</button>
-      </div>
-      <div id="rbModalDateBar" style="display:none" class="rb-geo-datebar">
-        <label>С</label>
-        <input type="date" id="rbDateFrom" class="rb-geo-dateinp" value="${fmt(fromD)}">
-        <label>По</label>
-        <input type="date" id="rbDateTo" class="rb-geo-dateinp" value="${fmt(toD)}">
-        <button class="rb-geo-apply" onclick="admRotLoadModalAnalytics('${h(geo)}')">Показать</button>
-        <span id="rbPresetBar" style="display:flex;gap:4px;margin-left:4px">
-          ${[['today','Сегодня'],['yesterday','Вчера'],['7','7д'],['14','14д'],['30','30д']].map(([v,l]) =>
-            `<button class="rb-geo-apply" style="padding:5px 10px;font-size:11px" onclick="admRotSetPreset('${v}','${h(geo)}')">${l}</button>`
-          ).join('')}
-        </span>
-      </div>
-      <div class="rb-modal-body" id="rbModalBody">
-        <div class="adm-empty"><div class="spinner"></div></div>
-      </div>
-    </div>`;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-  (document.getElementById('adminOverlay') || document.body).appendChild(overlay);
-
-  admRotLoadModalOffers(geo);
+function admRotSetGeoPreset(btn) {
+  document.querySelectorAll('.rot-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _rotGeoPreset = btn.dataset.preset;
+  admRotRenderGeoList();
 }
 
-function admRotSetPreset(preset, geo) {
-  const today = new Date();
-  const toD   = new Date(today); toD.setDate(today.getDate() - 1);
-  const fmt   = d => d.toISOString().slice(0,10);
-  let fromD;
-  if (preset === 'today')     { fromD = new Date(today); }
-  else if (preset === 'yesterday') { fromD = new Date(toD); }
-  else { fromD = new Date(toD); fromD.setDate(toD.getDate() - (parseInt(preset)-1)); }
-
-  const fi = document.getElementById('rbDateFrom');
-  const ti = document.getElementById('rbDateTo');
-  if (fi) fi.value = fmt(fromD);
-  if (ti) ti.value = preset === 'today' ? fmt(today) : fmt(toD);
-  admRotLoadModalAnalytics(geo);
+function admRotSetStatus(btn) {
+  document.querySelectorAll('.rot-stab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  admLoadRotationsPanel();
 }
 
-function admRotModalTab(btn, tab) {
-  document.querySelectorAll('.rb-modal-tab').forEach(b => b.classList.remove('active'));
+async function admRotSelectGeo(geo) {
+  document.querySelectorAll('.rot-geo-item').forEach(g => g.classList.remove('active'));
+  const el = [...document.querySelectorAll('.rot-geo-item')].find(e => e.textContent.includes(geo));
+  if (el) el.classList.add('active');
+
+  _admRot.currentGeo   = geo;
+  _admRot.currentTab   = 'offers';
+
+  document.getElementById('admRotDetailTitle').textContent = geo;
+  document.getElementById('admRotDetailTabs').style.display = '';
+  document.querySelectorAll('.rot-dtab').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('admRotDetailBody').innerHTML = '<div class="rot-empty">Загрузка...</div>';
+
+  admRotLoadDetailOffers(geo);
+}
+
+function admRotDetailSwitch(btn, tab) {
+  document.querySelectorAll('.rot-dtab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   _admRot.currentTab = tab;
-  const datebar = document.getElementById('rbModalDateBar');
-  if (datebar) datebar.style.display = tab === 'analytics' ? 'flex' : 'none';
-  if (tab === 'offers')    admRotLoadModalOffers(_admRot.currentGeo);
-  if (tab === 'analytics') admRotLoadModalAnalytics(_admRot.currentGeo);
+  if (tab === 'offers')    admRotLoadDetailOffers(_admRot.currentGeo);
+  if (tab === 'analytics') admRotLoadDetailAnalytics(_admRot.currentGeo);
 }
 
-function admRotLoadModalOffers(geo) {
-  const body = document.getElementById('rbModalBody');
+function admRotLoadDetailOffers(geo) {
+  const body = document.getElementById('admRotDetailBody');
   if (!body) return;
   const g = _admRot.geoItems.find(g => g.geoTitle === geo);
-  if (!g?.items?.length) { body.innerHTML = '<div class="rb-empty-hint" style="padding:24px">Нет офферов</div>'; return; }
+  if (!g?.items?.length) { body.innerHTML = '<div class="rot-empty">Нет офферов</div>'; return; }
 
-  body.innerHTML = `<table class="rb-offers-table">
+  body.innerHTML = `<table class="rot-offers-table">
     <thead><tr>
       <th>Оффер</th>
       <th>Path</th>
-      <th style="text-align:right">Вес</th>
+      <th>Вес</th>
     </tr></thead>
     <tbody>
       ${g.items.map((it, i) => {
         const wid = `rmo_${i}`;
         return `<tr>
-          <td title="${h(it.offerName||'')}" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(it.offerName||'—')}</td>
-          <td style="font-size:11px;color:var(--text3)">${h(it.pathName||'—')}</td>
+          <td>
+            <div class="rot-off-name" title="${h(it.offerName||'')}">${h(it.offerName||'—')}</div>
+            <div class="rot-off-net">${h(it.affiliateNetworkName||'')}</div>
+          </td>
+          <td style="color:var(--text3);font-size:12px">${h(it.pathName||'—')}</td>
           <td>
             <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
               <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
@@ -2679,49 +2698,80 @@ function admRotLoadModalOffers(geo) {
   </table>`;
 }
 
-async function admRotLoadModalAnalytics(geo) {
-  const body = document.getElementById('rbModalBody');
+async function admRotLoadDetailAnalytics(geo) {
+  const body = document.getElementById('admRotDetailBody');
   if (!body) return;
-  body.innerHTML = '<div class="adm-empty"><div class="spinner"></div></div>';
+  body.innerHTML = '<div class="rot-empty">Загрузка...</div>';
 
-  const dateFrom = document.getElementById('rbDateFrom')?.value;
-  const dateTo   = document.getElementById('rbDateTo')?.value;
-  const geoQuery = (dateFrom && dateTo)
-    ? `date_from=${dateFrom}&date_to=${dateTo}`
-    : `preset=last_7_days`;
-  const j = await admApi('GET', `/api/rotation/${_admRot.currentRotId}/analytics_geo?geo=${encodeURIComponent(geo)}&${geoQuery}`);
-  if (!j.ok || !j.items?.length) { body.innerHTML = '<div class="rb-empty-hint" style="padding:24px">Нет данных</div>'; return; }
+  const j = await admApi('GET', `/api/rotation/${_admRot.currentRotId}/analytics_geo?geo=${encodeURIComponent(geo)}&preset=${_rotGeoPreset}`);
+  if (!j.ok || !j.items?.length) {
+    body.innerHTML = '<div class="rot-empty">Нет данных</div>';
+    return;
+  }
 
   const items = j.items;
-  body.innerHTML = `<table class="rb-offers-table">
-    <thead><tr>
-      <th>Оффер</th>
-      <th style="text-align:right">Uniq</th>
-      <th style="text-align:right">CR%</th>
-      <th style="text-align:right">DPU</th>
-      <th style="text-align:right">Вес</th>
-    </tr></thead>
-    <tbody>
-      ${items.map((it, i) => {
-        const dpuClr = (it.dpu||0)>0.3?'#10b981':(it.dpu||0)>0.1?'#f59e0b':'var(--text3)';
-        const wid = `rma_${i}`;
-        return `<tr>
-          <td title="${h(it.offerName||'')}" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px">${h(it.offerName||'—')}</td>
-          <td style="text-align:right;font-family:monospace;font-size:13px">${(it.uniq||0).toLocaleString()}</td>
-          <td style="text-align:right;font-family:monospace;font-size:13px">${it.cr!=null?it.cr+'%':'—'}</td>
-          <td style="text-align:right;font-family:monospace;font-size:13px;color:${dpuClr}">${it.dpu?'$'+it.dpu.toFixed(2):'—'}</td>
-          <td>
-            <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
-              <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
-              <button class="rb-w-btn" style="opacity:1" onclick="admRotEditWeight('${wid}','${h(String(it.offerId))}','${h(_admRot.currentRotId)}')" title="Изменить вес">✎</button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
+  const totalUniq = items.reduce((s,i) => s+(i.uniq||0), 0);
+  const totalFd   = items.reduce((s,i) => s+(i.fd||0), 0);
+  const topDpu    = Math.max(...items.map(i => i.dpu||0));
+
+  const recClass = r => {
+    if (r === 'держать')        return 'rot-rec rot-rec-ok';
+    if (r === 'увеличить вес')  return 'rot-rec rot-rec-up';
+    if (r === 'снизить вес')    return 'rot-rec rot-rec-dn';
+    if (r === 'стоп')           return 'rot-rec rot-rec-stop';
+    return 'rot-rec rot-rec-nd';
+  };
+
+  const dpuColor = d => d >= topDpu*0.7 ? '#10b981' : d >= topDpu*0.3 ? '#f59e0b' : 'var(--text3)';
+
+  body.innerHTML = `
+    <div class="rot-stats-row">
+      <div class="rot-stat"><div class="rot-stat-label">Уники</div><div class="rot-stat-val blue">${totalUniq.toLocaleString()}</div></div>
+      <div class="rot-stat"><div class="rot-stat-label">FD</div><div class="rot-stat-val green">${totalFd}</div></div>
+      <div class="rot-stat"><div class="rot-stat-label">DPU топ</div><div class="rot-stat-val amber">$${topDpu.toFixed(2)}</div></div>
+      <div class="rot-stat"><div class="rot-stat-label">Офферов</div><div class="rot-stat-val">${items.length}</div></div>
+    </div>
+    <table class="rot-offers-table">
+      <thead><tr>
+        <th>Оффер</th>
+        <th>Уники</th>
+        <th>FD</th>
+        <th>DPU</th>
+        <th>Вес</th>
+        <th>Рек.</th>
+      </tr></thead>
+      <tbody>
+        ${items.map((it, i) => {
+          const wid = `rma_${i}`;
+          return `<tr>
+            <td>
+              <div class="rot-off-name" title="${h(it.offerName||'')}">${h(it.offerName||'—')}</div>
+            </td>
+            <td style="color:#378ADD;font-weight:500">${(it.uniq||0).toLocaleString()}</td>
+            <td style="color:#10b981;font-weight:500">${it.fd||0}</td>
+            <td style="color:${dpuColor(it.dpu||0)};font-weight:500">${it.dpu?'$'+it.dpu.toFixed(2):'—'}</td>
+            <td>
+              <div class="rb-w-cell" id="${wid}-cell" style="justify-content:flex-end">
+                <span class="rb-w-val" id="${wid}-val">${it.weight}</span>
+                <button class="rb-w-btn" style="opacity:1" onclick="admRotEditWeight('${wid}','${h(String(it.offerId))}','${h(_admRot.currentRotId)}')" title="✎">✎</button>
+              </div>
+            </td>
+            <td><span class="${recClass(it.rec)}">${it.rec||'—'}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
 }
 
+// Legacy compat
+function admRotOpenGeoModal(geo) { admRotSelectGeo(geo); }
+function admRotLoadModalOffers(geo) { admRotLoadDetailOffers(geo); }
+async function admRotLoadModalAnalytics(geo) { await admRotLoadDetailAnalytics(geo); }
+function admRotModalTab(btn, tab) { admRotDetailSwitch(btn, tab); }
+function admRotSetPreset(preset, geo) {
+  _rotGeoPreset = preset === '7' ? 'last_7_days' : preset === '14' ? 'last_14_days' : preset === '30' ? 'last_30_days' : preset;
+  if (geo) admRotLoadDetailAnalytics(geo);
+}
 function admRotDetailTab(btn, tab) {}  // kept for compat
 
 function admRotSetMaPreset(preset) {
@@ -3398,3 +3448,268 @@ async function admLoadHolds() {
 function admInvLoadingHtml() {
   return '<div class="adm-empty"><div class="spinner"></div> Загрузка…</div>';
 }
+
+// Apply theme immediately on load (before showAdmin)
+(function() {
+  if (localStorage.getItem('admTheme') === 'dark') {
+    const ov = document.getElementById('adminOverlay');
+    if (ov) ov.classList.add('dark-theme');
+  }
+})();
+
+// ══════════════════════════════════════════════════════════
+// BULK ADD OFFER TO GEOs
+// ══════════════════════════════════════════════════════════
+
+// ISO country list for GEO picker
+const _ISO_COUNTRIES = [
+  ["AF","Afghanistan"],["AL","Albania"],["DZ","Algeria"],["AR","Argentina"],["AM","Armenia"],
+  ["AU","Australia"],["AT","Austria"],["AZ","Azerbaijan"],["BH","Bahrain"],["BD","Bangladesh"],
+  ["BY","Belarus"],["BE","Belgium"],["BJ","Benin"],["BO","Bolivia"],["BA","Bosnia"],
+  ["BW","Botswana"],["BR","Brazil"],["BF","Burkina Faso"],["KH","Cambodia"],["CM","Cameroon"],
+  ["CA","Canada"],["CL","Chile"],["CN","China"],["CO","Colombia"],["CD","Congo DR"],
+  ["CG","Congo"],["CR","Costa Rica"],["HR","Croatia"],["CY","Cyprus"],["CZ","Czechia"],
+  ["DK","Denmark"],["DO","Dominican Rep"],["EC","Ecuador"],["EG","Egypt"],["SV","El Salvador"],
+  ["EE","Estonia"],["ET","Ethiopia"],["FI","Finland"],["FR","France"],["GE","Georgia"],
+  ["DE","Germany"],["GH","Ghana"],["GR","Greece"],["GT","Guatemala"],["HN","Honduras"],
+  ["HK","Hong Kong"],["HU","Hungary"],["IN","India"],["ID","Indonesia"],["IQ","Iraq"],
+  ["IE","Ireland"],["IL","Israel"],["IT","Italy"],["CI","Ivory Coast"],["JM","Jamaica"],
+  ["JP","Japan"],["JO","Jordan"],["KZ","Kazakhstan"],["KE","Kenya"],["KW","Kuwait"],
+  ["KG","Kyrgyzstan"],["LV","Latvia"],["LB","Lebanon"],["LT","Lithuania"],["LU","Luxembourg"],
+  ["MG","Madagascar"],["MW","Malawi"],["MY","Malaysia"],["ML","Mali"],["MT","Malta"],
+  ["MX","Mexico"],["MD","Moldova"],["MA","Morocco"],["MZ","Mozambique"],["MM","Myanmar"],
+  ["NP","Nepal"],["NL","Netherlands"],["NZ","New Zealand"],["NI","Nicaragua"],["NE","Niger"],
+  ["NG","Nigeria"],["NO","Norway"],["OM","Oman"],["PK","Pakistan"],["PA","Panama"],
+  ["PE","Peru"],["PH","Philippines"],["PL","Poland"],["PT","Portugal"],["QA","Qatar"],
+  ["RO","Romania"],["RW","Rwanda"],["SA","Saudi Arabia"],["SN","Senegal"],["RS","Serbia"],
+  ["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ZA","South Africa"],["KR","South Korea"],
+  ["ES","Spain"],["LK","Sri Lanka"],["SE","Sweden"],["CH","Switzerland"],["TW","Taiwan"],
+  ["TZ","Tanzania"],["TH","Thailand"],["TG","Togo"],["TN","Tunisia"],["TR","Turkey"],
+  ["UG","Uganda"],["UA","Ukraine"],["AE","UAE"],["GB","United Kingdom"],["US","United States"],
+  ["UZ","Uzbekistan"],["VE","Venezuela"],["VN","Vietnam"],["ZM","Zambia"],["ZW","Zimbabwe"]
+];
+
+let _bulkRotId = null;
+let _bulkExistingGeos = [];
+let _bulkSelectedGeos = new Set();
+
+function geoFlag(code) {
+  if (!code || code.length !== 2) return '';
+  const a = code.toUpperCase().charCodeAt(0)-65, b = code.toUpperCase().charCodeAt(1)-65;
+  if (a<0||a>25||b<0||b>25) return '';
+  return String.fromCodePoint(0x1F1E6+a)+String.fromCodePoint(0x1F1E6+b);
+}
+
+async function admOpenBulkAdd(rotId, rotName) {
+  _bulkRotId = rotId;
+  _bulkSelectedGeos = new Set();
+
+  const m = document.getElementById('admModal');
+  if (!m) return;
+  m.style.display = 'flex';
+  document.getElementById('admModalTitle').textContent = `Добавить оффер в GEO — ${rotName}`;
+  document.getElementById('admModalBody').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3)">Загрузка GEO ротации...</div>';
+
+  // Fetch existing GEOs
+  const j = await admApi('GET', `/api/rotation/${rotId}/geo_list`);
+  _bulkExistingGeos = (j.ok ? j.existing_geos || [] : []).map(g => g.toLowerCase());
+
+  admRenderBulkModal();
+}
+
+function admRenderBulkModal() {
+  const existing = _bulkExistingGeos;
+
+  document.getElementById('admModalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:.75rem;color:var(--text3);display:block;margin-bottom:3px">ID оффера <span style="color:var(--red)">*</span></label>
+        <input class="adm-inp" id="bulkOfferId" placeholder="1234" oninput="bulkLookupOffer(this.value)">
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:var(--text3);display:block;margin-bottom:3px">Вес</label>
+        <input class="adm-inp" id="bulkWeight" type="number" value="50">
+      </div>
+    </div>
+    <div id="bulkOfferHint" style="font-size:.75rem;color:var(--text3);margin-bottom:8px;min-height:16px"></div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:.75rem;color:var(--text3);display:block;margin-bottom:3px">Название Path</label>
+      <input class="adm-inp" id="bulkPathName" value="Path 1" style="font-size:.82rem">
+    </div>
+
+    <!-- Selected tags -->
+    <div style="margin-bottom:6px;font-size:.75rem;color:var(--text3)">Выбранные GEO:</div>
+    <div id="bulkSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;min-height:30px;margin-bottom:10px;padding:6px;background:var(--bg2);border:1px solid var(--border);border-radius:7px"></div>
+
+    <!-- Search -->
+    <input class="adm-inp" id="bulkGeoSearch" placeholder="🔍 Поиск страны..." oninput="admBulkFilterGeo(this.value)" style="margin-bottom:6px">
+
+    <!-- Geo list -->
+    <div id="bulkGeoList" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:220px;overflow-y:auto;font-size:.8rem"></div>
+
+    <!-- Preview -->
+    <div id="bulkPreview" style="margin-top:10px;display:none;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:.78rem;max-height:120px;overflow-y:auto"></div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="btn-secondary" onclick="admModalClose()">Отмена</button>
+      <button class="btn" onclick="admBulkSubmit()">⚡ Добавить во все GEO</button>
+    </div>`;
+
+  admBulkRenderGeoList('');
+}
+
+function admBulkRenderGeoList(q) {
+  const list = document.getElementById('bulkGeoList');
+  if (!list) return;
+  const lq = q.toLowerCase();
+  const filtered = _ISO_COUNTRIES.filter(([code, name]) =>
+    !lq || code.toLowerCase().includes(lq) || name.toLowerCase().includes(lq)
+  );
+
+  list.innerHTML = filtered.map(([code, name]) => {
+    const geoTitle = `${name} ${code}`;
+    const isExisting = _bulkExistingGeos.some(g => g.startsWith(name.toLowerCase()) || g.endsWith(code.toLowerCase()));
+    const isSelected = _bulkSelectedGeos.has(geoTitle);
+    return `<div class="bulk-geo-item ${isSelected?'bulk-geo-selected':''}"
+      onclick="admBulkToggleGeo('${geoTitle.replace(/'/g,"\\'")}','${code}','${name.replace(/'/g,"\\'")}')">
+      <input type="checkbox" ${isSelected?'checked':''} style="accent-color:#6366f1;pointer-events:none">
+      <span>${geoFlag(code)}</span>
+      <span style="flex:1">${h(name)}</span>
+      <span style="font-family:monospace;font-size:.72rem;padding:1px 5px;border-radius:3px;background:rgba(99,102,241,.08);color:#818cf8">${code}</span>
+      ${isExisting
+        ? '<span style="font-size:.68rem;padding:1px 5px;background:rgba(34,197,94,.1);color:var(--green);border-radius:3px">есть</span>'
+        : '<span style="font-size:.68rem;padding:1px 5px;color:var(--text3);border-radius:3px">новый</span>'}
+    </div>`;
+  }).join('');
+}
+
+function admBulkToggleGeo(geoTitle, code, name) {
+  if (_bulkSelectedGeos.has(geoTitle)) {
+    _bulkSelectedGeos.delete(geoTitle);
+  } else {
+    _bulkSelectedGeos.add(geoTitle);
+  }
+  admBulkRenderTags();
+  admBulkRenderGeoList(document.getElementById('bulkGeoSearch')?.value || '');
+  admBulkRenderPreview();
+}
+
+function admBulkRenderTags() {
+  const el = document.getElementById('bulkSelectedTags');
+  if (!el) return;
+  if (!_bulkSelectedGeos.size) {
+    el.innerHTML = '<span style="color:var(--text3);font-size:.75rem">Ничего не выбрано</span>';
+    return;
+  }
+  el.innerHTML = [..._bulkSelectedGeos].map(g => {
+    const parts = g.rsplit ? g.rsplit(' ',1) : g.split(' ');
+    const code = parts[parts.length-1];
+    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:rgba(99,102,241,.1);border:0.5px solid rgba(99,102,241,.3);border-radius:20px;font-size:.72rem;color:#a5b4fc">
+      ${geoFlag(code)} ${h(code)}
+      <span onclick="admBulkToggleGeo('${g.replace(/'/g,"\\'")}','','')" style="cursor:pointer;opacity:.7;margin-left:2px">✕</span>
+    </span>`;
+  }).join('');
+}
+
+function admBulkRenderPreview() {
+  const el = document.getElementById('bulkPreview');
+  if (!el) return;
+  if (!_bulkSelectedGeos.size) { el.style.display='none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = [..._bulkSelectedGeos].map(g => {
+    const isExisting = _bulkExistingGeos.some(ex => ex.includes(g.split(' ')[0].toLowerCase()));
+    return `<div style="padding:2px 0;color:var(--text2)">
+      ${isExisting
+        ? `✏️ <b>${h(g)}</b> — добавить в существующий Rule`
+        : `✨ <b>${h(g)}</b> — <span style="color:#f59e0b">создать новый Rule</span>`}
+    </div>`;
+  }).join('');
+}
+
+function admBulkFilterGeo(q) {
+  admBulkRenderGeoList(q);
+}
+
+let _bulkLookupTimer = null;
+async function bulkLookupOffer(val) {
+  const hint = document.getElementById('bulkOfferHint');
+  if (!hint || val.length < 3) { if(hint) hint.textContent=''; return; }
+  clearTimeout(_bulkLookupTimer);
+  _bulkLookupTimer = setTimeout(async () => {
+    const cache = await _getOffersCache();
+    for (const rot of cache) {
+      for (const geo of (rot.geos||[])) {
+        const off = (geo.offers||[]).find(o => String(o.offer_id) === String(val));
+        if (off) { hint.textContent = `📋 ${off.offer_name}`; return; }
+      }
+    }
+    hint.textContent = '';
+  }, 400);
+}
+
+async function admBulkSubmit() {
+  const offerId = document.getElementById('bulkOfferId')?.value.trim();
+  const weight  = parseInt(document.getElementById('bulkWeight')?.value) || 50;
+  const pathName = document.getElementById('bulkPathName')?.value.trim() || 'Path 1';
+
+  if (!offerId) { alert('Укажите ID оффера'); return; }
+  if (!_bulkSelectedGeos.size) { alert('Выберите хотя бы одно GEO'); return; }
+
+  // Get offer name from cache
+  let offerName = '';
+  const cache = await _getOffersCache();
+  outer: for (const rot of cache) {
+    for (const geo of (rot.geos||[])) {
+      const off = (geo.offers||[]).find(o => String(o.offer_id) === String(offerId));
+      if (off) { offerName = off.offer_name; break outer; }
+    }
+  }
+
+  const btn = document.querySelector('#admModalBody .btn:last-child');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Добавляю...'; }
+
+  const j = await admApi('POST', `/api/rotation/${_bulkRotId}/bulk_add_offer`, {
+    offer_id:   offerId,
+    offer_name: offerName,
+    weight,
+    path_name:  pathName,
+    geos: [..._bulkSelectedGeos],
+  });
+
+  if (!j.ok) { alert('Ошибка: ' + (j.error||'')); if(btn){btn.disabled=false;btn.textContent='⚡ Добавить во все GEO';} return; }
+
+  const results = j.results || [];
+  const added   = results.filter(r => r.action === 'added').length;
+  const created = results.filter(r => r.action === 'created').length;
+  const exists  = results.filter(r => r.action === 'exists').length;
+  const errors  = results.filter(r => r.action === 'error').length;
+
+  document.getElementById('admModalBody').innerHTML = `
+    <div style="text-align:center;padding:10px 0 16px">
+      <div style="font-size:2rem;margin-bottom:8px">✅</div>
+      <div style="font-size:.9rem;font-weight:500;color:var(--text);margin-bottom:4px">Готово!</div>
+      <div style="font-size:.78rem;color:var(--text3)">
+        ${added ? `Добавлен в ${added} GEO · ` : ''}${created ? `Создан в ${created} новых GEO · ` : ''}${exists ? `${exists} уже было · ` : ''}${errors ? `${errors} ошибок` : ''}
+      </div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:.78rem;max-height:200px;overflow-y:auto">
+      ${results.map(r => `
+        <div style="padding:5px 12px;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between">
+          <span>${h(r.geo)}</span>
+          <span style="color:${r.action==='added'?'var(--green)':r.action==='created'?'#f59e0b':r.action==='exists'?'var(--text3)':'var(--red)'}">${h(r.message)}</span>
+        </div>`).join('')}
+    </div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn" onclick="admModalClose()">Закрыть</button>
+    </div>`;
+}
+
+// Add CSS for bulk geo list
+const _bulkStyle = document.createElement('style');
+_bulkStyle.textContent = `
+.bulk-geo-item { display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s; }
+.bulk-geo-item:last-child { border-bottom:none; }
+.bulk-geo-item:hover { background:var(--bg2); }
+.bulk-geo-selected { background:rgba(99,102,241,.06); }
+`;
+document.head.appendChild(_bulkStyle);

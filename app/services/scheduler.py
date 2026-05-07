@@ -286,7 +286,7 @@ def _do_tracking_fd():
 
     # ── Шаг 2: Обновляем статусы по весам ротаций ────────────────────────────
     from app.services.binom import _safe_json as _sj
-    TRACKED_ROTATIONS = ["121", "118", "61", "117", "120", "124"]
+    TRACKED_ROTATIONS = ["121", "117", "118", "120", "124", "127", "61", "133", "134", "135", "137"]
     try:
         offer_weights = {}
         for rot_id in TRACKED_ROTATIONS:
